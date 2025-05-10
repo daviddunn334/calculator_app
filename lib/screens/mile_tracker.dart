@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
-import '../theme/app_theme.dart';
+import 'package:table_calendar/table_calendar.dart';
+import '../models/mile_entry.dart';
+import '../services/mile_tracker_service.dart';
 
 class MileTracker extends StatefulWidget {
   const MileTracker({super.key});
@@ -10,328 +11,223 @@ class MileTracker extends StatefulWidget {
 }
 
 class _MileTrackerState extends State<MileTracker> {
-  final _formKey = GlobalKey<FormState>();
+  final MileTrackerService _service = MileTrackerService();
   final _milesController = TextEditingController();
-  final _searchController = TextEditingController();
+  final _jobSiteController = TextEditingController();
+  final _purposeController = TextEditingController();
   
-  bool _isLoading = true;
-  List<Map<String, dynamic>> _mileEntries = [];
-  List<Map<String, dynamic>> _filteredEntries = [];
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
+  List<MileEntry> _entries = [];
 
   @override
   void initState() {
     super.initState();
-    _loadMockData();
+    _loadEntries();
   }
 
   @override
   void dispose() {
     _milesController.dispose();
-    _searchController.dispose();
+    _jobSiteController.dispose();
+    _purposeController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadMockData() async {
-    // Simulate loading delay
-    await Future.delayed(const Duration(seconds: 1));
+  Future<void> _loadEntries() async {
+    try {
+      final entries = await _service.getMileEntries();
+      setState(() {
+        _entries = entries;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading entries: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _addOrUpdateEntry(DateTime date) async {
+    final existingEntry = await _service.getMileEntryForDate(date);
     
-    setState(() {
-      _mileEntries = [
-        {
-          'id': const Uuid().v4(),
-          'date': DateTime.now().subtract(const Duration(days: 1)),
-          'miles': 45.5,
-          'job_site': 'Downtown Refinery',
-          'purpose': 'Routine Inspection',
-        },
-        {
-          'id': const Uuid().v4(),
-          'date': DateTime.now().subtract(const Duration(days: 2)),
-          'miles': 32.0,
-          'job_site': 'North Plant',
-          'purpose': 'Emergency Call',
-        },
-        {
-          'id': const Uuid().v4(),
-          'date': DateTime.now().subtract(const Duration(days: 3)),
-          'miles': 28.5,
-          'job_site': 'South Facility',
-          'purpose': 'Scheduled Maintenance',
-        },
-      ];
-      _filteredEntries = List.from(_mileEntries);
-      _isLoading = false;
-    });
-  }
-
-  void _filterEntries(String query) {
-    setState(() {
-      _filteredEntries = _mileEntries.where((entry) {
-        final jobSite = entry['job_site'].toString().toLowerCase();
-        final purpose = entry['purpose'].toString().toLowerCase();
-        final searchLower = query.toLowerCase();
-
-        return jobSite.contains(searchLower) ||
-            purpose.contains(searchLower);
-      }).toList();
-    });
-  }
-
-  double _calculateTotalMiles() {
-    return _mileEntries.fold(0, (sum, entry) => sum + (entry['miles'] as double));
-  }
-
-  double _calculateLast7DaysMiles() {
-    final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
-    return _mileEntries
-        .where((entry) => (entry['date'] as DateTime).isAfter(sevenDaysAgo))
-        .fold(0, (sum, entry) => sum + (entry['miles'] as double));
-  }
-
-  double _calculateMonthlyMiles() {
-    final now = DateTime.now();
-    final firstDayOfMonth = DateTime(now.year, now.month, 1);
-    return _mileEntries
-        .where((entry) => (entry['date'] as DateTime).isAfter(firstDayOfMonth))
-        .fold(0, (sum, entry) => sum + (entry['miles'] as double));
-  }
-
-  void _addMileEntry() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final entry = {
-      'id': const Uuid().v4(),
-      'date': DateTime.now(),
-      'miles': double.parse(_milesController.text),
-      'job_site': 'Current Job Site', // These would be input fields in a real app
-      'purpose': 'Current Purpose',   // These would be input fields in a real app
-    };
-
-    setState(() {
-      _mileEntries.add(entry);
-      _filterEntries(_searchController.text);
+    if (existingEntry != null) {
+      _milesController.text = existingEntry.miles.toString();
+      _jobSiteController.text = existingEntry.jobSite;
+      _purposeController.text = existingEntry.purpose;
+    } else {
       _milesController.clear();
-    });
-  }
+      _jobSiteController.clear();
+      _purposeController.clear();
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient,
-        ),
-        child: SafeArea(
+    final result = await showDialog<MileEntry>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(existingEntry == null ? 'Add Mile Entry' : 'Update Mile Entry'),
+        content: SingleChildScrollView(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Mile Tracker',
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Track your driving miles for work',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
+              TextField(
+                controller: _milesController,
+                decoration: const InputDecoration(
+                  labelText: 'Miles',
+                  hintText: 'Enter miles driven',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _jobSiteController,
+                decoration: const InputDecoration(
+                  labelText: 'Job Site',
+                  hintText: 'Enter job site location',
                 ),
               ),
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1A1C2E),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      children: [
-                        // Stats Cards
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildStatCard(
-                                'Today',
-                                '${_mileEntries.isNotEmpty && _mileEntries.first['date'].day == DateTime.now().day ? _mileEntries.first['miles'] : 0.0}',
-                                Icons.today,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _buildStatCard(
-                                'Last 7 Days',
-                                _calculateLast7DaysMiles().toStringAsFixed(1),
-                                Icons.calendar_today,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildStatCard(
-                                'This Month',
-                                _calculateMonthlyMiles().toStringAsFixed(1),
-                                Icons.calendar_month,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _buildStatCard(
-                                'Total',
-                                _calculateTotalMiles().toStringAsFixed(1),
-                                Icons.speed,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        // Add Miles Form
-                        Card(
-                          child: Container(
-                            padding: const EdgeInsets.all(24.0),
-                            decoration: BoxDecoration(
-                              gradient: AppTheme.cardGradient,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Form(
-                              key: _formKey,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Add Miles',
-                                    style: Theme.of(context).textTheme.titleLarge,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  TextFormField(
-                                    controller: _milesController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Miles Driven',
-                                      prefixIcon: Icon(Icons.speed),
-                                    ),
-                                    keyboardType: TextInputType.number,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter miles driven';
-                                      }
-                                      if (double.tryParse(value) == null) {
-                                        return 'Please enter a valid number';
-                                      }
-                                      if (double.parse(value) <= 0) {
-                                        return 'Miles must be greater than 0';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  const SizedBox(height: 24),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: _addMileEntry,
-                                      child: const Text('Add Miles'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        // Search and List
-                        TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: 'Search by job site or purpose...',
-                            prefixIcon: const Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white.withOpacity(0.1),
-                          ),
-                          onChanged: _filterEntries,
-                        ),
-                        const SizedBox(height: 16),
-                        Expanded(
-                          child: _isLoading
-                              ? const Center(child: CircularProgressIndicator())
-                              : ListView.builder(
-                                  itemCount: _filteredEntries.length,
-                                  itemBuilder: (context, index) {
-                                    final entry = _filteredEntries[index];
-                                    return Card(
-                                      margin: const EdgeInsets.only(bottom: 16),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          gradient: AppTheme.cardGradient,
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        child: ListTile(
-                                          contentPadding: const EdgeInsets.all(16),
-                                          title: Text(
-                                            entry['job_site'],
-                                            style: Theme.of(context).textTheme.titleMedium,
-                                          ),
-                                          subtitle: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              const SizedBox(height: 8),
-                                              Text('Date: ${entry['date'].toString().split(' ')[0]}'),
-                                              Text('Miles: ${entry['miles']}'),
-                                              Text('Purpose: ${entry['purpose']}'),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _purposeController,
+                decoration: const InputDecoration(
+                  labelText: 'Purpose',
+                  hintText: 'Enter purpose of trip',
                 ),
+                maxLines: 3,
               ),
             ],
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (_milesController.text.isEmpty ||
+                  _jobSiteController.text.isEmpty ||
+                  _purposeController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill in all fields')),
+                );
+                return;
+              }
+
+              try {
+                final miles = double.parse(_milesController.text);
+                final entry = MileEntry(
+                  id: existingEntry?.id,
+                  userId: '', // This will be set by the service
+                  date: date,
+                  miles: miles,
+                  jobSite: _jobSiteController.text,
+                  purpose: _purposeController.text,
+                );
+
+                if (existingEntry == null) {
+                  await _service.addMileEntry(entry);
+                } else {
+                  await _service.updateMileEntry(entry);
+                }
+
+                if (mounted) {
+                  Navigator.pop(context, entry);
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            child: Text(existingEntry == null ? 'Add' : 'Update'),
+          ),
+        ],
       ),
     );
+
+    if (result != null) {
+      await _loadEntries();
+    }
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon) {
-    return Card(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: AppTheme.cardGradient,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleSmall,
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          TableCalendar(
+            firstDay: DateTime.utc(2020, 1, 1),
+            lastDay: DateTime.utc(2030, 12, 31),
+            focusedDay: _focusedDay,
+            calendarFormat: _calendarFormat,
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+              _addOrUpdateEntry(selectedDay);
+            },
+            onFormatChanged: (format) {
+              setState(() {
+                _calendarFormat = format;
+              });
+            },
+            onPageChanged: (focusedDay) {
+              _focusedDay = focusedDay;
+            },
+            calendarStyle: const CalendarStyle(
+              todayDecoration: BoxDecoration(
+                color: Colors.blue,
+                shape: BoxShape.circle,
+              ),
+              selectedDecoration: BoxDecoration(
+                color: Colors.deepPurple,
+                shape: BoxShape.circle,
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              '$value mi',
-              style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _entries.length,
+              itemBuilder: (context, index) {
+                final entry = _entries[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(
+                      '${entry.date.year}-${entry.date.month.toString().padLeft(2, '0')}-${entry.date.day.toString().padLeft(2, '0')}',
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Miles: ${entry.miles}'),
+                        Text('Job Site: ${entry.jobSite}'),
+                        Text('Purpose: ${entry.purpose}'),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () async {
+                        if (entry.id != null) {
+                          await _service.deleteMileEntry(entry.id!);
+                          await _loadEntries();
+                        }
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

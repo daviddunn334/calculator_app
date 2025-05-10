@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#f0f4f8" stroke="#e2e8f0" stroke-width="2"/>
+  
+  <!-- Logo Main Square -->
+  <rect x="55" y="55" width="90" height="90" rx="15" fill="#3b82f6"/>
+  
+  <!-- Abstract Calculator Elements -->
+  <!-- Display Screen -->
+  <rect x="65" y="65" width="70" height="20" rx="4" fill="#f8fafc"/>
+  
+  <!-- Calculator Buttons -->
+  <rect x="65" y="95" width="20" height="15" rx="3" fill="#f8fafc"/>
+  <rect x="90" y="95" width="20" height="15" rx="3" fill="#f8fafc"/>
+  <rect x="115" y="95" width="20" height="15" rx="3" fill="#f8fafc"/>
+  
+  <rect x="65" y="115" width="20" height="15" rx="3" fill="#f8fafc"/>
+  <rect x="90" y="115" width="20" height="15" rx="3" fill="#f8fafc"/>
+  <rect x="115" y="115" width="20" height="15" rx="3" fill="#f8fafc"/>
+  
+  <!-- NDT Wave Symbol -->
+  <path d="M72 78 Q80 70, 85 78 Q90 85, 95 78 Q100 70, 105 78 Q110 85, 115 78 Q120 70, 128 78" 
+        stroke="#3b82f6" stroke-width="2" fill="none"/>
+  
+  <!-- Beta Tag -->
+  <g transform="translate(140, 40) rotate(45)">
+    <rect x="-15" y="-10" width="30" height="20" rx="5" fill="#ef4444"/>
+    <text x="0" y="3" font-family="Arial, sans-serif" font-size="9" font-weight="bold" text-anchor="middle" fill="white">BETA</text>
+  </g>
+</svg> 
