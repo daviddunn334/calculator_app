@@ -152,30 +152,36 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                     ],
                     const SizedBox(height: AppTheme.paddingLarge),
                     if (_clockPosition != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              'Clock Position',
-                              style: AppTheme.titleLarge.copyWith(
-                                color: AppTheme.primaryBlue,
-                              ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryBlue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                             ),
-                            const SizedBox(height: AppTheme.paddingMedium),
-                            Text(
-                              _clockPosition!,
-                              style: AppTheme.headlineLarge.copyWith(
-                                color: AppTheme.primaryBlue,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Clock Position',
+                                  style: AppTheme.titleLarge.copyWith(color: AppTheme.primaryBlue),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: AppTheme.paddingMedium),
+                                Text(
+                                  _clockPosition!,
+                                  style: AppTheme.headlineLarge.copyWith(
+                                    color: AppTheme.primaryBlue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: AppTheme.paddingLarge),
                     ],

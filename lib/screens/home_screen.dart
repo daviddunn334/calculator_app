@@ -5,6 +5,8 @@ import '../calculators/time_clock_calculator.dart';
 import '../screens/mile_tracker.dart';
 import '../screens/company_directory.dart';
 import '../theme/app_theme.dart';
+import '../calculators/soc_eoc_calculator.dart';
+import '../calculators/dent_ovality_calculator.dart';
 // import '../widgets/app_logo.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -47,7 +49,7 @@ class HomeScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'NDT Calculator',
+                                'Integrity Tools',
                                 style: AppTheme.headlineLarge,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -132,18 +134,18 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: AppTheme.paddingMedium),
                   _buildCalculatorCard(
                     context,
-                    'Mile Tracker',
-                    Icons.directions_run_outlined,
-                    'Track and manage mileage',
+                    'SOC & EOC Calculator',
+                    Icons.straighten,
+                    'Calculate Start/End of Coating from ABS & ES',
                     () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => Scaffold(
                             appBar: AppBar(
-                              title: const Text('Mile Tracker'),
+                              title: const Text('SOC & EOC Calculator'),
                             ),
-                            body: const MileTracker(),
+                            body: const SocEocCalculator(),
                           ),
                         ),
                       );
@@ -152,23 +154,63 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: AppTheme.paddingMedium),
                   _buildCalculatorCard(
                     context,
-                    'Company Directory',
-                    Icons.people_outline,
-                    'Access company contacts and information',
+                    'Dent Ovality Calculator',
+                    Icons.circle_outlined,
+                    'Calculate dent ovality percentage',
                     () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => Scaffold(
                             appBar: AppBar(
-                              title: const Text('Company Directory'),
+                              title: const Text('Dent Ovality Calculator'),
                             ),
-                            body: const CompanyDirectory(),
+                            body: const DentOvalityCalculator(),
                           ),
                         ),
                       );
                     },
                   ),
+                  const SizedBox(height: AppTheme.paddingMedium),
+                  // _buildCalculatorCard(
+                  //   context,
+                  //   'Mile Tracker',
+                  //   Icons.directions_run_outlined,
+                  //   'Track and manage mileage',
+                  //   () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //         builder: (context) => Scaffold(
+                  //           appBar: AppBar(
+                  //             title: const Text('Mile Tracker'),
+                  //           ),
+                  //           body: const MileTracker(),
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
+                  // const SizedBox(height: AppTheme.paddingMedium),
+                  // _buildCalculatorCard(
+                  //   context,
+                  //   'Company Directory',
+                  //   Icons.people_outline,
+                  //   'Access company contacts and information',
+                  //   () {
+                  //     Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(
+                  //         builder: (context) => Scaffold(
+                  //           appBar: AppBar(
+                  //             title: const Text('Company Directory'),
+                  //           ),
+                  //           body: const CompanyDirectory(),
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
                 ],
               ),
             ),

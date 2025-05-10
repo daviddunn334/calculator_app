@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../theme/app_theme.dart';
 
 class PitDepthCalculator extends StatefulWidget {
   const PitDepthCalculator({super.key});
@@ -107,95 +108,105 @@ class _PitDepthCalculatorState extends State<PitDepthCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(16.0),
-      child: Padding(
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              'Pit Depth Calculator',
-              style: Theme.of(context).textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            TextFormField(
-              controller: _nominalController,
-              decoration: const InputDecoration(
-                labelText: 'Nominal Wall Thickness',
-                border: OutlineInputBorder(),
-                suffixText: 'inches',
-              ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _pitDepthController,
-              decoration: const InputDecoration(
-                labelText: 'Pit Depth',
-                border: OutlineInputBorder(),
-                suffixText: 'inches',
-              ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _remainingController,
-              decoration: const InputDecoration(
-                labelText: 'Remaining Wall Thickness',
-                border: OutlineInputBorder(),
-                suffixText: 'inches',
-              ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-              ],
-            ),
-            if (_errorMessage != null) ...[
-              const SizedBox(height: 16),
-              Text(
-                _errorMessage!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-            const SizedBox(height: 24),
-            if (_calculatedPitDepth != null) ...[
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
-                  borderRadius: BorderRadius.circular(8),
-                ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Results',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      'Pit Depth Calculator',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    TextField(
+                      controller: _nominalController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nominal Wall Thickness',
+                        border: OutlineInputBorder(),
+                        suffixText: 'inches',
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     ),
                     const SizedBox(height: 16),
-                    _buildResultRow('Pit Depth', '${_calculatedPitDepth!.toStringAsFixed(3)} inches'),
-                    const SizedBox(height: 8),
-                    _buildResultRow('Remaining Thickness', '${_calculatedRemaining!.toStringAsFixed(3)} inches'),
-                    const SizedBox(height: 8),
-                    _buildResultRow('Material Loss', '${_materialLoss!.toStringAsFixed(2)}%'),
+                    TextField(
+                      controller: _pitDepthController,
+                      decoration: const InputDecoration(
+                        labelText: 'Pit Depth',
+                        border: OutlineInputBorder(),
+                        suffixText: 'inches',
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _remainingController,
+                      decoration: const InputDecoration(
+                        labelText: 'Remaining Thickness',
+                        border: OutlineInputBorder(),
+                        suffixText: 'inches',
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    ),
+                    const SizedBox(height: 24),
+                    if (_errorMessage != null) ...[
+                      Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (_calculatedPitDepth != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(32),
+                        margin: const EdgeInsets.only(bottom: 24),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryBlue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Results',
+                              style: AppTheme.titleLarge.copyWith(color: AppTheme.primaryBlue),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildResultRow(
+                              'Pit Depth',
+                              '${_calculatedPitDepth!.toStringAsFixed(3)} inches',
+                              valueColor: AppTheme.primaryBlue,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildResultRow(
+                              'Remaining Thickness',
+                              '${_calculatedRemaining!.toStringAsFixed(3)} inches',
+                              valueColor: AppTheme.primaryBlue,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildResultRow(
+                              'Material Loss',
+                              '${_materialLoss!.toStringAsFixed(2)}%',
+                              valueColor: AppTheme.primaryBlue,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    ElevatedButton(
+                      onPressed: _calculate,
+                      child: const Text('Calculate'),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-            ],
-            ElevatedButton(
-              onPressed: _calculate,
-              child: const Text('Calculate'),
             ),
           ],
         ),
@@ -203,14 +214,14 @@ class _PitDepthCalculatorState extends State<PitDepthCalculator> {
     );
   }
 
-  Widget _buildResultRow(String label, String value) {
+  Widget _buildResultRow(String label, String value, {Color? valueColor}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label),
         Text(
           value,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: valueColor),
         ),
       ],
     );
