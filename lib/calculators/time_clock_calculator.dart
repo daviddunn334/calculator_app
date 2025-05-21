@@ -14,27 +14,30 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
   final _formKey = GlobalKey<FormState>();
   final _odController = TextEditingController();
   final _distanceController = TextEditingController();
+  final _clockController = TextEditingController();
   String? _clockPosition;
+  String? _calculatedDistance;
   String? _errorMessage;
 
   @override
   void dispose() {
     _odController.dispose();
     _distanceController.dispose();
+    _clockController.dispose();
     super.dispose();
   }
 
   void _calculate() {
     setState(() {
       _clockPosition = null;
+      _calculatedDistance = null;
       _errorMessage = null;
     });
 
     if (_formKey.currentState!.validate()) {
       try {
         final od = double.parse(_odController.text);
-        final distance = double.parse(_distanceController.text);
-
+        
         if (od <= 0) {
           setState(() {
             _errorMessage = 'Pipe OD must be greater than 0';
@@ -42,28 +45,62 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
           return;
         }
 
-        if (distance < 0) {
-          setState(() {
-            _errorMessage = 'Distance cannot be negative';
-          });
-          return;
-        }
-
         // Calculate circumference
         final circumference = pi * od;
 
-        // Convert to clock position
-        final clockFraction = (distance / circumference) * 12;
-        final hours = clockFraction.floor();
-        final minutes = ((clockFraction % 1) * 60).round();
+        // If distance is provided, use it to calculate clock position
+        if (_distanceController.text.isNotEmpty) {
+          final distance = double.parse(_distanceController.text);
+          
+          if (distance < 0) {
+            setState(() {
+              _errorMessage = 'Distance cannot be negative';
+            });
+            return;
+          }
 
-        // Format final hour (use 12 if result is 0)
-        final finalHour = hours % 12 == 0 ? 12 : hours % 12;
+          // Convert to clock position
+          final clockFraction = (distance / circumference) * 12;
+          final hours = clockFraction.floor();
+          final minutes = ((clockFraction % 1) * 60).round();
 
-        // Format as HH:MM
-        setState(() {
-          _clockPosition = '${finalHour.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
-        });
+          // Format final hour (use 12 if result is 0)
+          final finalHour = hours % 12 == 0 ? 12 : hours % 12;
+
+          // Format as HH:MM
+          setState(() {
+            _clockPosition = '${finalHour.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+          });
+        }
+        // If clock position is provided, use it to calculate distance
+        else if (_clockController.text.isNotEmpty) {
+          // Parse clock position (format: H:MM or HH:MM)
+          final clockParts = _clockController.text.split(':');
+          if (clockParts.length != 2) {
+            setState(() {
+              _errorMessage = 'Invalid clock format. Use H:MM or HH:MM';
+            });
+            return;
+          }
+
+          final hours = int.parse(clockParts[0]);
+          final minutes = int.parse(clockParts[1]);
+
+          if (hours < 0 || hours > 12 || minutes < 0 || minutes >= 60) {
+            setState(() {
+              _errorMessage = 'Invalid clock position';
+            });
+            return;
+          }
+
+          // Calculate distance from clock position
+          final clockFraction = (hours % 12 + minutes / 60) / 12;
+          final distance = clockFraction * circumference;
+
+          setState(() {
+            _calculatedDistance = distance.toStringAsFixed(2);
+          });
+        }
       } catch (e) {
         setState(() {
           _errorMessage = 'Please enter valid numbers';
@@ -130,8 +167,28 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                         FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                       ],
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter distance from TDC';
+                        if (_clockController.text.isEmpty && (value == null || value.isEmpty)) {
+                          return 'Please enter either distance or clock position';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: AppTheme.paddingMedium),
+                    TextFormField(
+                      controller: _clockController,
+                      decoration: const InputDecoration(
+                        labelText: 'Clock',
+                        hintText: 'Enter clock position (e.g., 3:15)',
+                        prefixIcon: Icon(Icons.access_time),
+                      ),
+                      validator: (value) {
+                        if (_distanceController.text.isEmpty && (value == null || value.isEmpty)) {
+                          return 'Please enter either distance or clock position';
+                        }
+                        if (value != null && value.isNotEmpty) {
+                          if (!RegExp(r'^\d{1,2}:\d{2}$').hasMatch(value)) {
+                            return 'Use format H:MM or HH:MM';
+                          }
                         }
                         return null;
                       },
@@ -172,6 +229,40 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                                 const SizedBox(height: AppTheme.paddingMedium),
                                 Text(
                                   _clockPosition!,
+                                  style: AppTheme.headlineLarge.copyWith(
+                                    color: AppTheme.primaryBlue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppTheme.paddingLarge),
+                    ],
+                    if (_calculatedDistance != null) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryBlue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Distance from TDC',
+                                  style: AppTheme.titleLarge.copyWith(color: AppTheme.primaryBlue),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: AppTheme.paddingMedium),
+                                Text(
+                                  '$_calculatedDistance inches',
                                   style: AppTheme.headlineLarge.copyWith(
                                     color: AppTheme.primaryBlue,
                                     fontWeight: FontWeight.bold,

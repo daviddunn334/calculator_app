@@ -17,204 +17,25 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppTheme.paddingLarge),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.dashboard, size: 80, color: AppTheme.primaryBlue),
+              SizedBox(height: 24),
+              Text(
+                'Welcome to Integrity Tools!',
+                style: AppTheme.headlineLarge,
+                textAlign: TextAlign.center,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          'assets/app_icon.png',
-                          width: 48,
-                          height: 48,
-                        ),
-                        const SizedBox(width: AppTheme.paddingMedium),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Integrity Tools',
-                                style: AppTheme.headlineLarge,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: AppTheme.paddingSmall),
-                              Text(
-                                'Select a calculator',
-                                style: AppTheme.bodyLarge,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              SizedBox(height: 16),
+              Text(
+                'This is your dashboard. More features coming soon.',
+                style: AppTheme.bodyLarge,
+                textAlign: TextAlign.center,
               ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                children: [
-                  _buildCalculatorCard(
-                    context,
-                    'ABS + ES Calculator',
-                    Icons.calculate_outlined,
-                    'Calculate ABS and ES values',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('ABS + ES Calculator'),
-                            ),
-                            body: const AbsEsCalculator(),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppTheme.paddingMedium),
-                  _buildCalculatorCard(
-                    context,
-                    'Pit Depth Calculator',
-                    Icons.height_outlined,
-                    'Calculate pit depths and measurements',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('Pit Depth Calculator'),
-                            ),
-                            body: const PitDepthCalculator(),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppTheme.paddingMedium),
-                  _buildCalculatorCard(
-                    context,
-                    'Time Clock Calculator',
-                    Icons.access_time_outlined,
-                    'Track and calculate work hours',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('Time Clock Calculator'),
-                            ),
-                            body: const TimeClockCalculator(),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppTheme.paddingMedium),
-                  _buildCalculatorCard(
-                    context,
-                    'SOC & EOC Calculator',
-                    Icons.straighten,
-                    'Calculate Start/End of Coating from ABS & ES',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('SOC & EOC Calculator'),
-                            ),
-                            body: const SocEocCalculator(),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppTheme.paddingMedium),
-                  _buildCalculatorCard(
-                    context,
-                    'Dent Ovality Calculator',
-                    Icons.circle_outlined,
-                    'Calculate dent ovality percentage',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('Dent Ovality Calculator'),
-                            ),
-                            body: const DentOvalityCalculator(),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppTheme.paddingMedium),
-                  // _buildCalculatorCard(
-                  //   context,
-                  //   'Mile Tracker',
-                  //   Icons.directions_run_outlined,
-                  //   'Track and manage mileage',
-                  //   () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => Scaffold(
-                  //           appBar: AppBar(
-                  //             title: const Text('Mile Tracker'),
-                  //           ),
-                  //           body: const MileTracker(),
-                  //         ),
-                  //       ),
-                  //     );
-                  //   },
-                  // ),
-                  // const SizedBox(height: AppTheme.paddingMedium),
-                  // _buildCalculatorCard(
-                  //   context,
-                  //   'Company Directory',
-                  //   Icons.people_outline,
-                  //   'Access company contacts and information',
-                  //   () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => Scaffold(
-                  //           appBar: AppBar(
-                  //             title: const Text('Company Directory'),
-                  //           ),
-                  //           body: const CompanyDirectory(),
-                  //         ),
-                  //       ),
-                  //     );
-                  //   },
-                  // ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

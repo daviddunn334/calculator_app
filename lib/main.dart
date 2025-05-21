@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'NDT Calculator',
+      title: 'Integrity Tools',
       theme: AppTheme.theme,
       home: const MainScreen(),
       debugShowCheckedModeBanner: false, // 👈 This removes the debug banner

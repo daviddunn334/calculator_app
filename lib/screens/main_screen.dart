@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
+import 'tools_screen.dart';
 import '../theme/app_theme.dart';
 
 class MainScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class _MainScreenState extends State<MainScreen> {
   // Placeholder screens for the other tabs
   final List<Widget> _screens = [
     const HomeScreen(),
+    const ToolsScreen(),
     const Center(child: Text('Reports', style: TextStyle(fontSize: 24))),
     const Center(child: Text('Settings', style: TextStyle(fontSize: 24))),
     const Center(child: Text('Profile', style: TextStyle(fontSize: 24))),
@@ -47,6 +49,11 @@ class _MainScreenState extends State<MainScreen> {
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home),
               label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.build_outlined),
+              activeIcon: Icon(Icons.build),
+              label: 'Tools',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.bar_chart_outlined),
