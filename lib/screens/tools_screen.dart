@@ -6,6 +6,7 @@ import '../calculators/soc_eoc_calculator.dart';
 import '../calculators/dent_ovality_calculator.dart';
 import '../calculators/b31g_calculator.dart';
 import '../theme/app_theme.dart';
+import 'corrosion_grid_logger_screen.dart';
 
 class ToolsScreen extends StatelessWidget {
   const ToolsScreen({super.key});
@@ -185,6 +186,21 @@ class ToolsScreen extends StatelessWidget {
                             ),
                             body: const B31GCalculator(),
                           ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: AppTheme.paddingMedium),
+                  _buildCalculatorCard(
+                    context,
+                    'Corrosion Grid Logger',
+                    Icons.grid_on_outlined,
+                    'Log and export corrosion grid data for RSTRENG',
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CorrosionGridLoggerScreen(),
                         ),
                       );
                     },
