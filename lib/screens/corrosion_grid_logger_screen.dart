@@ -131,7 +131,65 @@ class _CorrosionGridLoggerScreenState extends State<CorrosionGridLoggerScreen> {
         padding: const EdgeInsets.all(AppTheme.paddingLarge),
         child: Column(
           children: [
-            // Input Section
+            // Action Buttons at the top
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _deleteLastReading,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('Delete Last Row'),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _showExportDialog,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryBlue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('Export to Excel'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Data Table in the middle
+            Expanded(
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                  side: const BorderSide(color: AppTheme.divider),
+                ),
+                child: SingleChildScrollView(
+                  child: DataTable(
+                    columns: const [
+                      DataColumn(label: Text('Pipe Increment')),
+                      DataColumn(label: Text('Pit Depth (mils)')),
+                    ],
+                    rows: _readings.map((reading) {
+                      return DataRow(
+                        cells: [
+                          DataCell(Text(reading['pipeIncrement'].toString())),
+                          DataCell(Text(reading['pitDepth'].toString())),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Input Section at the bottom (closer to keyboard)
             Card(
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -165,64 +223,6 @@ class _CorrosionGridLoggerScreenState extends State<CorrosionGridLoggerScreen> {
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-
-            // Data Table
-            Expanded(
-              child: Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                  side: const BorderSide(color: AppTheme.divider),
-                ),
-                child: SingleChildScrollView(
-                  child: DataTable(
-                    columns: const [
-                      DataColumn(label: Text('Pipe Increment')),
-                      DataColumn(label: Text('Pit Depth (mils)')),
-                    ],
-                    rows: _readings.map((reading) {
-                      return DataRow(
-                        cells: [
-                          DataCell(Text(reading['pipeIncrement'].toString())),
-                          DataCell(Text(reading['pitDepth'].toString())),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Action Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _deleteLastReading,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('Delete Last Row'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _showExportDialog,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('Export to Excel'),
-                  ),
-                ),
-              ],
             ),
           ],
         ),
