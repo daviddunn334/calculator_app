@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../calculators/abs_es_calculator.dart';
 import '../calculators/pit_depth_calculator.dart';
 import '../calculators/time_clock_calculator.dart';
-import '../calculators/soc_eoc_calculator.dart';
 import '../calculators/dent_ovality_calculator.dart';
 import '../calculators/b31g_calculator.dart';
 import '../theme/app_theme.dart';
@@ -133,26 +132,6 @@ class ToolsScreen extends StatelessWidget {
                   const SizedBox(height: AppTheme.paddingMedium),
                   _buildCalculatorCard(
                     context,
-                    'SOC & EOC Calculator',
-                    Icons.straighten,
-                    'Calculate Start/End of Coating from ABS & ES',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('SOC & EOC Calculator'),
-                            ),
-                            body: const SocEocCalculator(),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppTheme.paddingMedium),
-                  _buildCalculatorCard(
-                    context,
                     'Dent Ovality Calculator',
                     Icons.circle_outlined,
                     'Calculate dent ovality percentage',
@@ -222,7 +201,6 @@ class ToolsScreen extends StatelessWidget {
     VoidCallback onTap,
   ) {
     return Card(
-      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         side: const BorderSide(color: AppTheme.divider),
@@ -234,17 +212,10 @@ class ToolsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(AppTheme.paddingLarge),
           child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                ),
-                child: Icon(
-                  icon,
-                  color: AppTheme.primaryBlue,
-                  size: 24,
-                ),
+              Icon(
+                icon,
+                size: 48,
+                color: AppTheme.primaryBlue,
               ),
               const SizedBox(width: AppTheme.paddingLarge),
               Expanded(
@@ -254,11 +225,13 @@ class ToolsScreen extends StatelessWidget {
                     Text(
                       title,
                       style: AppTheme.titleLarge,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: AppTheme.paddingSmall),
                     Text(
                       description,
-                      style: AppTheme.bodyMedium,
+                      style: AppTheme.bodyLarge,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
