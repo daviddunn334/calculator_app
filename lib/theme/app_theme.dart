@@ -29,6 +29,12 @@ class AppTheme {
     color: textPrimary,
   );
 
+  static const TextStyle titleMedium = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: textPrimary,
+  );
+
   static const TextStyle bodyLarge = TextStyle(
     fontSize: 16,
     color: textSecondary,
@@ -42,6 +48,7 @@ class AppTheme {
   // Theme Data
   static final ThemeData theme = ThemeData(
     useMaterial3: true,
+    fontFamily: 'Noto Sans',
     colorScheme: ColorScheme.light(
       primary: primaryBlue,
       background: background,

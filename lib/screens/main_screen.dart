@@ -3,6 +3,7 @@ import 'home_screen.dart';
 import 'tools_screen.dart';
 import '../theme/app_theme.dart';
 import 'profile_screen.dart';
+import 'knowledge_base_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const ToolsScreen(),
     const Center(child: Text('Reports', style: TextStyle(fontSize: 24))),
-    const Center(child: Text('Settings', style: TextStyle(fontSize: 24))),
+    const KnowledgeBaseScreen(),
     const ProfileScreen(),
   ];
 
@@ -62,9 +63,9 @@ class _MainScreenState extends State<MainScreen> {
               label: 'Reports',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings),
-              label: 'Settings',
+              icon: Icon(Icons.help_outline),
+              activeIcon: Icon(Icons.help),
+              label: 'Knowledge',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
