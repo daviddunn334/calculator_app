@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'tools_screen.dart';
 import '../theme/app_theme.dart';
+import 'profile_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
     const ToolsScreen(),
     const Center(child: Text('Reports', style: TextStyle(fontSize: 24))),
     const Center(child: Text('Settings', style: TextStyle(fontSize: 24))),
-    const Center(child: Text('Profile', style: TextStyle(fontSize: 24))),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
