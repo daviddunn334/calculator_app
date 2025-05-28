@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import 'profile_screen.dart';
 import 'knowledge_base_screen.dart';
 import 'reports_screen.dart';
+import 'mile_tracker_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -21,6 +22,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const ToolsScreen(),
     const ReportsScreen(),
+    const MileTrackerScreen(),
     const KnowledgeBaseScreen(),
     const ProfileScreen(),
   ];
@@ -64,9 +66,14 @@ class _MainScreenState extends State<MainScreen> {
               label: 'Reports',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.directions_car_outlined),
+              activeIcon: Icon(Icons.directions_car),
+              label: 'Miles',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.help_outline),
               activeIcon: Icon(Icons.help),
-              label: 'Knowledge',
+              label: 'KB',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
