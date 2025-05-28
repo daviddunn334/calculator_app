@@ -37,7 +37,7 @@ class KnowledgeBaseScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'NDT Knowledge Base',
+                          'Integrity Specialists Knowledge Base',
                           style: AppTheme.headlineMedium,
                         ),
                         const SizedBox(height: 4),
