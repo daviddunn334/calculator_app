@@ -48,7 +48,7 @@ class AppTheme {
   // Theme Data
   static final ThemeData theme = ThemeData(
     useMaterial3: true,
-    fontFamily: 'Noto Sans',
+    fontFamily: 'Noto Sans, Noto Sans Symbols',
     colorScheme: ColorScheme.light(
       primary: primaryBlue,
       background: background,

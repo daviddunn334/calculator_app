@@ -4,6 +4,7 @@ import 'tools_screen.dart';
 import '../theme/app_theme.dart';
 import 'profile_screen.dart';
 import 'knowledge_base_screen.dart';
+import 'reports_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const ToolsScreen(),
-    const Center(child: Text('Reports', style: TextStyle(fontSize: 24))),
+    const ReportsScreen(),
     const KnowledgeBaseScreen(),
     const ProfileScreen(),
   ];

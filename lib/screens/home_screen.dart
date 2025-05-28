@@ -15,308 +15,153 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: const Text('Integrity Tools'),
-        backgroundColor: AppTheme.background,
-        foregroundColor: AppTheme.textPrimary,
-        elevation: 0,
-      ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Section
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                      ),
+                      child: Icon(Icons.dashboard, size: 40, color: AppTheme.primaryBlue),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Welcome to Integrity Tools',
+                            style: AppTheme.headlineMedium,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Your pipeline inspection companion',
+                            style: AppTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Core Buttons Section
+                _buildButton(
+                  context,
+                  'New Dig Checklist',
+                  Icons.checklist,
+                  () => Navigator.pushNamed(context, '/inspection_checklist'),
+                ),
+                const SizedBox(height: 12),
+                _buildButton(
+                  context,
+                  'Common Formulas',
+                  Icons.calculate,
+                  () => Navigator.pushNamed(context, '/common_formulas'),
+                ),
+                const SizedBox(height: 24),
+
+                // Quick Access Grid
+                Text('Quick Access', style: AppTheme.titleLarge),
+                const SizedBox(height: 16),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.6,
+                  children: [
+                    _buildGridItem(
+                      context,
+                      'Start New Inspection',
+                      Icons.assignment,
+                      () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Starting new inspection...')),
+                      ),
+                    ),
+                    _buildGridItem(
+                      context,
+                      'Log Mileage',
+                      Icons.directions_car,
+                      () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Opening mileage log...')),
+                      ),
+                    ),
+                    _buildGridItem(
+                      context,
+                      'Capture GPS',
+                      Icons.location_on,
+                      () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Getting GPS location...')),
+                      ),
+                    ),
+                    _buildGridItem(
+                      context,
+                      'Company Directory',
+                      Icons.contacts,
+                      () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Opening directory...')),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Activity Feed
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Activity Feed', style: AppTheme.titleLarge),
+                    TextButton.icon(
+                      onPressed: () => _showAddNoteDialog(context),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Note'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildActivityItem('Logged Dig #1045', 'Mile Post 136.5', '2 hrs ago'),
+                const Divider(height: 24),
+                _buildActivityItem('Updated GPS Location', 'Station 12+50', '4 hrs ago'),
+                const Divider(height: 24),
+                _buildActivityItem('Completed Inspection', 'Valve Site #23', 'Yesterday'),
+                const Divider(height: 24),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButton(BuildContext context, String title, IconData icon, VoidCallback onPressed) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon),
+        label: Text(title),
+        style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Section
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                    ),
-                    child: Icon(Icons.dashboard, size: 40, color: AppTheme.primaryBlue),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Welcome to Integrity Tools!',
-                          style: AppTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Your pipeline integrity toolkit',
-                          style: AppTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Dashboard Stats
-              Container(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem('Calculations', '24', Icons.calculate),
-                    _buildStatItem('Inspections', '8', Icons.search),
-                    _buildStatItem('Reports', '12', Icons.description),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // New Dig Checklist Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pushNamed(context, '/inspection_checklist'),
-                  icon: const Icon(Icons.assignment),
-                  label: const Text('New Dig Checklist'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Common Formulas Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pushNamed(context, '/common_formulas'),
-                  icon: const Icon(Icons.functions),
-                  label: const Text('Common Formulas'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Recent Activity Section
-              Text('Recent Activity', style: AppTheme.titleLarge),
-              const SizedBox(height: 16),
-              
-              // Static Activity Cards
-              Expanded(
-                child: ListView(
-                  children: [
-                    _buildActivityCard(
-                      'Corrosion Inspection Completed',
-                      'Pipeline Section A-42',
-                      '2 hours ago',
-                      Icons.check_circle,
-                      Colors.green,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildActivityCard(
-                      'Maintenance Scheduled',
-                      'Valve Station 12',
-                      'Tomorrow, 9:00 AM',
-                      Icons.calendar_today,
-                      AppTheme.primaryBlue,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildActivityCard(
-                      'Report Generated',
-                      'Monthly Integrity Summary',
-                      'Yesterday',
-                      Icons.description,
-                      Colors.orange,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildActivityCard(
-                      'Anomaly Detected',
-                      'Pipeline Section C-18',
-                      '3 days ago',
-                      Icons.warning,
-                      Colors.red,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildActivityCard(
-                      'Inspection Planned',
-                      'Compressor Station 3',
-                      'Next Week',
-                      Icons.schedule,
-                      Colors.purple,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoCard(
-                      'Pipeline Safety Tip',
-                      'Always verify isolation before maintenance work',
-                      Icons.lightbulb,
-                      Colors.amber,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInfoCard(
-                      'Weather Alert',
-                      'Heavy rain expected in operating areas next week',
-                      Icons.wb_cloudy,
-                      Colors.blueGrey,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.white, size: 28),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildActivityCard(String title, String subtitle, String timeAgo, IconData icon, Color iconColor) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        side: const BorderSide(color: AppTheme.divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppTheme.paddingMedium),
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: iconColor,
-              ),
-            ),
-            const SizedBox(width: AppTheme.paddingLarge),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: AppTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    timeAgo,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textSecondary.withOpacity(0.7),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildInfoCard(String title, String content, IconData icon, Color iconColor) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        side: const BorderSide(color: AppTheme.divider),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppTheme.paddingMedium),
-              decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: iconColor,
-              ),
-            ),
-            const SizedBox(width: AppTheme.paddingLarge),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    content,
-                    style: AppTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCalculatorCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    String description,
-    VoidCallback onTap,
-  ) {
+  Widget _buildGridItem(BuildContext context, String title, IconData icon, VoidCallback onTap) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -327,45 +172,69 @@ class HomeScreen extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          child: Row(
+          padding: const EdgeInsets.symmetric(horizontal: AppTheme.paddingMedium, vertical: AppTheme.paddingSmall),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                ),
-                child: Icon(
-                  icon,
-                  size: 32,
-                  color: AppTheme.primaryBlue,
-                ),
-              ),
-              const SizedBox(width: AppTheme.paddingLarge),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: AppTheme.titleLarge,
-                    ),
-                    const SizedBox(height: AppTheme.paddingSmall),
-                    Text(
-                      description,
-                      style: AppTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(
-                Icons.chevron_right,
-                color: AppTheme.textSecondary,
+              Icon(icon, size: 24, color: AppTheme.primaryBlue),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: AppTheme.bodyMedium.copyWith(fontWeight: FontWeight.w500),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildActivityItem(String title, String location, String time) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: AppTheme.titleMedium),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(location, style: AppTheme.bodyMedium),
+            Text(time, style: AppTheme.bodyMedium.copyWith(color: AppTheme.textSecondary)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  void _showAddNoteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Quick Note'),
+        content: TextField(
+          decoration: const InputDecoration(
+            hintText: 'Enter your note...',
+            border: OutlineInputBorder(),
+          ),
+          maxLines: 3,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // TODO: Implement note saving
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Note added')),
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
       ),
     );
   }

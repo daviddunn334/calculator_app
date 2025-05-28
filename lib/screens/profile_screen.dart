@@ -13,108 +13,258 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: AppTheme.background,
         foregroundColor: AppTheme.textPrimary,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              // TODO: Implement logout
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Logging out...')),
+              );
+            },
+          ),
+        ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Profile Header
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    child: Icon(Icons.person, size: 50),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile Header
+                Center(
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+                        child: const Icon(
+                          Icons.person,
+                          size: 50,
+                          color: AppTheme.primaryBlue,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'John Smith',
+                        style: AppTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'john.smith@example.com',
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
+                ),
+                const SizedBox(height: 24),
+
+                // Role & Company Info
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    side: const BorderSide(color: AppTheme.divider),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppTheme.paddingLarge),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('John Doe', style: AppTheme.headlineMedium),
-                        const SizedBox(height: 4),
-                        Text('john.doe@example.com', style: AppTheme.bodyMedium),
+                        _buildInfoRow(Icons.work, 'Field Technician', 'Role'),
+                        const Divider(height: 24),
+                        _buildInfoRow(Icons.business, 'Integrity Specialists', 'Company'),
                       ],
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              // Profile Stats
-              Container(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryBlue,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem('Posts', '24', Icons.post_add),
-                    _buildStatItem('Followers', '8', Icons.people),
-                    _buildStatItem('Following', '12', Icons.person_add),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Profile Actions
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Edit Profile'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                const SizedBox(height: 24),
+
+                // Stats Card
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    side: const BorderSide(color: AppTheme.divider),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatItem('Digs\nLogged', '24', Icons.assignment),
+                        _buildStatItem('Reports\nCreated', '18', Icons.description),
+                        _buildStatItem('Miles\nTracked', '156', Icons.route),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.logout),
-                  label: const Text('Logout'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                const SizedBox(height: 24),
+
+                // Settings Section
+                Text('Settings', style: AppTheme.titleLarge),
+                const SizedBox(height: 16),
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    side: const BorderSide(color: AppTheme.divider),
+                  ),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.edit),
+                        title: const Text('Edit Profile'),
+                        onTap: () => _showEditProfileDialog(context),
+                      ),
+                      const Divider(height: 1),
+                      SwitchListTile(
+                        secondary: const Icon(Icons.dark_mode),
+                        title: const Text('Dark Mode'),
+                        value: false, // TODO: Implement theme switching
+                        onChanged: (bool value) {
+                          // TODO: Implement theme switching
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Theme switching coming soon...')),
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.support_agent),
+                        title: const Text('Contact Support'),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Opening support...')),
+                          );
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.info),
+                        title: const Text('Version'),
+                        trailing: Text(
+                          'v1.0.0',
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  Widget _buildInfoRow(IconData icon, String value, String label) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(AppTheme.paddingMedium),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryBlue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          ),
+          child: Icon(icon, color: AppTheme.primaryBlue),
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(value, style: AppTheme.titleMedium),
+            Text(
+              label,
+              style: AppTheme.bodyMedium.copyWith(color: AppTheme.textSecondary),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   Widget _buildStatItem(String label, String value, IconData icon) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Colors.white, size: 28),
+        Container(
+          padding: const EdgeInsets.all(AppTheme.paddingMedium),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryBlue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          ),
+          child: Icon(icon, color: AppTheme.primaryBlue),
+        ),
         const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
+          style: AppTheme.titleLarge.copyWith(
+            color: AppTheme.primaryBlue,
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-          ),
+          textAlign: TextAlign.center,
+          style: AppTheme.bodyMedium.copyWith(color: AppTheme.textSecondary),
         ),
       ],
+    );
+  }
+
+  void _showEditProfileDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Profile'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: const InputDecoration(
+                labelText: 'Role',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Profile updated')),
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
     );
   }
 } 
