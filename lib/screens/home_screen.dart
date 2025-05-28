@@ -7,6 +7,10 @@ import '../screens/company_directory.dart';
 import '../theme/app_theme.dart';
 import '../calculators/soc_eoc_calculator.dart';
 import '../calculators/dent_ovality_calculator.dart';
+import '../widgets/weather_widget.dart';
+import '../widgets/safety_banner.dart';
+import '../widgets/daily_stats_card.dart';
+import '../widgets/news_updates_section.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -40,7 +44,9 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Welcome to Integrity Tools',
-                            style: AppTheme.headlineMedium,
+                            style: AppTheme.headlineMedium.copyWith(
+                              color: AppTheme.accent5
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -52,6 +58,22 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
+
+                // Safety Banner
+                const SafetyBanner(),
+                const SizedBox(height: 24),
+
+                // Weather Widget
+                const WeatherWidget(),
+                const SizedBox(height: 24),
+
+                // Daily Stats Card
+                const DailyStatsCard(),
+                const SizedBox(height: 24),
+
+                // News & Updates Section
+                const NewsUpdatesSection(),
                 const SizedBox(height: 24),
 
                 // Core Buttons Section
@@ -67,6 +89,7 @@ class HomeScreen extends StatelessWidget {
                   'Common Formulas',
                   Icons.calculate,
                   () => Navigator.pushNamed(context, '/common_formulas'),
+                  backgroundColor: AppTheme.accent1,
                 ),
                 const SizedBox(height: 24),
 
@@ -116,26 +139,6 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // Activity Feed
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Activity Feed', style: AppTheme.titleLarge),
-                    TextButton.icon(
-                      onPressed: () => _showAddNoteDialog(context),
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add Note'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _buildActivityItem('Logged Dig #1045', 'Mile Post 136.5', '2 hrs ago'),
-                const Divider(height: 24),
-                _buildActivityItem('Updated GPS Location', 'Station 12+50', '4 hrs ago'),
-                const Divider(height: 24),
-                _buildActivityItem('Completed Inspection', 'Valve Site #23', 'Yesterday'),
-                const Divider(height: 24),
               ],
             ),
           ),
@@ -144,7 +147,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(BuildContext context, String title, IconData icon, VoidCallback onPressed) {
+  Widget _buildButton(BuildContext context, String title, IconData icon, VoidCallback onPressed, {Color? backgroundColor}) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -156,6 +159,7 @@ class HomeScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
           ),
+          backgroundColor: backgroundColor,
         ),
       ),
     );
@@ -186,55 +190,6 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildActivityItem(String title, String location, String time) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTheme.titleMedium),
-        const SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(location, style: AppTheme.bodyMedium),
-            Text(time, style: AppTheme.bodyMedium.copyWith(color: AppTheme.textSecondary)),
-          ],
-        ),
-      ],
-    );
-  }
-
-  void _showAddNoteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Quick Note'),
-        content: TextField(
-          decoration: const InputDecoration(
-            hintText: 'Enter your note...',
-            border: OutlineInputBorder(),
-          ),
-          maxLines: 3,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Implement note saving
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Note added')),
-              );
-            },
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
   }

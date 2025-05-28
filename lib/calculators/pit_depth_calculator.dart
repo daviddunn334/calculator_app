@@ -121,10 +121,37 @@ class _PitDepthCalculatorState extends State<PitDepthCalculator> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Pit Depth Calculator',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                      textAlign: TextAlign.center,
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: () => Navigator.pop(context),
+                          color: AppTheme.textPrimary,
+                        ),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                'Pit Depth Calculator',
+                                style: AppTheme.titleLarge.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  _buildTag('Corrosion', AppTheme.primaryBlue),
+                                  _buildTag('Wall Loss', AppTheme.primaryBlue),
+                                  _buildTag('Remaining', AppTheme.primaryBlue),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 48),
+                      ],
                     ),
                     const SizedBox(height: 24),
                     TextField(
@@ -200,9 +227,26 @@ class _PitDepthCalculatorState extends State<PitDepthCalculator> {
                         ),
                       ),
                     ],
-                    ElevatedButton(
+                    ElevatedButton.icon(
                       onPressed: _calculate,
-                      child: const Text('Calculate'),
+                      icon: const Icon(Icons.arrow_forward),
+                      label: const Text(
+                        'Calculate',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryBlue,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppTheme.paddingMedium,
+                      horizontal: AppTheme.paddingLarge,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    ),
+                      ),
                     ),
                   ],
                 ),
@@ -224,6 +268,31 @@ class _PitDepthCalculatorState extends State<PitDepthCalculator> {
           style: TextStyle(fontWeight: FontWeight.bold, color: valueColor),
         ),
       ],
+    );
+  }
+
+  Widget _buildTag(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color,
+          width: 1,
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
 } 

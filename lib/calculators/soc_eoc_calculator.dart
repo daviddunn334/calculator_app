@@ -83,10 +83,37 @@ class _SocEocCalculatorState extends State<SocEocCalculator> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'SOC & EOC Calculator',
-                    style: AppTheme.titleLarge,
-                    textAlign: TextAlign.center,
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => Navigator.pop(context),
+                        color: AppTheme.textPrimary,
+                      ),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Text(
+                              'SOC/EOC Calculator',
+                              style: AppTheme.titleLarge.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              children: [
+                                _buildTag('Coating', AppTheme.primaryBlue),
+                                _buildTag('Start/End', AppTheme.primaryBlue),
+                                _buildTag('Offset', AppTheme.primaryBlue),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 48),
+                    ],
                   ),
                   const SizedBox(height: AppTheme.paddingLarge),
                   _buildInputField(_absController, 'ABS', 'Enter ABS', suffix: 'ft'),
@@ -107,20 +134,26 @@ class _SocEocCalculatorState extends State<SocEocCalculator> {
                   const SizedBox(height: AppTheme.paddingLarge),
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_absController.text.isEmpty ||
-                            _esController.text.isEmpty ||
-                            _socController.text.isEmpty ||
-                            _eocController.text.isEmpty) {
-                          setState(() {
-                            _errorMessage = 'All fields are required.';
-                          });
-                          return;
-                        }
-                        _calculate();
-                      },
-                      child: const Text('Calculate'),
+                    child: ElevatedButton.icon(
+                      onPressed: _calculate,
+                      icon: const Icon(Icons.arrow_forward),
+                      label: const Text(
+                        'Calculate',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryBlue,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppTheme.paddingMedium,
+                      horizontal: AppTheme.paddingLarge,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    ),
+                      ),
                     ),
                   ),
                 ],
@@ -199,6 +232,31 @@ class _SocEocCalculatorState extends State<SocEocCalculator> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTag(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color,
+          width: 1,
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

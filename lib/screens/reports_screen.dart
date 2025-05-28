@@ -8,20 +8,23 @@ class ReportsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: const Text('Reports'),
-        backgroundColor: AppTheme.background,
-        foregroundColor: AppTheme.textPrimary,
-        elevation: 0,
-      ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Section
-              Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppTheme.paddingLarge),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(AppTheme.paddingMedium),
@@ -29,7 +32,11 @@ class ReportsScreen extends StatelessWidget {
                       color: AppTheme.primaryBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                     ),
-                    child: Icon(Icons.bar_chart, size: 40, color: AppTheme.primaryBlue),
+                    child: Icon(
+                      Icons.bar_chart,
+                      size: 40,
+                      color: AppTheme.primaryBlue,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -37,98 +44,100 @@ class ReportsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Inspection Reports',
+                          'Reports',
                           style: AppTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'View and manage your inspection reports',
-                          style: AppTheme.bodyMedium,
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              
-              const SizedBox(height: 24),
-              
-              // Quick Stats
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      'Total Reports',
-                      '156',
-                      Icons.description_outlined,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildStatCard(
-                      'This Month',
-                      '23',
-                      Icons.calendar_today_outlined,
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Recent Reports List
-              Text(
-                'Recent Reports',
-                style: AppTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: ListView(
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildReportCard(
-                      'Pipeline Segment A-123',
-                      'Corrosion Assessment',
-                      '2 hours ago',
-                      'High Priority',
-                      Colors.red,
+                    // Quick Stats
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildStatCard(
+                            'Total Reports',
+                            '156',
+                            Icons.description_outlined,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildStatCard(
+                            'This Month',
+                            '23',
+                            Icons.calendar_today_outlined,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    _buildReportCard(
-                      'Valve Station B-456',
-                      'Pressure Test Results',
-                      '1 day ago',
-                      'Medium Priority',
-                      Colors.orange,
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Recent Reports List
+                    Text(
+                      'Recent Reports',
+                      style: AppTheme.titleLarge,
                     ),
-                    const SizedBox(height: 12),
-                    _buildReportCard(
-                      'Compressor Station C-789',
-                      'Equipment Inspection',
-                      '2 days ago',
-                      'Low Priority',
-                      Colors.green,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildReportCard(
-                      'Pipeline Segment D-012',
-                      'Crack Assessment',
-                      '3 days ago',
-                      'High Priority',
-                      Colors.red,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildReportCard(
-                      'Valve Station E-345',
-                      'Leak Test Results',
-                      '4 days ago',
-                      'Medium Priority',
-                      Colors.orange,
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          _buildReportCard(
+                            'Pipeline Segment A-123',
+                            'Corrosion Assessment',
+                            '2 hours ago',
+                            'High Priority',
+                            Colors.red,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildReportCard(
+                            'Valve Station B-456',
+                            'Pressure Test Results',
+                            '1 day ago',
+                            'Medium Priority',
+                            Colors.orange,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildReportCard(
+                            'Compressor Station C-789',
+                            'Equipment Inspection',
+                            '2 days ago',
+                            'Low Priority',
+                            Colors.green,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildReportCard(
+                            'Pipeline Segment D-012',
+                            'Crack Assessment',
+                            '3 days ago',
+                            'High Priority',
+                            Colors.red,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildReportCard(
+                            'Valve Station E-345',
+                            'Leak Test Results',
+                            '4 days ago',
+                            'Medium Priority',
+                            Colors.orange,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -203,19 +212,19 @@ class ReportsScreen extends StatelessWidget {
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: AppTheme.paddingMedium,
+                      vertical: AppTheme.paddingSmall,
                     ),
                     decoration: BoxDecoration(
                       color: priorityColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                     ),
                     child: Text(
                       priority,
-                      style: TextStyle(
+                      style: AppTheme.bodyMedium.copyWith(
                         color: priorityColor,
+                        fontWeight: FontWeight.bold,
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -224,24 +233,17 @@ class ReportsScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 type,
-                style: AppTheme.bodyMedium,
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(
-                    Icons.access_time,
-                    size: 16,
-                    color: AppTheme.textSecondary,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    time,
-                    style: AppTheme.bodyMedium.copyWith(
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 4),
+              Text(
+                time,
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.textSecondary,
+                  fontSize: 12,
+                ),
               ),
             ],
           ),

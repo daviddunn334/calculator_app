@@ -8,20 +8,23 @@ class KnowledgeBaseScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: const Text('Knowledge Base'),
-        backgroundColor: AppTheme.background,
-        foregroundColor: AppTheme.textPrimary,
-        elevation: 0,
-      ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Section
-              Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppTheme.paddingLarge),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(AppTheme.paddingMedium),
@@ -29,7 +32,11 @@ class KnowledgeBaseScreen extends StatelessWidget {
                       color: AppTheme.primaryBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                     ),
-                    child: Icon(Icons.book, size: 40, color: AppTheme.primaryBlue),
+                    child: Icon(
+                      Icons.psychology_outlined,
+                      size: 40,
+                      color: AppTheme.primaryBlue,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -37,24 +44,18 @@ class KnowledgeBaseScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Integrity Specialists Knowledge Base',
+                          'Knowledge Base',
                           style: AppTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Pipeline integrity procedures and standards',
-                          style: AppTheme.bodyMedium,
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              
-              const SizedBox(height: 24),
-              
-              // Knowledge Articles List
-              Expanded(
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(AppTheme.paddingLarge),
                 child: ListView(
                   children: [
                     _buildArticleCard(
@@ -122,8 +123,8 @@ class KnowledgeBaseScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

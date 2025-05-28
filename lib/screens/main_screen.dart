@@ -6,6 +6,7 @@ import 'profile_screen.dart';
 import 'knowledge_base_screen.dart';
 import 'reports_screen.dart';
 import 'mile_tracker_screen.dart';
+import 'todo_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -23,6 +24,7 @@ class _MainScreenState extends State<MainScreen> {
     const ToolsScreen(),
     const ReportsScreen(),
     const MileTrackerScreen(),
+    const TodoScreen(),
     const KnowledgeBaseScreen(),
     const ProfileScreen(),
   ];
@@ -71,8 +73,13 @@ class _MainScreenState extends State<MainScreen> {
               label: 'Miles',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.help_outline),
-              activeIcon: Icon(Icons.help),
+              icon: Icon(Icons.checklist_outlined),
+              activeIcon: Icon(Icons.checklist),
+              label: 'To-Do',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.psychology_outlined),
+              activeIcon: Icon(Icons.psychology),
               label: 'KB',
             ),
             BottomNavigationBarItem(

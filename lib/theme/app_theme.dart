@@ -3,7 +3,14 @@ import 'package:flutter/material.dart';
 class AppTheme {
   // Colors
   static const Color primaryBlue = Color(0xFF3366FF);
+  static const Color accent1 = Color(0xFFFFB703);
+  static const Color accent2 = Color(0xFF2A9D8F);
+  static const Color accent3 = Color(0xFFF28482);
+  static const Color accent4 = Color(0xFFF72585);
+  static const Color accent5= Color(0xFF032B43);
+
   static const Color background = Color(0xFFF8FAFC);
+  static const Color backgroundAlternative = Color(0xFFFEF9EF);
   static const Color surface = Colors.white;
   static const Color textPrimary = Color(0xFF1E293B);
   static const Color textSecondary = Color(0xFF64748B);
@@ -45,6 +52,11 @@ class AppTheme {
     color: textSecondary,
   );
 
+  static const TextStyle bodySmall = TextStyle(
+    fontSize: 12,
+    color: textSecondary,
+  );
+
   // Theme Data
   static final ThemeData theme = ThemeData(
     useMaterial3: true,
@@ -59,7 +71,11 @@ class AppTheme {
       backgroundColor: surface,
       elevation: 0,
       centerTitle: false,
-      titleTextStyle: headlineLarge,
+      titleTextStyle: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+        color: accent5,
+      ),
       iconTheme: IconThemeData(color: textPrimary),
     ),
     cardTheme: CardTheme(

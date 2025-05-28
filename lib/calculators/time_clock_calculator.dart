@@ -129,9 +129,37 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Time Clock Calculator',
-                      style: AppTheme.titleLarge,
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: () => Navigator.pop(context),
+                          color: AppTheme.textPrimary,
+                        ),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Text(
+                                'Time Clock Calculator',
+                                style: AppTheme.titleLarge.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  _buildTag('Clock Position', AppTheme.primaryBlue),
+                                  _buildTag('Distance', AppTheme.primaryBlue),
+                                  _buildTag('Conversion', AppTheme.primaryBlue),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 48),
+                      ],
                     ),
                     const SizedBox(height: AppTheme.paddingLarge),
                     TextFormField(
@@ -278,9 +306,26 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                     ],
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
+                      child: ElevatedButton.icon(
                         onPressed: _calculate,
-                        child: const Text('Calculate'),
+                        icon: const Icon(Icons.arrow_forward),
+                        label: const Text(
+                          'Calculate',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryBlue,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppTheme.paddingMedium,
+                      horizontal: AppTheme.paddingLarge,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    ),
+                        ),
                       ),
                     ),
                   ],
@@ -289,6 +334,31 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTag(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color,
+          width: 1,
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

@@ -31,34 +31,33 @@ class ToolsScreen extends StatelessWidget {
                 ],
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Container(
+                    padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBlue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    ),
+                    child: Icon(
+                      Icons.build,
+                      size: 40,
+                      color: AppTheme.primaryBlue,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
                   Expanded(
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.build_outlined,
-                          size: 48,
-                          color: AppTheme.primaryBlue,
+                        Text(
+                          'Tools',
+                          style: AppTheme.headlineMedium,
+                          
                         ),
-                        const SizedBox(width: AppTheme.paddingMedium),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Tools',
-                                style: AppTheme.headlineLarge,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              const SizedBox(height: AppTheme.paddingSmall),
-                              Text(
-                                'Select a calculator',
-                                style: AppTheme.bodyLarge,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Select a calculator',
+                          style: AppTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -79,12 +78,7 @@ class ToolsScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('ABS + ES Calculator'),
-                            ),
-                            body: const AbsEsCalculator(),
-                          ),
+                          builder: (context) => const AbsEsCalculator(),
                         ),
                       );
                     },
@@ -99,12 +93,7 @@ class ToolsScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('Pit Depth Calculator'),
-                            ),
-                            body: const PitDepthCalculator(),
-                          ),
+                          builder: (context) => const PitDepthCalculator(),
                         ),
                       );
                     },
@@ -119,12 +108,7 @@ class ToolsScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('Time Clock Calculator'),
-                            ),
-                            body: const TimeClockCalculator(),
-                          ),
+                          builder: (context) => const TimeClockCalculator(),
                         ),
                       );
                     },
@@ -139,12 +123,7 @@ class ToolsScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('Dent Ovality Calculator'),
-                            ),
-                            body: const DentOvalityCalculator(),
-                          ),
+                          builder: (context) => const DentOvalityCalculator(),
                         ),
                       );
                     },
@@ -159,12 +138,7 @@ class ToolsScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            appBar: AppBar(
-                              title: const Text('B31G Calculator'),
-                            ),
-                            body: const B31GCalculator(),
-                          ),
+                          builder: (context) => const B31GCalculator(),
                         ),
                       );
                     },
@@ -200,7 +174,24 @@ class ToolsScreen extends StatelessWidget {
     String description,
     VoidCallback onTap,
   ) {
+    // Define tags for each calculator
+    List<String> tags = [];
+    if (title == 'ABS + ES Calculator') {
+      tags = ['Offset', 'Distance', 'RGW'];
+    } else if (title == 'Pit Depth Calculator') {
+      tags = ['Corrosion', 'Wall Loss', 'Remaining'];
+    } else if (title == 'Time Clock Calculator') {
+      tags = ['Clock Position', 'Distance', 'Conversion'];
+    } else if (title == 'Dent Ovality Calculator') {
+      tags = ['Dent', 'Deformation', 'Percentage'];
+    } else if (title == 'B31G Calculator') {
+      tags = ['Corrosion', 'Assessment', 'ASME'];
+    } else if (title == 'Corrosion Grid Logger') {
+      tags = ['Grid', 'RSTRENG', 'Export'];
+    }
+
     return Card(
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         side: const BorderSide(color: AppTheme.divider),
@@ -209,39 +200,67 @@ class ToolsScreen extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         child: Padding(
-          padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          child: Row(
+          padding: const EdgeInsets.all(AppTheme.paddingMedium),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                icon,
-                size: 48,
-                color: AppTheme.primaryBlue,
+              Row(
+                children: [
+                  Icon(icon, size: 24, color: AppTheme.accent1),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: AppTheme.titleMedium.copyWith(color: AppTheme.accent5),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          description,
+                          style: AppTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: AppTheme.paddingLarge),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: AppTheme.titleLarge,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: AppTheme.paddingSmall),
-                    Text(
-                      description,
-                      style: AppTheme.bodyLarge,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+              if (tags.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: tags.map((tag) => _buildTag(tag)).toList(),
                 ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: AppTheme.textSecondary,
-              ),
+              ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTag(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryBlue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.primaryBlue,
+          width: 1,
+        ),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: AppTheme.primaryBlue,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
