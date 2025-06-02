@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'firebase_options.dart';
 import 'screens/main_screen.dart';
 import 'screens/corrosion_grid_logger_screen.dart';
 import 'screens/inspection_checklist_screen.dart';
@@ -12,7 +15,26 @@ import 'screens/equipment_guides_screen.dart';
 import 'screens/reporting_screen.dart';
 import 'theme/app_theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase first
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "no-api-key-required-for-js-sdk",
+      appId: "1:123456789012:web:abc123def456",
+      messagingSenderId: "123456789012",
+      projectId: "integrity-tools",
+      storageBucket: "integrity-tools.appspot.com",
+    ),
+  );
+  
+  // Then initialize Supabase
+  await Supabase.initialize(
+    url: 'https://cefujtovqdicsfqywfxw.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZnVqdG92cWRpY3NmcXl3Znh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5MDE5NTQsImV4cCI6MjA2MjQ3Nzk1NH0.B-gvG-6hchT6sOV6rhJBl8KbDlumorIzx4L8YauypDE',
+  );
+  
   runApp(const MyApp());
 }
 
