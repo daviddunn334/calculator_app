@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class CompanyPdfsScreen extends StatefulWidget {
   final String company;
@@ -81,7 +85,47 @@ class _CompanyPdfsScreenState extends State<CompanyPdfsScreen> {
                 backgroundColor: AppTheme.background,
                 foregroundColor: AppTheme.textPrimary,
               ),
-              body: SfPdfViewer.network(url),
+              body: SfPdfViewer.network(
+                url,
+                onDocumentLoadFailed: (details) async {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to load PDF: \\${details.error}'),
+                        backgroundColor: Colors.red,
+                        action: SnackBarAction(
+                          label: 'Open with fallback',
+                          onPressed: () async {
+                            // Download PDF to local file
+                            final tempDir = await getTemporaryDirectory();
+                            final filePath = '${tempDir.path}/$filename';
+                            final response = await http.get(Uri.parse(url));
+                            final file = File(filePath);
+                            await file.writeAsBytes(response.bodyBytes);
+                            if (mounted) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Scaffold(
+                                    appBar: AppBar(
+                                      title: Text(filename),
+                                      backgroundColor: AppTheme.background,
+                                      foregroundColor: AppTheme.textPrimary,
+                                    ),
+                                    body: PDFView(
+                                      filePath: filePath,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
             ),
           ),
         );
