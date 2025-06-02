@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:html' as html; // Only used on web
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class DefectTypesScreen extends StatelessWidget {
   const DefectTypesScreen({super.key});
@@ -51,7 +59,92 @@ class DefectTypesScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+                const SizedBox(height: 24),
+                Center(
+                  child: ElevatedButton.icon(
+                    icon: Icon(Icons.picture_as_pdf),
+                    label: Text(kIsWeb ? 'Download/Open the Encyclopedia of Pipeline Defects' : 'Open the Encyclopedia of Pipeline Defects'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryBlue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      textStyle: AppTheme.titleMedium,
+                    ),
+                    onPressed: () async {
+                      final filename = 'EPD 3rd Edn - 2017 - all (v3).pdf';
+                      try {
+                        final ref = FirebaseStorage.instance.ref('procedures/defectidentification/$filename');
+                        final url = await ref.getDownloadURL();
+                        if (kIsWeb) {
+                          html.window.open(url, '_blank');
+                        } else {
+                          // Try to open with Syncfusion first, fallback to PDFView
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                appBar: AppBar(
+                                  title: Text(filename),
+                                  backgroundColor: AppTheme.background,
+                                  foregroundColor: AppTheme.textPrimary,
+                                ),
+                                body: SfPdfViewer.network(
+                                  url,
+                                  onDocumentLoadFailed: (details) async {
+                                    if (context.mounted) {
+                                      try {
+                                        final tempDir = await getTemporaryDirectory();
+                                        final filePath = '${tempDir.path}/$filename';
+                                        final response = await http.get(Uri.parse(url));
+                                        final file = File(filePath);
+                                        await file.writeAsBytes(response.bodyBytes);
+                                        if (context.mounted) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => Scaffold(
+                                                appBar: AppBar(
+                                                  title: Text(filename),
+                                                  backgroundColor: AppTheme.background,
+                                                  foregroundColor: AppTheme.textPrimary,
+                                                ),
+                                                body: PDFView(
+                                                  filePath: filePath,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Fallback failed: \\${e.toString()}'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error loading PDF: \\${e.toString()}'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ),
                 const SizedBox(height: 32),
                 
                 // Common Defect Types Section
@@ -211,8 +304,6 @@ class DefectTypesScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                
-                const SizedBox(height: 32),
               ],
             ),
           ),
