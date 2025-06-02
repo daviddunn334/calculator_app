@@ -47,6 +47,13 @@ class ReportsScreen extends StatelessWidget {
                           'Reports',
                           style: AppTheme.headlineMedium,
                         ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Track and manage inspection findings',
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
                   ),

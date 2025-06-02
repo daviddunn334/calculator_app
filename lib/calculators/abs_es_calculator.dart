@@ -100,14 +100,6 @@ class _AbsEsCalculatorState extends State<AbsEsCalculator> {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            children: [
-                              _buildTag('Offset', AppTheme.primaryBlue),
-                              _buildTag('Distance', AppTheme.primaryBlue),
-                              _buildTag('RGW', AppTheme.primaryBlue),
-                            ],
-                          ),
                         ],
                       ),
                     ),
@@ -115,44 +107,11 @@ class _AbsEsCalculatorState extends State<AbsEsCalculator> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                TextField(
-                  controller: _absController,
-                  decoration: const InputDecoration(
-                    labelText: 'ABS',
-                    border: OutlineInputBorder(),
-                    suffixText: 'mm',
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-                  ],
-                ),
+                _buildInputField(_absController, 'ABS', 'Enter ABS value', suffix: 'mm'),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _esController,
-                  decoration: const InputDecoration(
-                    labelText: 'ES',
-                    border: OutlineInputBorder(),
-                    suffixText: 'mm',
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-                  ],
-                ),
+                _buildInputField(_esController, 'ES', 'Enter ES value', suffix: 'mm'),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _rgwController,
-                  decoration: const InputDecoration(
-                    labelText: 'RGW+',
-                    border: OutlineInputBorder(),
-                    suffixText: 'mm',
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
-                  ],
-                ),
+                _buildInputField(_rgwController, 'RGW+', 'Enter RGW+ value', suffix: 'mm'),
                 const SizedBox(height: 24),
                 if (_newAbs != null && _newEs != null) ...[
                   Container(
@@ -169,35 +128,8 @@ class _AbsEsCalculatorState extends State<AbsEsCalculator> {
                           style: AppTheme.titleLarge.copyWith(color: AppTheme.primaryBlue),
                         ),
                         const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Column(
-                              children: [
-                                const Text('New ABS', style: TextStyle(color: AppTheme.primaryBlue)),
-                                Text(
-                                  _newAbs?.toStringAsFixed(2) ?? '---',
-                                  style: AppTheme.headlineLarge.copyWith(
-                                    color: AppTheme.primaryBlue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              children: [
-                                const Text('New ES', style: TextStyle(color: AppTheme.primaryBlue)),
-                                Text(
-                                  _newEs?.toStringAsFixed(2) ?? '---',
-                                  style: AppTheme.headlineLarge.copyWith(
-                                    color: AppTheme.primaryBlue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                        _buildResultRow('New ABS', _newAbs!),
+                        _buildResultRow('New ES', _newEs!),
                       ],
                     ),
                   ),
@@ -231,27 +163,37 @@ class _AbsEsCalculatorState extends State<AbsEsCalculator> {
     );
   }
 
-  Widget _buildTag(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
+  Widget _buildInputField(TextEditingController controller, String label, String hint, {String? suffix, TextInputType? keyboardType}) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        suffixText: suffix,
+        border: const OutlineInputBorder(),
       ),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color,
-          width: 1,
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
+      keyboardType: keyboardType ?? const TextInputType.numberWithOptions(decimal: true, signed: true),
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d*')),
+      ],
+    );
+  }
+
+  Widget _buildResultRow(String label, double value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTheme.bodyLarge),
+          Text(
+            value.toStringAsFixed(2),
+            style: AppTheme.headlineLarge.copyWith(
+              color: AppTheme.primaryBlue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }

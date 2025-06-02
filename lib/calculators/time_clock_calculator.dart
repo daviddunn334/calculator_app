@@ -147,14 +147,6 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                children: [
-                                  _buildTag('Clock Position', AppTheme.primaryBlue),
-                                  _buildTag('Distance', AppTheme.primaryBlue),
-                                  _buildTag('Conversion', AppTheme.primaryBlue),
-                                ],
-                              ),
                             ],
                           ),
                         ),

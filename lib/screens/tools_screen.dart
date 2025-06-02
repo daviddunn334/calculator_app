@@ -206,7 +206,7 @@ class ToolsScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(icon, size: 24, color: AppTheme.accent1),
+                  Icon(icon, size: 24, color: AppTheme.primaryBlue),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(

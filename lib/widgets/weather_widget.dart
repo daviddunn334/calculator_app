@@ -108,67 +108,86 @@ class _WeatherWidgetState extends State<WeatherWidget> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(weatherIcon, 
-                  size: 32, 
-                  color: AppTheme.accent1,
-                ),
+                Icon(Icons.cloud, color: AppTheme.accent5, size: 24),
                 const SizedBox(width: AppTheme.paddingMedium),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '$temp°F',
-                      style: AppTheme.titleLarge.copyWith(
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      condition,
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
-                    ),
-                  ],
+                Text(
+                  'Today\'s Weather',
+                  style: AppTheme.titleLarge.copyWith(
+                    color: AppTheme.accent5,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
+            const SizedBox(height: AppTheme.paddingLarge),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                Row(
                   children: [
-                    Row(
+                    Icon(weatherIcon, 
+                      size: 32, 
+                      color: AppTheme.accent1,
+                    ),
+                    const SizedBox(width: AppTheme.paddingMedium),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.water_drop, 
-                          size: 16, 
-                          color: AppTheme.textSecondary,
-                        ),
-                        const SizedBox(width: 4),
                         Text(
-                          '$humidity%',
+                          '$temp°F',
+                          style: AppTheme.titleLarge.copyWith(
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          condition,
                           style: AppTheme.bodyMedium.copyWith(
                             color: AppTheme.textSecondary,
                           ),
                         ),
                       ],
                     ),
-                    Row(
+                  ],
+                ),
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Icon(Icons.air, 
-                          size: 16, 
-                          color: AppTheme.textSecondary,
+                        Row(
+                          children: [
+                            const Icon(Icons.water_drop, 
+                              size: 16, 
+                              color: AppTheme.textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$humidity%',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$windSpeed mph',
-                          style: AppTheme.bodyMedium.copyWith(
-                            color: AppTheme.textSecondary,
-                          ),
+                        Row(
+                          children: [
+                            const Icon(Icons.air, 
+                              size: 16, 
+                              color: AppTheme.textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$windSpeed mph',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

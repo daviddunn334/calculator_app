@@ -139,14 +139,6 @@ class _PitDepthCalculatorState extends State<PitDepthCalculator> {
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                children: [
-                                  _buildTag('Corrosion', AppTheme.primaryBlue),
-                                  _buildTag('Wall Loss', AppTheme.primaryBlue),
-                                  _buildTag('Remaining', AppTheme.primaryBlue),
-                                ],
-                              ),
                             ],
                           ),
                         ),

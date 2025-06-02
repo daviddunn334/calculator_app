@@ -213,14 +213,6 @@ class _B31GCalculatorState extends State<B31GCalculator> {
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                children: [
-                                  _buildTag('Corrosion', AppTheme.primaryBlue),
-                                  _buildTag('Assessment', AppTheme.primaryBlue),
-                                  _buildTag('ASME', AppTheme.primaryBlue),
-                                ],
-                              ),
                             ],
                           ),
                         ),

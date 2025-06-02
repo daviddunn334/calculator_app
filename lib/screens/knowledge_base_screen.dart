@@ -47,6 +47,13 @@ class KnowledgeBaseScreen extends StatelessWidget {
                           'Knowledge Base',
                           style: AppTheme.headlineMedium,
                         ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Your comprehensive field reference guide',
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
                       ],
                     ),
                   ),

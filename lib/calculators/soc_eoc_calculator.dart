@@ -101,14 +101,6 @@ class _SocEocCalculatorState extends State<SocEocCalculator> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              children: [
-                                _buildTag('Coating', AppTheme.primaryBlue),
-                                _buildTag('Start/End', AppTheme.primaryBlue),
-                                _buildTag('Offset', AppTheme.primaryBlue),
-                              ],
-                            ),
                           ],
                         ),
                       ),
@@ -232,31 +224,6 @@ class _SocEocCalculatorState extends State<SocEocCalculator> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildTag(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color,
-          width: 1,
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
       ),
     );
   }

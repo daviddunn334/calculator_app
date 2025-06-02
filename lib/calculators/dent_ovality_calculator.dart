@@ -92,14 +92,6 @@ class _DentOvalityCalculatorState extends State<DentOvalityCalculator> {
                               textAlign: TextAlign.center,
                             ),
                             const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              children: [
-                                _buildTag('Dent', AppTheme.primaryBlue),
-                                _buildTag('Deformation', AppTheme.primaryBlue),
-                                _buildTag('Percentage', AppTheme.primaryBlue),
-                              ],
-                            ),
                           ],
                         ),
                       ),
