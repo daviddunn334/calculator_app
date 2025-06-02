@@ -36,7 +36,7 @@ class DefaultFirebaseOptions {
     appId: "1:123456789012:web:abc123def456",
     messagingSenderId: "123456789012",
     projectId: "integrity-tools",
-    storageBucket: "integrity-tools.appspot.com",
+    storageBucket: "integrity-tools.firebasestorage.app",
   );
 
   static const FirebaseOptions android = FirebaseOptions(
