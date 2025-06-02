@@ -32,11 +32,13 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: "no-api-key-required-for-js-sdk",
-    appId: "1:123456789012:web:abc123def456",
-    messagingSenderId: "123456789012",
+    apiKey: "AIzaSyAi67zypYsAY4et0BZNG6HQ2N9KDcOWJ9s",
+    appId: "1:787811700889:web:3dc5902b7778191b566808",
+    messagingSenderId: "787811700889",
     projectId: "integrity-tools",
     storageBucket: "integrity-tools.firebasestorage.app",
+    authDomain: "integrity-tools.firebaseapp.com",
+    measurementId: "G-FL0FRBEMPC"
   );
 
   static const FirebaseOptions android = FirebaseOptions(

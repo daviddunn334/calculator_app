@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../services/auth_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -52,11 +53,21 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.logout),
-                    onPressed: () {
-                      // TODO: Implement logout
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Logging out...')),
-                      );
+                    onPressed: () async {
+                      try {
+                        await AuthService().signOut();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Successfully logged out')),
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error logging out: ${e.toString()}')),
+                          );
+                        }
+                      }
                     },
                   ),
                 ],
