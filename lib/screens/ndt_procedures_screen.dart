@@ -1,8 +1,166 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../theme/app_theme.dart';
 
-class NDTProceduresScreen extends StatelessWidget {
+class NDTProceduresScreen extends StatefulWidget {
   const NDTProceduresScreen({super.key});
+
+  @override
+  State<NDTProceduresScreen> createState() => _NDTProceduresScreenState();
+}
+
+class _NDTProceduresScreenState extends State<NDTProceduresScreen> {
+  final List<String> _companies = ['boardwalk', 'integrity', 'williams', 'southernstar'];
+  String? _selectedCompany;
+  List<String> _pdfFiles = [];
+  bool _isLoading = false;
+
+  Future<void> _loadPdfFiles(String company) async {
+    setState(() {
+      _isLoading = true;
+      _pdfFiles = [];
+    });
+
+    try {
+      final storage = FirebaseStorage.instance;
+      final folderRef = storage.ref('procedures/$company');
+      final result = await folderRef.listAll();
+      
+      setState(() {
+        _pdfFiles = result.items.map((item) => item.name).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error loading PDFs. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<String> _getPdfUrl(String company, String filename) async {
+    final ref = FirebaseStorage.instance.ref('procedures/$company/$filename');
+    return await ref.getDownloadURL();
+  }
+
+  void _openPdfViewer(String filename) async {
+    try {
+      final url = await _getPdfUrl(_selectedCompany!, filename);
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(
+                title: Text(filename),
+                backgroundColor: AppTheme.background,
+                foregroundColor: AppTheme.textPrimary,
+              ),
+              body: SfPdfViewer.network(url),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error loading PDF. Please try again later.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildCompanyCard(String company) {
+    final isSelected = _selectedCompany == company;
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        side: BorderSide(
+          color: isSelected ? AppTheme.primaryBlue : AppTheme.divider,
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedCompany = company;
+          });
+          _loadPdfFiles(company);
+        },
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        child: Padding(
+          padding: const EdgeInsets.all(AppTheme.paddingLarge),
+          child: Row(
+            children: [
+              Icon(
+                Icons.folder,
+                color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  company.toUpperCase(),
+                  style: AppTheme.titleLarge.copyWith(
+                    color: isSelected ? AppTheme.primaryBlue : AppTheme.textPrimary,
+                  ),
+                ),
+              ),
+              if (isSelected)
+                Icon(
+                  Icons.check_circle,
+                  color: AppTheme.primaryBlue,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPdfCard(String filename) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        side: const BorderSide(color: AppTheme.divider),
+      ),
+      child: InkWell(
+        onTap: () => _openPdfViewer(filename),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        child: Padding(
+          padding: const EdgeInsets.all(AppTheme.paddingLarge),
+          child: Row(
+            children: [
+              Icon(Icons.picture_as_pdf, color: AppTheme.primaryBlue, size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  filename,
+                  style: AppTheme.titleMedium.copyWith(
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios, color: AppTheme.textSecondary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +196,12 @@ class NDTProceduresScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'NDT Procedures & Standards',
+                            'Company Procedures',
                             style: AppTheme.headlineMedium,
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Field-ready guidance for NDT inspections',
+                            'Official NDT procedures and standards',
                             style: AppTheme.bodyMedium,
                           ),
                         ],
@@ -54,271 +212,48 @@ class NDTProceduresScreen extends StatelessWidget {
                 
                 const SizedBox(height: 32),
                 
-                // NDT Method Procedures Section
-                _buildSection(
-                  'NDT Method Procedures',
-                  Icons.build,
-                  [
-                    _buildExpandableCard(
-                      'Ultrasonic Testing (UT)',
-                      [
-                        '1. Surface Preparation',
-                        '2. Calibration',
-                        '3. Scanning Procedure',
-                        '4. Data Recording',
-                        '5. Interpretation',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Magnetic Particle Testing (MT)',
-                      [
-                        '1. Surface Preparation',
-                        '2. Magnetization',
-                        '3. Particle Application',
-                        '4. Inspection',
-                        '5. Demagnetization',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Penetrant Testing (PT)',
-                      [
-                        '1. Surface Preparation',
-                        '2. Penetrant Application',
-                        '3. Dwell Time',
-                        '4. Developer Application',
-                        '5. Inspection',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Visual Testing (VT)',
-                      [
-                        '1. Surface Preparation',
-                        '2. Lighting Setup',
-                        '3. Inspection',
-                        '4. Documentation',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Phased Array Ultrasonic Testing (PAUT)',
-                      [
-                        '1. Surface Preparation',
-                        '2. Calibration',
-                        '3. Setup',
-                        '4. Scanning',
-                        '5. Data Analysis',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Eddy Current Testing (ECT)',
-                      [
-                        '1. Surface Preparation',
-                        '2. Calibration',
-                        '3. Probe Selection',
-                        '4. Scanning',
-                        '5. Data Analysis',
-                      ],
-                    ),
-                  ],
+                // Company Selection
+                Text(
+                  'Select Company',
+                  style: AppTheme.titleLarge,
                 ),
+                const SizedBox(height: 16),
+                ..._companies.map((company) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _buildCompanyCard(company),
+                )),
                 
-                const SizedBox(height: 32),
-                
-                // Code Summaries Section
-                _buildSection(
-                  'Code Summaries',
-                  Icons.description,
-                  [
-                    _buildExpandableCard(
-                      'ASME B31G',
-                      [
-                        '• Pipeline defect assessment',
-                        '• Remaining strength calculation',
-                        '• Corrosion evaluation',
-                        '• Repair criteria',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'API 5L',
-                      [
-                        '• Pipe specifications',
-                        '• Material requirements',
-                        '• Testing requirements',
-                        '• Marking requirements',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'API 1104',
-                      [
-                        '• Welding requirements',
-                        '• Inspection criteria',
-                        '• Acceptance standards',
-                        '• Testing procedures',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'RSTRENG Method',
-                      [
-                        '• Advanced corrosion assessment',
-                        '• Complex defect evaluation',
-                        '• Remaining strength calculation',
-                        '• Safety factor consideration',
-                      ],
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 32),
-                
-                // Acceptance Criteria Section
-                _buildSection(
-                  'Acceptance Criteria',
-                  Icons.check_circle,
-                  [
-                    _buildExpandableCard(
-                      'Corrosion',
-                      [
-                        '• Maximum depth: 80% of wall thickness',
-                        '• Maximum length: 12 inches',
-                        '• Maximum width: 1/3 of circumference',
-                        '• Minimum remaining wall: 0.8t',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Dents',
-                      [
-                        '• Maximum depth: 6% of diameter',
-                        '• No sharp edges',
-                        '• No stress risers',
-                        '• No cracks present',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Cracks',
-                      [
-                        '• No cracks allowed',
-                        '• No stress corrosion cracking',
-                        '• No fatigue cracks',
-                        '• No environmental cracking',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Weld Flaws',
-                      [
-                        '• No incomplete fusion',
-                        '• No undercut > 1/32"',
-                        '• No porosity clusters',
-                        '• No slag inclusions',
-                      ],
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 32),
-                
-                // Field Interpretation Tips Section
-                _buildSection(
-                  'Field Interpretation Tips',
-                  Icons.lightbulb,
-                  [
-                    _buildExpandableCard(
-                      'Applying Standards',
-                      [
-                        '• Always verify code edition',
-                        '• Consider field conditions',
-                        '• Document deviations',
-                        '• Consult supervisor for unclear cases',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Limited Tools',
-                      [
-                        '• Use calibrated references',
-                        '• Document limitations',
-                        '• Take multiple measurements',
-                        '• Use conservative estimates',
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _buildExpandableCard(
-                      'Borderline Cases',
-                      [
-                        '• Document all measurements',
-                        '• Take photos if possible',
-                        '• Consult with team',
-                        '• Consider safety first',
-                      ],
-                    ),
-                  ],
-                ),
-                
-                const SizedBox(height: 32),
+                if (_selectedCompany != null) ...[
+                  const SizedBox(height: 32),
+                  Text(
+                    'Available Procedures',
+                    style: AppTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  if (_isLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_pdfFiles.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Text(
+                          'No procedures found',
+                          style: AppTheme.bodyLarge.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    ..._pdfFiles.map((filename) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildPdfCard(filename),
+                    )),
+                ],
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSection(String title, IconData icon, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, color: AppTheme.primaryBlue, size: 24),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: AppTheme.titleLarge,
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        ...children,
-      ],
-    );
-  }
-
-  Widget _buildExpandableCard(String title, List<String> items) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        side: const BorderSide(color: AppTheme.divider),
-      ),
-      child: ExpansionTile(
-        title: Text(
-          title,
-          style: AppTheme.titleMedium,
-        ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: items.map((item) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Text(
-                  item,
-                  style: AppTheme.bodyMedium,
-                ),
-              )).toList(),
-            ),
-          ),
-        ],
       ),
     );
   }
