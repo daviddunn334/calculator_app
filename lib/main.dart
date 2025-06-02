@@ -20,13 +20,7 @@ void main() async {
   
   // Initialize Firebase first
   await Firebase.initializeApp(
-    options: FirebaseOptions(
-      apiKey: "no-api-key-required-for-js-sdk",
-      appId: "1:123456789012:web:abc123def456",
-      messagingSenderId: "123456789012",
-      projectId: "integrity-tools",
-      storageBucket: "integrity-tools.appspot.com",
-    ),
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   
   // Then initialize Supabase

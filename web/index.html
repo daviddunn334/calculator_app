@@ -43,6 +43,20 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+  <!-- Initialize Firebase -->
+  <script>
+    const firebaseConfig = {
+      projectId: "integrity-tools",
+      storageBucket: "integrity-tools.appspot.com",
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

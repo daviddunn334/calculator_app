@@ -26,12 +26,13 @@ class _NDTProceduresScreenState extends State<NDTProceduresScreen> {
       final storage = FirebaseStorage.instance;
       final folderRef = storage.ref('procedures/$company');
       final result = await folderRef.listAll();
-      
+      print('Loaded files for company: $company, found: ${result.items.length}');
       setState(() {
         _pdfFiles = result.items.map((item) => item.name).toList();
         _isLoading = false;
       });
     } catch (e) {
+      print('Error loading PDFs for company $company: $e');
       setState(() {
         _isLoading = false;
       });
@@ -47,8 +48,15 @@ class _NDTProceduresScreenState extends State<NDTProceduresScreen> {
   }
 
   Future<String> _getPdfUrl(String company, String filename) async {
-    final ref = FirebaseStorage.instance.ref('procedures/$company/$filename');
-    return await ref.getDownloadURL();
+    try {
+      final ref = FirebaseStorage.instance.ref('procedures/$company/$filename');
+      final url = await ref.getDownloadURL();
+      print('Fetched download URL for $company/$filename: $url');
+      return url;
+    } catch (e) {
+      print('Error getting download URL for $company/$filename: $e');
+      rethrow;
+    }
   }
 
   void _openPdfViewer(String filename) async {

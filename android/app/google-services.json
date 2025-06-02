@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "787811700889",
+    "project_id": "integrity-tools",
+    "storage_bucket": "integrity-tools.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:787811700889:android:e18fd0fc2f31f2e7566808",
+        "android_client_info": {
+          "package_name": "com.example.calculator_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBL_wZTaDaIT5D1AoY3pbijyGLJumjcG1o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
