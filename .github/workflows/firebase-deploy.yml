@@ -3,7 +3,8 @@ name: Deploy to Firebase
 on:
   push:
     branches:
-      - main  # or your default branch name
+      - main
+      - develop  # Adding develop branch for test environment
 
 jobs:
   deploy:
@@ -29,4 +30,4 @@ jobs:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           projectId: integrity-tools
-          channelId: live 
+          channelId: ${{ github.ref == 'refs/heads/main' && 'live' || 'preview' }}  # Use 'preview' channel for non-main branches 
