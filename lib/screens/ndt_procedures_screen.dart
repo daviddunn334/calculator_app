@@ -1,111 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import '../theme/app_theme.dart';
+import 'company_pdfs_screen.dart';
 
-class NDTProceduresScreen extends StatefulWidget {
+class NDTProceduresScreen extends StatelessWidget {
   const NDTProceduresScreen({super.key});
 
-  @override
-  State<NDTProceduresScreen> createState() => _NDTProceduresScreenState();
-}
-
-class _NDTProceduresScreenState extends State<NDTProceduresScreen> {
-  final List<String> _companies = ['boardwalk', 'integrity', 'williams', 'southernstar'];
-  String? _selectedCompany;
-  List<String> _pdfFiles = [];
-  bool _isLoading = false;
-
-  Future<void> _loadPdfFiles(String company) async {
-    setState(() {
-      _isLoading = true;
-      _pdfFiles = [];
-    });
-
-    try {
-      final storage = FirebaseStorage.instance;
-      final folderRef = storage.ref('procedures/$company');
-      final result = await folderRef.listAll();
-      print('Loaded files for company: $company, found: ${result.items.length}');
-      setState(() {
-        _pdfFiles = result.items.map((item) => item.name).toList();
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('Error loading PDFs for company $company: $e');
-      setState(() {
-        _isLoading = false;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error loading PDFs. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<String> _getPdfUrl(String company, String filename) async {
-    try {
-      final ref = FirebaseStorage.instance.ref('procedures/$company/$filename');
-      final url = await ref.getDownloadURL();
-      print('Fetched download URL for $company/$filename: $url');
-      return url;
-    } catch (e) {
-      print('Error getting download URL for $company/$filename: $e');
-      rethrow;
-    }
-  }
-
-  void _openPdfViewer(String filename) async {
-    try {
-      final url = await _getPdfUrl(_selectedCompany!, filename);
-      if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Scaffold(
-              appBar: AppBar(
-                title: Text(filename),
-                backgroundColor: AppTheme.background,
-                foregroundColor: AppTheme.textPrimary,
-              ),
-              body: SfPdfViewer.network(url),
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error loading PDF. Please try again later.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  Widget _buildCompanyCard(String company) {
-    final isSelected = _selectedCompany == company;
+  Widget _buildCompanyCard(BuildContext context, String company) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        side: BorderSide(
-          color: isSelected ? AppTheme.primaryBlue : AppTheme.divider,
-          width: isSelected ? 2 : 1,
-        ),
+        side: const BorderSide(color: AppTheme.divider),
       ),
       child: InkWell(
         onTap: () {
-          setState(() {
-            _selectedCompany = company;
-          });
-          _loadPdfFiles(company);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CompanyPdfsScreen(company: company),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         child: Padding(
@@ -114,7 +28,7 @@ class _NDTProceduresScreenState extends State<NDTProceduresScreen> {
             children: [
               Icon(
                 Icons.folder,
-                color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
+                color: AppTheme.textSecondary,
                 size: 24,
               ),
               const SizedBox(width: 12),
@@ -122,47 +36,14 @@ class _NDTProceduresScreenState extends State<NDTProceduresScreen> {
                 child: Text(
                   company.toUpperCase(),
                   style: AppTheme.titleLarge.copyWith(
-                    color: isSelected ? AppTheme.primaryBlue : AppTheme.textPrimary,
-                  ),
-                ),
-              ),
-              if (isSelected)
-                Icon(
-                  Icons.check_circle,
-                  color: AppTheme.primaryBlue,
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPdfCard(String filename) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        side: const BorderSide(color: AppTheme.divider),
-      ),
-      child: InkWell(
-        onTap: () => _openPdfViewer(filename),
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        child: Padding(
-          padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          child: Row(
-            children: [
-              Icon(Icons.picture_as_pdf, color: AppTheme.primaryBlue, size: 24),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  filename,
-                  style: AppTheme.titleMedium.copyWith(
                     color: AppTheme.textPrimary,
                   ),
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: AppTheme.textSecondary),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: AppTheme.textSecondary,
+              ),
             ],
           ),
         ),
@@ -172,6 +53,8 @@ class _NDTProceduresScreenState extends State<NDTProceduresScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final companies = ['boardwalk', 'integrity', 'williams', 'southernstar'];
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
@@ -226,38 +109,10 @@ class _NDTProceduresScreenState extends State<NDTProceduresScreen> {
                   style: AppTheme.titleLarge,
                 ),
                 const SizedBox(height: 16),
-                ..._companies.map((company) => Padding(
+                ...companies.map((company) => Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildCompanyCard(company),
+                  child: _buildCompanyCard(context, company),
                 )),
-                
-                if (_selectedCompany != null) ...[
-                  const SizedBox(height: 32),
-                  Text(
-                    'Available Procedures',
-                    style: AppTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  if (_isLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (_pdfFiles.isEmpty)
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(32.0),
-                        child: Text(
-                          'No procedures found',
-                          style: AppTheme.bodyLarge.copyWith(
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    ..._pdfFiles.map((filename) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildPdfCard(filename),
-                    )),
-                ],
               ],
             ),
           ),
