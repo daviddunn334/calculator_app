@@ -1,0 +1,19 @@
+[
+  {
+    "origin": [
+      "https://integrity-tools--preview-03buvqbj.web.app",
+      "https://integrity-tools.web.app",
+      "http://localhost:56528",
+      "http://localhost:8080"
+    ],
+    "method": ["GET", "HEAD", "PUT", "POST", "DELETE"],
+    "maxAgeSeconds": 3600,
+    "responseHeader": [
+      "Content-Type",
+      "Authorization",
+      "Content-Length",
+      "User-Agent",
+      "x-goog-resumable"
+    ]
+  }
+] 
