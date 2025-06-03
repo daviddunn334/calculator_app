@@ -6,14 +6,16 @@ class AppHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
   final IconData icon;
-  final bool showLogout;
+  final Widget? leading;
+  final Widget? trailing;
 
   const AppHeader({
     super.key,
     required this.title,
     this.subtitle,
     required this.icon,
-    this.showLogout = true,
+    this.leading,
+    this.trailing,
   });
 
   @override
@@ -32,53 +34,44 @@ class AppHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(AppTheme.paddingMedium),
-            decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-            ),
-            child: Icon(icon, size: 40, color: AppTheme.primaryBlue),
-          ),
-          const SizedBox(width: 16),
+          if (leading != null) leading! else const SizedBox(width: 48),
+          const SizedBox(width: 8),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
               children: [
-                Text(
-                  title,
-                  style: AppTheme.headlineMedium,
-                ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle!,
-                    style: AppTheme.bodyMedium,
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                   ),
-                ],
+                  child: Icon(icon, size: 40, color: AppTheme.primaryBlue),
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTheme.headlineMedium,
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle!,
+                        style: AppTheme.bodyMedium,
+                      ),
+                    ],
+                  ],
+                ),
               ],
             ),
           ),
-          if (showLogout)
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () async {
-                try {
-                  await AuthService().signOut();
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Successfully logged out')),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error logging out: ${e.toString()}')),
-                    );
-                  }
-                }
-              },
-            ),
+          const SizedBox(width: 8),
+          if (trailing != null) trailing! else const SizedBox(width: 48),
         ],
       ),
     );
