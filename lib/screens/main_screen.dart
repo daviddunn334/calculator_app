@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'home_screen.dart';
 import 'tools_screen.dart';
 import '../theme/app_theme.dart';
@@ -7,6 +8,7 @@ import 'knowledge_base_screen.dart';
 import 'reports_screen.dart';
 import 'mile_tracker_screen.dart';
 import 'todo_screen.dart';
+import '../widgets/app_drawer.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,6 +19,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   // Placeholder screens for the other tabs
   final List<Widget> _screens = [
@@ -37,7 +40,119 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // For web, we'll use a permanent drawer on larger screens
+    if (kIsWeb) {
+      return Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: MediaQuery.of(context).size.width < 1200
+              ? IconButton(
+                  icon: const Icon(Icons.menu, color: AppTheme.textPrimary),
+                  onPressed: () {
+                    _scaffoldKey.currentState?.openDrawer();
+                  },
+                )
+              : null,
+          title: Text(
+            _getLabelForIndex(_selectedIndex),
+            style: AppTheme.titleLarge.copyWith(color: AppTheme.textPrimary),
+          ),
+        ),
+        drawer: MediaQuery.of(context).size.width < 1200
+            ? AppDrawer(
+                selectedIndex: _selectedIndex,
+                onItemSelected: _onItemTapped,
+              )
+            : null,
+        body: Row(
+          children: [
+            if (MediaQuery.of(context).size.width >= 1200)
+              SizedBox(
+                width: 280,
+                child: AppDrawer(
+                  selectedIndex: _selectedIndex,
+                  onItemSelected: _onItemTapped,
+                ),
+              ),
+            Expanded(
+              child: _screens[_selectedIndex],
+            ),
+          ],
+        ),
+        bottomNavigationBar: MediaQuery.of(context).size.width < 1200
+            ? Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
+                ),
+                child: BottomNavigationBar(
+                  items: List.generate(7, (index) {
+                    final bool isSelected = index == _selectedIndex;
+                    return BottomNavigationBarItem(
+                      icon: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: isSelected ? BoxDecoration(
+                          color: AppTheme.primaryBlue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ) : null,
+                        child: Icon(
+                          _getIconForIndex(index, isSelected),
+                          color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
+                        ),
+                      ),
+                      label: _getLabelForIndex(index),
+                    );
+                  }),
+                  currentIndex: _selectedIndex,
+                  selectedItemColor: AppTheme.primaryBlue,
+                  unselectedItemColor: AppTheme.textSecondary,
+                  showUnselectedLabels: true,
+                  type: BottomNavigationBarType.fixed,
+                  onTap: _onItemTapped,
+                  elevation: 0,
+                  backgroundColor: Colors.transparent,
+                ),
+              )
+            : null,
+      );
+    }
+
+    // For mobile, use the original implementation
     return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.menu, color: AppTheme.textPrimary),
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
+          },
+        ),
+        title: Text(
+          _getLabelForIndex(_selectedIndex),
+          style: AppTheme.titleLarge.copyWith(color: AppTheme.textPrimary),
+        ),
+      ),
+      drawer: AppDrawer(
+        selectedIndex: _selectedIndex,
+        onItemSelected: _onItemTapped,
+      ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
