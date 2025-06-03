@@ -3,6 +3,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../theme/app_theme.dart';
+import '../widgets/app_header.dart';
 
 class MileTrackerScreen extends StatefulWidget {
   const MileTrackerScreen({super.key});
@@ -92,51 +93,10 @@ class _MileTrackerScreenState extends State<MileTrackerScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(AppTheme.paddingLarge),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                    ),
-                    child: Icon(
-                      Icons.directions_car,
-                      size: 40,
-                      color: AppTheme.primaryBlue,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Mile Tracker',
-                          style: AppTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Log your miles and hours',
-                          style: AppTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            const AppHeader(
+              title: 'Mile Tracker',
+              subtitle: 'Log your miles and hours',
+              icon: Icons.directions_car,
             ),
             Expanded(
               child: SingleChildScrollView(

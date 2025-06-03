@@ -51,51 +51,82 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
         child: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.build_outlined),
-              activeIcon: Icon(Icons.build),
-              label: 'Tools',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bar_chart_outlined),
-              activeIcon: Icon(Icons.bar_chart),
-              label: 'Reports',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.directions_car_outlined),
-              activeIcon: Icon(Icons.directions_car),
-              label: 'Miles',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.checklist_outlined),
-              activeIcon: Icon(Icons.checklist),
-              label: 'To-Do',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.psychology_outlined),
-              activeIcon: Icon(Icons.psychology),
-              label: 'KB',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
+          items: List.generate(7, (index) {
+            final bool isSelected = index == _selectedIndex;
+            return BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: isSelected ? BoxDecoration(
+                  color: AppTheme.primaryBlue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primaryBlue.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ) : null,
+                child: Icon(
+                  _getIconForIndex(index, isSelected),
+                  color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
+                ),
+              ),
+              label: _getLabelForIndex(index),
+            );
+          }),
           currentIndex: _selectedIndex,
           selectedItemColor: AppTheme.primaryBlue,
           unselectedItemColor: AppTheme.textSecondary,
           showUnselectedLabels: true,
           type: BottomNavigationBarType.fixed,
           onTap: _onItemTapped,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
         ),
       ),
     );
+  }
+
+  IconData _getIconForIndex(int index, bool isSelected) {
+    switch (index) {
+      case 0:
+        return isSelected ? Icons.home : Icons.home_outlined;
+      case 1:
+        return isSelected ? Icons.build : Icons.build_outlined;
+      case 2:
+        return isSelected ? Icons.bar_chart : Icons.bar_chart_outlined;
+      case 3:
+        return isSelected ? Icons.directions_car : Icons.directions_car_outlined;
+      case 4:
+        return isSelected ? Icons.checklist : Icons.checklist_outlined;
+      case 5:
+        return isSelected ? Icons.psychology : Icons.psychology_outlined;
+      case 6:
+        return isSelected ? Icons.person : Icons.person_outline;
+      default:
+        return Icons.home_outlined;
+    }
+  }
+
+  String _getLabelForIndex(int index) {
+    switch (index) {
+      case 0:
+        return 'Home';
+      case 1:
+        return 'Tools';
+      case 2:
+        return 'Reports';
+      case 3:
+        return 'Miles';
+      case 4:
+        return 'To-Do';
+      case 5:
+        return 'KB';
+      case 6:
+        return 'Profile';
+      default:
+        return '';
+    }
   }
 } 

@@ -27,15 +27,19 @@ class _WeatherWidgetState extends State<WeatherWidget> {
       const lon = -74.0060;
       
       final weatherData = await _weatherService.getCurrentWeather(lat, lon);
-      setState(() {
-        _weatherData = weatherData;
-        _error = null;
-      });
+      if (mounted) {
+        setState(() {
+          _weatherData = weatherData;
+          _error = null;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _error = 'Unable to load weather';
-        _weatherData = null;
-      });
+      if (mounted) {
+        setState(() {
+          _error = 'Unable to load weather';
+          _weatherData = null;
+        });
+      }
     }
   }
 

@@ -5,6 +5,7 @@ import '../calculators/time_clock_calculator.dart';
 import '../calculators/dent_ovality_calculator.dart';
 import '../calculators/b31g_calculator.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_header.dart';
 import 'corrosion_grid_logger_screen.dart';
 
 class ToolsScreen extends StatelessWidget {
@@ -18,52 +19,10 @@ class ToolsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(AppTheme.paddingLarge),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryBlue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                    ),
-                    child: Icon(
-                      Icons.build,
-                      size: 40,
-                      color: AppTheme.primaryBlue,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Tools',
-                          style: AppTheme.headlineMedium,
-                          
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Select a calculator',
-                          style: AppTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            const AppHeader(
+              title: 'Tools',
+              subtitle: 'Select a calculator',
+              icon: Icons.build,
             ),
             Expanded(
               child: ListView(

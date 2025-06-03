@@ -206,9 +206,10 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                       SizedBox(
                         height: 48,
                         child: OutlinedButton.icon(
-                          icon: Image.network(
-                            'https://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png',
-                            height: 20,
+                          icon: const Icon(
+                            Icons.g_mobiledata,
+                            size: 24,
+                            color: Color(0xFF4285F4),
                           ),
                           label: const Text('Sign up with Google', style: TextStyle(fontSize: 16)),
                           onPressed: () {}, // Just styled for now

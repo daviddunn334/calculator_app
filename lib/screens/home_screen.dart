@@ -11,6 +11,8 @@ import '../widgets/weather_widget.dart';
 import '../widgets/safety_banner.dart';
 import '../widgets/daily_stats_card.dart';
 import '../widgets/news_updates_section.dart';
+import '../widgets/app_header.dart';
+import '../services/auth_service.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -21,126 +23,102 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: AppTheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(AppTheme.paddingLarge),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Section
-                Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AppHeader(
+                title: 'Welcome to Integrity Tools',
+                subtitle: 'Your pipeline inspection companion',
+                icon: Icons.dashboard,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                      ),
-                      child: Icon(Icons.dashboard, size: 40, color: AppTheme.primaryBlue),
+                    // Safety Banner
+                    const SafetyBanner(),
+                    const SizedBox(height: 24),
+
+                    // Weather Widget
+                    const WeatherWidget(),
+                    const SizedBox(height: 24),
+
+                    // Daily Stats Card
+                    const DailyStatsCard(),
+                    const SizedBox(height: 24),
+
+                    // News & Updates Section
+                    const NewsUpdatesSection(),
+                    const SizedBox(height: 24),
+
+                    // Core Buttons Section
+                    _buildButton(
+                      context,
+                      'New Dig Checklist',
+                      Icons.checklist,
+                      () => Navigator.pushNamed(context, '/inspection_checklist'),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome to Integrity Tools',
-                            style: AppTheme.headlineMedium.copyWith(
-                              color: AppTheme.accent5
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Your pipeline inspection companion',
-                            style: AppTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 12),
+                    _buildButton(
+                      context,
+                      'Common Formulas',
+                      Icons.calculate,
+                      () => Navigator.pushNamed(context, '/common_formulas'),
+                      backgroundColor: AppTheme.accent1,
                     ),
+                    const SizedBox(height: 24),
+
+                    // Quick Access Grid
+                    Text('Quick Access', style: AppTheme.titleLarge),
+                    const SizedBox(height: 16),
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 1.6,
+                      children: [
+                        _buildGridItem(
+                          context,
+                          'Start New Inspection',
+                          Icons.assignment,
+                          () => ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Starting new inspection...')),
+                          ),
+                        ),
+                        _buildGridItem(
+                          context,
+                          'Log Mileage',
+                          Icons.directions_car,
+                          () => ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Opening mileage log...')),
+                          ),
+                        ),
+                        _buildGridItem(
+                          context,
+                          'Capture GPS',
+                          Icons.location_on,
+                          () => ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Getting GPS location...')),
+                          ),
+                        ),
+                        _buildGridItem(
+                          context,
+                          'Company Directory',
+                          Icons.contacts,
+                          () => ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Opening directory...')),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
                   ],
                 ),
-                const SizedBox(height: 24),
-
-                // Safety Banner
-                const SafetyBanner(),
-                const SizedBox(height: 24),
-
-                // Weather Widget
-                const WeatherWidget(),
-                const SizedBox(height: 24),
-
-                // Daily Stats Card
-                const DailyStatsCard(),
-                const SizedBox(height: 24),
-
-                // News & Updates Section
-                const NewsUpdatesSection(),
-                const SizedBox(height: 24),
-
-                // Core Buttons Section
-                _buildButton(
-                  context,
-                  'New Dig Checklist',
-                  Icons.checklist,
-                  () => Navigator.pushNamed(context, '/inspection_checklist'),
-                ),
-                const SizedBox(height: 12),
-                _buildButton(
-                  context,
-                  'Common Formulas',
-                  Icons.calculate,
-                  () => Navigator.pushNamed(context, '/common_formulas'),
-                  backgroundColor: AppTheme.accent1,
-                ),
-                const SizedBox(height: 24),
-
-                // Quick Access Grid
-                Text('Quick Access', style: AppTheme.titleLarge),
-                const SizedBox(height: 16),
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1.6,
-                  children: [
-                    _buildGridItem(
-                      context,
-                      'Start New Inspection',
-                      Icons.assignment,
-                      () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Starting new inspection...')),
-                      ),
-                    ),
-                    _buildGridItem(
-                      context,
-                      'Log Mileage',
-                      Icons.directions_car,
-                      () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Opening mileage log...')),
-                      ),
-                    ),
-                    _buildGridItem(
-                      context,
-                      'Capture GPS',
-                      Icons.location_on,
-                      () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Getting GPS location...')),
-                      ),
-                    ),
-                    _buildGridItem(
-                      context,
-                      'Company Directory',
-                      Icons.contacts,
-                      () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Opening directory...')),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
