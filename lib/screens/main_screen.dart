@@ -8,6 +8,9 @@ import 'knowledge_base_screen.dart';
 import 'reports_screen.dart';
 import 'mile_tracker_screen.dart';
 import 'todo_screen.dart';
+import 'certifications_screen.dart';
+import 'inventory_screen.dart';
+import 'company_directory_screen.dart';
 import '../widgets/app_drawer.dart';
 
 class MainScreen extends StatefulWidget {
@@ -30,6 +33,9 @@ class _MainScreenState extends State<MainScreen> {
     const TodoScreen(),
     const KnowledgeBaseScreen(),
     const ProfileScreen(),
+    const CertificationsScreen(),
+    const InventoryScreen(),
+    const CompanyDirectoryScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -219,6 +225,12 @@ class _MainScreenState extends State<MainScreen> {
         return isSelected ? Icons.psychology : Icons.psychology_outlined;
       case 6:
         return isSelected ? Icons.person : Icons.person_outline;
+      case 7:
+        return isSelected ? Icons.verified_user : Icons.verified_user_outlined;
+      case 8:
+        return isSelected ? Icons.inventory_2 : Icons.inventory_2_outlined;
+      case 9:
+        return isSelected ? Icons.people_alt : Icons.people_alt_outlined;
       default:
         return Icons.home_outlined;
     }
@@ -240,6 +252,12 @@ class _MainScreenState extends State<MainScreen> {
         return 'KB';
       case 6:
         return 'Profile';
+      case 7:
+        return 'Certifications';
+      case 8:
+        return 'Inventory';
+      case 9:
+        return 'Directory';
       default:
         return '';
     }

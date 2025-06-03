@@ -114,6 +114,27 @@ class AppDrawer extends StatelessWidget {
                     Icons.person,
                     6,
                   ),
+                  _buildDrawerItem(
+                    context,
+                    'Certifications',
+                    Icons.verified_user_outlined,
+                    Icons.verified_user,
+                    7,
+                  ),
+                  _buildDrawerItem(
+                    context,
+                    'Inventory',
+                    Icons.inventory_2_outlined,
+                    Icons.inventory_2,
+                    8,
+                  ),
+                  _buildDrawerItem(
+                    context,
+                    'Directory',
+                    Icons.people_alt_outlined,
+                    Icons.people_alt,
+                    9,
+                  ),
                 ],
               ),
             ),
@@ -169,7 +190,10 @@ class AppDrawer extends StatelessWidget {
       selectedTileColor: AppTheme.primaryBlue.withOpacity(0.1),
       onTap: () {
         onItemSelected(index);
-        Navigator.pop(context);
+        // Only close the drawer if it's open as a modal (not permanent)
+        if (Scaffold.of(context).isDrawerOpen) {
+          Navigator.pop(context);
+        }
       },
     );
   }
