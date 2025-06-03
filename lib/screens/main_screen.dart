@@ -40,7 +40,13 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      // If index is greater than 6 (drawer-only items), don't update bottom nav
+      if (index <= 6) {
+        _selectedIndex = index;
+      } else {
+        // For drawer-only items, just show the screen without changing bottom nav
+        _selectedIndex = index;
+      }
     });
   }
 
@@ -101,7 +107,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 child: BottomNavigationBar(
                   items: List.generate(7, (index) {
-                    final bool isSelected = index == _selectedIndex;
+                    final bool isSelected = index == _selectedIndex && _selectedIndex <= 6;
                     return BottomNavigationBarItem(
                       icon: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -124,7 +130,7 @@ class _MainScreenState extends State<MainScreen> {
                       label: _getLabelForIndex(index),
                     );
                   }),
-                  currentIndex: _selectedIndex,
+                  currentIndex: _selectedIndex <= 6 ? _selectedIndex : 0,
                   selectedItemColor: AppTheme.primaryBlue,
                   unselectedItemColor: AppTheme.textSecondary,
                   showUnselectedLabels: true,

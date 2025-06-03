@@ -189,11 +189,12 @@ class AppDrawer extends StatelessWidget {
       selected: isSelected,
       selectedTileColor: AppTheme.primaryBlue.withOpacity(0.1),
       onTap: () {
-        onItemSelected(index);
-        // Only close the drawer if it's open as a modal (not permanent)
+        // Close the drawer first before navigation
         if (Scaffold.of(context).isDrawerOpen) {
           Navigator.pop(context);
         }
+        // Then update the selected index
+        onItemSelected(index);
       },
     );
   }
