@@ -6,11 +6,11 @@ import '../theme/app_theme.dart';
 import 'profile_screen.dart';
 import 'knowledge_base_screen.dart';
 import 'reports_screen.dart';
-import 'mile_tracker_screen.dart';
 import 'todo_screen.dart';
 import 'certifications_screen.dart';
 import 'inventory_screen.dart';
 import 'company_directory_screen.dart';
+import 'field_log_screen.dart';
 import '../widgets/app_drawer.dart';
 
 class MainScreen extends StatefulWidget {
@@ -28,7 +28,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const ToolsScreen(),
     const ReportsScreen(),
-    const MileTrackerScreen(),
+    const FieldLogScreen(),
     const TodoScreen(),
     const KnowledgeBaseScreen(),
     const ProfileScreen(),
@@ -157,7 +157,7 @@ class _MainScreenState extends State<MainScreen> {
       case 2:
         return isSelected ? Icons.bar_chart : Icons.bar_chart_outlined;
       case 3:
-        return isSelected ? Icons.directions_car : Icons.directions_car_outlined;
+        return isSelected ? Icons.note_alt : Icons.note_alt_outlined;
       case 4:
         return isSelected ? Icons.checklist : Icons.checklist_outlined;
       case 5:
@@ -184,7 +184,7 @@ class _MainScreenState extends State<MainScreen> {
       case 2:
         return 'Reports';
       case 3:
-        return 'Miles';
+        return 'Field Log';
       case 4:
         return 'To-Do';
       case 5:

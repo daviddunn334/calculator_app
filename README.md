@@ -1,68 +1,63 @@
-# NDT Calculator App
+# Integrity Tools
 
-A comprehensive calculator application designed specifically for Non-Destructive Testing (NDT) field technicians. This app provides various tools and calculators to assist technicians in their daily work.
+A comprehensive toolkit for pipeline inspection professionals.
 
 ## Features
 
-- **ABS + ES Calculator**: Calculate ABS and ES values for NDT inspections
-- **Pit Depth Calculator**: Measure and calculate pit depths accurately
-- **Time Clock Calculator**: Track and calculate work hours
-- **Mile Tracker**: Log and track driving miles for work-related travel
-- **Company Directory**: Manage and access employee information
-
-## Getting Started
-
-### Prerequisites
-
-- Flutter SDK (latest version)
-- Dart SDK (latest version)
-- Android Studio / VS Code with Flutter extensions
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/calculator_app.git
-```
-
-2. Navigate to the project directory:
-```bash
-cd calculator_app
-```
-
-3. Install dependencies:
-```bash
-flutter pub get
-```
-
-4. Run the app:
-```bash
-flutter run
-```
+- **Calculators**: Various calculators for pipeline inspection
+- **Reports**: Generate and manage inspection reports
+- **To-Do List**: Track tasks and assignments
+- **Knowledge Base**: Access technical documentation and guidelines
+- **Profile Management**: Manage user profile and preferences
+- **Certifications**: Track and manage certifications
+- **Inventory**: Manage equipment and supplies
+- **Company Directory**: Access company contact information
 
 ## Project Structure
 
 ```
 lib/
-├── calculators/
-│   ├── abs_es_calculator.dart
-│   ├── pit_depth_calculator.dart
-│   └── time_clock_calculator.dart
-├── screens/
-│   ├── mile_tracker.dart
-│   └── company_directory.dart
-├── theme/
-│   └── app_theme.dart
-└── main.dart
+│   ├── calculators/
+│   │   ├── abs_es_calculator.dart
+│   │   ├── pit_depth_calculator.dart
+│   │   ├── time_clock_calculator.dart
+│   │   └── soc_eoc_calculator.dart
+│   ├── models/
+│   │   ├── report.dart
+│   │   ├── todo_item.dart
+│   │   └── user_profile.dart
+│   ├── screens/
+│   │   ├── home_screen.dart
+│   │   ├── tools_screen.dart
+│   │   ├── reports_screen.dart
+│   │   ├── todo_screen.dart
+│   │   ├── knowledge_base_screen.dart
+│   │   ├── profile_screen.dart
+│   │   ├── certifications_screen.dart
+│   │   ├── inventory_screen.dart
+│   │   └── company_directory_screen.dart
+│   ├── services/
+│   │   ├── auth_service.dart
+│   │   ├── report_service.dart
+│   │   └── profile_service.dart
+│   ├── theme/
+│   │   └── app_theme.dart
+│   ├── widgets/
+│   │   ├── app_drawer.dart
+│   │   ├── bottom_nav_bar.dart
+│   │   └── daily_stats_card.dart
+│   └── main.dart
 ```
+
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies: `flutter pub get`
+3. Run the app: `flutter run`
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## License
 

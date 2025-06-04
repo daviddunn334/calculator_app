@@ -36,19 +36,11 @@ class DailyStatsCard extends StatelessWidget {
               children: [
                 _buildStatIndicator(
                   context,
-                  'Inspections',
+                  'Tasks Completed',
                   '4/6',
                   0.67,
                   AppTheme.accent1,
                   Icons.assignment_turned_in,
-                ),
-                _buildStatIndicator(
-                  context,
-                  'Miles Logged',
-                  '45.2',
-                  0.75,
-                  AppTheme.accent5,
-                  Icons.directions_car,
                 ),
                 _buildStatIndicator(
                   context,

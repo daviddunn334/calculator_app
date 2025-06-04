@@ -32,9 +32,9 @@ class BottomNavBar extends StatelessWidget {
           label: 'Reports',
         ),
         NavigationDestination(
-          icon: Icon(Icons.route_outlined),
-          selectedIcon: Icon(Icons.route),
-          label: 'Miles',
+          icon: Icon(Icons.note_alt_outlined),
+          selectedIcon: Icon(Icons.note_alt),
+          label: 'Field Log',
         ),
         NavigationDestination(
           icon: Icon(Icons.checklist_outlined),

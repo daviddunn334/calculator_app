@@ -83,8 +83,8 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.directions_car_outlined),
-            title: const Text('Miles'),
+            leading: const Icon(Icons.note_alt_outlined),
+            title: const Text('Field Log'),
             selected: selectedIndex == 3,
             onTap: () {
               if (!isLargeScreen) {
