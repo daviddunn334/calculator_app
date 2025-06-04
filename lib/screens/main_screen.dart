@@ -149,17 +149,50 @@ class _MainScreenState extends State<MainScreen> {
       key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
+        elevation: 1,
+        leadingWidth: 40,
         leading: IconButton(
-          icon: const Icon(Icons.menu, color: AppTheme.textPrimary),
+          icon: const Icon(Icons.menu, color: AppTheme.textPrimary, size: 24),
+          padding: const EdgeInsets.only(left: 8),
           onPressed: () {
             _scaffoldKey.currentState?.openDrawer();
           },
         ),
         title: Text(
           _getLabelForIndex(_selectedIndex),
-          style: AppTheme.titleLarge.copyWith(color: AppTheme.textPrimary),
+          style: AppTheme.titleLarge.copyWith(
+            color: AppTheme.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                _onItemTapped(6); // Navigate to profile
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                minimumSize: const Size(40, 36),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.person_outline, size: 20),
+                  SizedBox(width: 4),
+                  Text('Profile'),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       drawer: AppDrawer(
         selectedIndex: _selectedIndex,

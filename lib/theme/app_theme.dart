@@ -69,14 +69,18 @@ class AppTheme {
     scaffoldBackgroundColor: background,
     appBarTheme: const AppBarTheme(
       backgroundColor: surface,
-      elevation: 0,
+      elevation: 1,
       centerTitle: false,
       titleTextStyle: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-        color: accent5,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: textPrimary,
       ),
-      iconTheme: IconThemeData(color: textPrimary),
+      iconTheme: IconThemeData(
+        color: textPrimary,
+        size: 24,
+      ),
+      toolbarHeight: 56,
     ),
     cardTheme: CardThemeData(
       color: surface,

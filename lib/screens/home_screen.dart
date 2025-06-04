@@ -26,16 +26,68 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const AppHeader(
-                title: 'Welcome to Integrity Tools',
-                subtitle: 'Your pipeline inspection companion',
-                icon: Icons.dashboard,
-              ),
+              if (MediaQuery.of(context).size.width >= 1200)
+                const AppHeader(
+                  title: 'Welcome to Integrity Tools',
+                  subtitle: 'Your pipeline inspection companion',
+                  icon: Icons.dashboard,
+                ),
               Padding(
                 padding: const EdgeInsets.all(AppTheme.paddingLarge),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Welcome Section
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.paddingLarge,
+                        vertical: AppTheme.paddingMedium,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                        border: Border.all(color: AppTheme.divider),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primaryBlue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                            ),
+                            child: const Icon(
+                              Icons.engineering_rounded,
+                              size: 32,
+                              color: AppTheme.primaryBlue,
+                            ),
+                          ),
+                          const SizedBox(width: AppTheme.paddingLarge),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Welcome to Integrity Tools',
+                                  style: AppTheme.titleLarge.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Your comprehensive pipeline inspection toolkit',
+                                  style: AppTheme.bodyMedium.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
                     // Safety Banner
                     const SafetyBanner(),
                     const SizedBox(height: 24),
