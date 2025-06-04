@@ -110,13 +110,14 @@
   </script>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics-compat.js"></script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 
-  <script>
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAi67zypYsAY4et0BZNG6HQ2N9KDcOWJ9s",
@@ -129,8 +130,29 @@
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    const analytics = getAnalytics(app);
+
+    // Set persistence to LOCAL
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => {
+        console.log("Auth persistence set to LOCAL");
+      })
+      .catch((error) => {
+        console.error("Error setting auth persistence:", error);
+      });
+
+    // Make Firebase services available globally
+    window.firebase = {
+      app,
+      auth,
+      db,
+      storage,
+      analytics
+    };
   </script>
 </body>
 </html>

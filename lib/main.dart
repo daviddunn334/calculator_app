@@ -25,6 +25,10 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    
+    // Initialize AuthService with persistence
+    final authService = AuthService();
+    await authService.initialize();
   } catch (e) {
     print('Error initializing Firebase: $e');
   }
