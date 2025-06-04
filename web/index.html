@@ -18,7 +18,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Pipeline Integrity Tools - Your comprehensive pipeline integrity toolkit">
+  <meta name="description" content="A new Flutter project.">
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&family=Noto+Sans+Symbols:wght@400;500;700&display=swap" rel="stylesheet">
@@ -28,14 +28,15 @@
     }
   </style>
 
-  <!-- iOS meta tags & icons -->
+  <!-- Mobile web app capable -->
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Integrity Tools">
-  <link rel="apple-touch-icon" href="icons/app_icon.png">
+  <meta name="apple-mobile-web-app-title" content="calculator_app">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="icons/app_icon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png"/>
   <link rel="icon" type="image/png" sizes="192x192" href="icons/app_icon.png"/>
   <link rel="icon" type="image/png" sizes="512x512" href="icons/app_icon.png"/>
 
@@ -45,48 +46,14 @@
   <!-- Noto Sans font for text -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <title>Integrity Tools</title>
+  <title>Calculator App</title>
   <link rel="manifest" href="manifest.json">
 
   <script>
-    const serviceWorkerVersion = '{{flutter_service_worker_version}}';
+    var serviceWorkerVersion = null;
   </script>
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter.js" defer></script>
 </head>
 <body>
-  <script>
-    window.addEventListener('load', function() {
-      _flutter.loader.load({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        }
-      });
-    });
-  </script>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
-
-  <!-- Initialize Firebase -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyAi67zypYsAY4et0BZNG6HQ2N9KDcOWJ9s",
-      authDomain: "integrity-tools.firebaseapp.com",
-      projectId: "integrity-tools",
-      storageBucket: "integrity-tools.firebasestorage.app",
-      messagingSenderId: "787811700889",
-      appId: "1:787811700889:web:3dc5902b7778191b566808",
-      measurementId: "G-FL0FRBEMPC"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
-  </script>
-
   <div id="loading">
     <style>
       body {
@@ -122,5 +89,47 @@
     </style>
     <img src="icons/app_icon.png" alt="Loading indicator..." />
   </div>
+
+  <script>
+    window.addEventListener('load', function(ev) {
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
+        }
+      })
+      .catch(function(error) {
+        console.error('Error initializing Flutter app:', error);
+      });
+    });
+  </script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+
+  <!-- Initialize Firebase -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAi67zypYsAY4et0BZNG6HQ2N9KDcOWJ9s",
+      authDomain: "integrity-tools.firebaseapp.com",
+      projectId: "integrity-tools",
+      storageBucket: "integrity-tools.firebasestorage.app",
+      messagingSenderId: "787811700889",
+      appId: "1:787811700889:web:3dc5902b7778191b566808",
+      measurementId: "G-FL0FRBEMPC"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
+
+  <script src="flutter.js" defer></script>
 </body>
 </html>
