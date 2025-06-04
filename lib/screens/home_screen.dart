@@ -119,54 +119,6 @@ class HomeScreen extends StatelessWidget {
                       () => Navigator.pushNamed(context, '/common_formulas'),
                       backgroundColor: AppTheme.accent1,
                     ),
-                    const SizedBox(height: 24),
-
-                    // Quick Access Grid
-                    Text('Quick Access', style: AppTheme.titleLarge),
-                    const SizedBox(height: 16),
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 12,
-                      crossAxisSpacing: 12,
-                      childAspectRatio: 1.6,
-                      children: [
-                        _buildGridItem(
-                          context,
-                          'Start New Inspection',
-                          Icons.assignment,
-                          () => ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Starting new inspection...')),
-                          ),
-                        ),
-                        _buildGridItem(
-                          context,
-                          'Log Mileage',
-                          Icons.directions_car,
-                          () => ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Opening mileage log...')),
-                          ),
-                        ),
-                        _buildGridItem(
-                          context,
-                          'Capture GPS',
-                          Icons.location_on,
-                          () => ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Getting GPS location...')),
-                          ),
-                        ),
-                        _buildGridItem(
-                          context,
-                          'Company Directory',
-                          Icons.contacts,
-                          () => ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Opening directory...')),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
                   ],
                 ),
               ),
@@ -190,35 +142,6 @@ class HomeScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
           ),
           backgroundColor: backgroundColor,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGridItem(BuildContext context, String title, IconData icon, VoidCallback onTap) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        side: const BorderSide(color: AppTheme.divider),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppTheme.paddingMedium, vertical: AppTheme.paddingSmall),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 24, color: AppTheme.primaryBlue),
-              const SizedBox(height: 8),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: AppTheme.bodyMedium.copyWith(fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
         ),
       ),
     );
