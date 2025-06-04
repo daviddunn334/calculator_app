@@ -22,10 +22,13 @@ import 'theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Firebase first
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+  }
   
   // Then initialize Supabase
   // await Supabase.initialize(
@@ -45,7 +48,7 @@ class MyApp extends StatelessWidget {
       title: 'Integrity Tools',
       theme: AppTheme.theme,
       debugShowCheckedModeBanner: false,
-      home: AuthGate(),
+      home: const AuthGate(),
       routes: {
         // '/': (context) => const MainScreen(), // Removed to avoid conflict with home
         '/login': (context) => const LoginScreen(),
@@ -66,21 +69,36 @@ class MyApp extends StatelessWidget {
 }
 
 class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<fb_auth.User?>(
       stream: AuthService().authStateChanges,
       builder: (context, snapshot) {
+        // Show loading indicator while checking auth state
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
-        if (snapshot.hasData) {
-          return const MainScreen();
-        } else {
+
+        // Show error if there's an issue with auth state
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(
+              child: Text('Error: ${snapshot.error}'),
+            ),
+          );
+        }
+
+        // Show login screen if not authenticated
+        if (!snapshot.hasData) {
           return const LoginScreen();
         }
+
+        // Show main screen if authenticated
+        return const MainScreen();
       },
     );
   }
