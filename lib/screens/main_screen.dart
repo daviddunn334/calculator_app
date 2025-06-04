@@ -24,7 +24,6 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // Placeholder screens for the other tabs
   final List<Widget> _screens = [
     const HomeScreen(),
     const ToolsScreen(),
@@ -40,211 +39,112 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onItemTapped(int index) {
     setState(() {
-      // If index is greater than 6 (drawer-only items), don't update bottom nav
-      if (index <= 6) {
-        _selectedIndex = index;
-      } else {
-        // For drawer-only items, just show the screen without changing bottom nav
-        _selectedIndex = index;
-      }
+      _selectedIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // For web, we'll use a permanent drawer on larger screens
-    if (kIsWeb) {
-      return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: MediaQuery.of(context).size.width < 1200
-              ? IconButton(
-                  icon: const Icon(Icons.menu, color: AppTheme.textPrimary),
-                  onPressed: () {
-                    _scaffoldKey.currentState?.openDrawer();
-                  },
-                )
-              : null,
-          title: Text(
-            _getLabelForIndex(_selectedIndex),
-            style: AppTheme.titleLarge.copyWith(color: AppTheme.textPrimary),
-          ),
-        ),
-        drawer: MediaQuery.of(context).size.width < 1200
-            ? AppDrawer(
-                selectedIndex: _selectedIndex,
-                onItemSelected: _onItemTapped,
+    final isLargeScreen = MediaQuery.of(context).size.width >= 1200;
+
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: !isLargeScreen
+            ? IconButton(
+                icon: const Icon(Icons.menu, color: AppTheme.textPrimary),
+                onPressed: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
               )
             : null,
-        body: Row(
+        title: Text(
+          _getLabelForIndex(_selectedIndex),
+          style: AppTheme.titleLarge.copyWith(color: AppTheme.textPrimary),
+        ),
+      ),
+      drawer: !isLargeScreen
+          ? AppDrawer(
+              selectedIndex: _selectedIndex,
+              onItemSelected: _onItemTapped,
+            )
+          : null,
+      body: Container(
+        color: AppTheme.background,
+        child: Row(
           children: [
-            if (MediaQuery.of(context).size.width >= 1200)
-              SizedBox(
+            if (isLargeScreen)
+              Container(
                 width: 280,
+                color: Colors.white,
                 child: AppDrawer(
                   selectedIndex: _selectedIndex,
                   onItemSelected: _onItemTapped,
                 ),
               ),
             Expanded(
-              child: _screens[_selectedIndex],
+              child: Container(
+                color: AppTheme.background,
+                child: ClipRect(
+                  child: _screens[_selectedIndex],
+                ),
+              ),
             ),
           ],
         ),
-        bottomNavigationBar: MediaQuery.of(context).size.width < 1200
-            ? Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, -5),
-                    ),
-                  ],
-                ),
-                child: BottomNavigationBar(
-                  items: List.generate(7, (index) {
-                    final bool isSelected = index == _selectedIndex && _selectedIndex <= 6;
-                    return BottomNavigationBarItem(
-                      icon: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: isSelected ? BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppTheme.primaryBlue.withOpacity(0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ) : null,
-                        child: Icon(
-                          _getIconForIndex(index, isSelected),
-                          color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
-                        ),
-                      ),
-                      label: _getLabelForIndex(index),
-                    );
-                  }),
-                  currentIndex: _selectedIndex <= 6 ? _selectedIndex : 0,
-                  selectedItemColor: AppTheme.primaryBlue,
-                  unselectedItemColor: AppTheme.textSecondary,
-                  showUnselectedLabels: true,
-                  type: BottomNavigationBarType.fixed,
-                  onTap: _onItemTapped,
-                  elevation: 0,
-                  backgroundColor: Colors.transparent,
-                ),
-              )
-            : null,
-      );
-    }
-
-    // For mobile, use the original implementation
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1,
-        leadingWidth: 40,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: AppTheme.textPrimary, size: 24),
-          padding: const EdgeInsets.only(left: 8),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
-        ),
-        title: Text(
-          _getLabelForIndex(_selectedIndex),
-          style: AppTheme.titleLarge.copyWith(
-            color: AppTheme.textPrimary,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: ElevatedButton(
-              onPressed: () {
-                _onItemTapped(6); // Navigate to profile
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryBlue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                minimumSize: const Size(40, 36),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.person_outline, size: 20),
-                  SizedBox(width: 4),
-                  Text('Profile'),
+      ),
+      bottomNavigationBar: !isLargeScreen
+          ? Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, -5),
+                  ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
-      drawer: AppDrawer(
-        selectedIndex: _selectedIndex,
-        onItemSelected: _onItemTapped,
-      ),
-      body: _screens[_selectedIndex],
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          items: List.generate(7, (index) {
-            final bool isSelected = index == _selectedIndex;
-            return BottomNavigationBarItem(
-              icon: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: isSelected ? BoxDecoration(
-                  color: AppTheme.primaryBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppTheme.primaryBlue.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+              child: BottomNavigationBar(
+                items: List.generate(7, (index) {
+                  final bool isSelected = index == _selectedIndex && _selectedIndex <= 6;
+                  return BottomNavigationBarItem(
+                    icon: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: isSelected
+                          ? BoxDecoration(
+                              color: AppTheme.primaryBlue.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            )
+                          : null,
+                      child: Icon(
+                        _getIconForIndex(index, isSelected),
+                        color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
+                      ),
                     ),
-                  ],
-                ) : null,
-                child: Icon(
-                  _getIconForIndex(index, isSelected),
-                  color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
-                ),
+                    label: _getLabelForIndex(index),
+                  );
+                }),
+                currentIndex: _selectedIndex <= 6 ? _selectedIndex : 0,
+                selectedItemColor: AppTheme.primaryBlue,
+                unselectedItemColor: AppTheme.textSecondary,
+                showUnselectedLabels: true,
+                type: BottomNavigationBarType.fixed,
+                onTap: _onItemTapped,
+                elevation: 0,
+                backgroundColor: Colors.transparent,
               ),
-              label: _getLabelForIndex(index),
-            );
-          }),
-          currentIndex: _selectedIndex,
-          selectedItemColor: AppTheme.primaryBlue,
-          unselectedItemColor: AppTheme.textSecondary,
-          showUnselectedLabels: true,
-          type: BottomNavigationBarType.fixed,
-          onTap: _onItemTapped,
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-        ),
-      ),
+            )
+          : null,
     );
   }
 

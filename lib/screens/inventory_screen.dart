@@ -6,165 +6,160 @@ class InventoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                      ),
-                      child: const Icon(
-                        Icons.inventory_2,
-                        size: 40,
-                        color: AppTheme.primaryBlue,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Inventory Tracker',
-                            style: AppTheme.headlineMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Manage NDT equipment and supplies',
-                            style: AppTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                  ),
+                  child: const Icon(
+                    Icons.inventory_2,
+                    size: 40,
+                    color: AppTheme.primaryBlue,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Equipment & Supplies',
-                          style: AppTheme.titleLarge,
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            // TODO: Implement add inventory item
-                          },
-                          icon: const Icon(Icons.add),
-                          label: const Text('Add Item'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryBlue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppTheme.paddingLarge,
-                              vertical: AppTheme.paddingMedium,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Search and filter bar
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppTheme.paddingMedium,
-                        vertical: AppTheme.paddingSmall,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Inventory Tracker',
+                        style: AppTheme.headlineMedium,
                       ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                        border: Border.all(color: AppTheme.divider),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Manage NDT equipment and supplies',
+                        style: AppTheme.bodyMedium,
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search, color: AppTheme.textSecondary),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                hintText: 'Search inventory...',
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                              style: AppTheme.bodyMedium,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.filter_list),
-                            onPressed: () {
-                              // TODO: Implement filters
-                            },
-                            color: AppTheme.textSecondary,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    // Categories
-                    _buildCategorySection('Equipment', [
-                      _buildInventoryCard(
-                        name: 'UT Flaw Detector',
-                        model: 'OmniScan MX2',
-                        status: InventoryStatus.inUse,
-                        lastMaintenance: 'Last maintained: Jan 15, 2024',
-                        serialNumber: 'SN: UT-2023-456',
-                      ),
-                      _buildInventoryCard(
-                        name: 'MT Yoke',
-                        model: 'Y-7',
-                        status: InventoryStatus.available,
-                        lastMaintenance: 'Last maintained: Dec 20, 2023',
-                        serialNumber: 'SN: MT-2023-789',
-                      ),
-                    ]),
-                    const SizedBox(height: 24),
-                    _buildCategorySection('Consumables', [
-                      _buildInventoryCard(
-                        name: 'MT Particles (Black)',
-                        model: '14A Powder',
-                        status: InventoryStatus.lowStock,
-                        quantity: 'Quantity: 2 bottles',
-                        serialNumber: 'Batch: MP-2024-001',
-                      ),
-                      _buildInventoryCard(
-                        name: 'UT Couplant',
-                        model: 'Glycerin Gel',
-                        status: InventoryStatus.available,
-                        quantity: 'Quantity: 15 bottles',
-                        serialNumber: 'Batch: UC-2024-003',
-                      ),
-                    ]),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Equipment & Supplies',
+                      style: AppTheme.titleLarge,
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // TODO: Implement add inventory item
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add Item'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.paddingLarge,
+                          vertical: AppTheme.paddingMedium,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Search and filter bar
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppTheme.paddingMedium,
+                    vertical: AppTheme.paddingSmall,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    border: Border.all(color: AppTheme.divider),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.search, color: AppTheme.textSecondary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          decoration: const InputDecoration(
+                            hintText: 'Search inventory...',
+                            border: InputBorder.none,
+                            isDense: true,
+                          ),
+                          style: AppTheme.bodyMedium,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.filter_list),
+                        onPressed: () {
+                          // TODO: Implement filters
+                        },
+                        color: AppTheme.textSecondary,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Categories
+                _buildCategorySection('Equipment', [
+                  _buildInventoryCard(
+                    name: 'UT Flaw Detector',
+                    model: 'OmniScan MX2',
+                    status: InventoryStatus.inUse,
+                    lastMaintenance: 'Last maintained: Jan 15, 2024',
+                    serialNumber: 'SN: UT-2023-456',
+                  ),
+                  _buildInventoryCard(
+                    name: 'MT Yoke',
+                    model: 'Y-7',
+                    status: InventoryStatus.available,
+                    lastMaintenance: 'Last maintained: Dec 20, 2023',
+                    serialNumber: 'SN: MT-2023-789',
+                  ),
+                ]),
+                const SizedBox(height: 24),
+                _buildCategorySection('Consumables', [
+                  _buildInventoryCard(
+                    name: 'MT Particles (Black)',
+                    model: '14A Powder',
+                    status: InventoryStatus.lowStock,
+                    quantity: 'Quantity: 2 bottles',
+                    serialNumber: 'Batch: MP-2024-001',
+                  ),
+                  _buildInventoryCard(
+                    name: 'UT Couplant',
+                    model: 'Glycerin Gel',
+                    status: InventoryStatus.available,
+                    quantity: 'Quantity: 15 bottles',
+                    serialNumber: 'Batch: UC-2024-003',
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

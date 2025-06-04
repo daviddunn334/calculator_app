@@ -6,116 +6,111 @@ class CertificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                      ),
-                      child: const Icon(
-                        Icons.verified_user,
-                        size: 40,
-                        color: AppTheme.primaryBlue,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'NDT Certifications',
-                            style: AppTheme.headlineMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Track and manage certification status',
-                            style: AppTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                  ),
+                  child: const Icon(
+                    Icons.verified_user,
+                    size: 40,
+                    color: AppTheme.primaryBlue,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Active Certifications',
-                          style: AppTheme.titleLarge,
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            // TODO: Implement add certification
-                          },
-                          icon: const Icon(Icons.add),
-                          label: const Text('Add New'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryBlue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppTheme.paddingLarge,
-                              vertical: AppTheme.paddingMedium,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    // Example certification cards
-                    _buildCertificationCard(
-                      title: 'Magnetic Particle Testing (MT) - Level II',
-                      expiryDate: 'Expires: Dec 31, 2024',
-                      certNumber: 'Cert #: MT-2023-001',
-                      status: CertificationStatus.active,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildCertificationCard(
-                      title: 'Ultrasonic Testing (UT) - Level I',
-                      expiryDate: 'Expires: Jun 15, 2024',
-                      certNumber: 'Cert #: UT-2023-045',
-                      status: CertificationStatus.expiringSoon,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildCertificationCard(
-                      title: 'Penetrant Testing (PT) - Level II',
-                      expiryDate: 'Expired: Jan 01, 2024',
-                      certNumber: 'Cert #: PT-2022-112',
-                      status: CertificationStatus.expired,
-                    ),
-                  ],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'NDT Certifications',
+                        style: AppTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Track and manage certification status',
+                        style: AppTheme.bodyMedium,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Active Certifications',
+                      style: AppTheme.titleLarge,
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        // TODO: Implement add certification
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add New'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryBlue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppTheme.paddingLarge,
+                          vertical: AppTheme.paddingMedium,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Example certification cards
+                _buildCertificationCard(
+                  title: 'Magnetic Particle Testing (MT) - Level II',
+                  expiryDate: 'Expires: Dec 31, 2024',
+                  certNumber: 'Cert #: MT-2023-001',
+                  status: CertificationStatus.active,
+                ),
+                const SizedBox(height: 16),
+                _buildCertificationCard(
+                  title: 'Ultrasonic Testing (UT) - Level I',
+                  expiryDate: 'Expires: Jun 15, 2024',
+                  certNumber: 'Cert #: UT-2023-045',
+                  status: CertificationStatus.expiringSoon,
+                ),
+                const SizedBox(height: 16),
+                _buildCertificationCard(
+                  title: 'Penetrant Testing (PT) - Level II',
+                  expiryDate: 'Expired: Jan 01, 2024',
+                  certNumber: 'Cert #: PT-2022-112',
+                  status: CertificationStatus.expired,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
