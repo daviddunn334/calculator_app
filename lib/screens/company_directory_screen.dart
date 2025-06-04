@@ -315,6 +315,11 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () => _showDeleteConfirmation(employee),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -397,5 +402,53 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> {
       default:
         return status;
     }
+  }
+
+  void _showDeleteConfirmation(CompanyEmployee employee) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Employee'),
+        content: Text(
+          'Are you sure you want to delete ${employee.firstName} ${employee.lastName} from the directory?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                await _employeeService.deleteEmployee(employee.id!);
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Employee deleted successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error deleting employee: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 } 
