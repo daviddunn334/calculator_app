@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_header.dart';
+import '../models/report.dart';
+import '../services/report_service.dart';
+import 'report_form_screen.dart';
 
-class ReportsScreen extends StatelessWidget {
+class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
+
+  @override
+  State<ReportsScreen> createState() => _ReportsScreenState();
+}
+
+class _ReportsScreenState extends State<ReportsScreen> {
+  final ReportService _reportService = ReportService();
 
   @override
   Widget build(BuildContext context) {
@@ -25,77 +35,91 @@ class ReportsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Quick Stats
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildStatCard(
-                            'Total Reports',
-                            '156',
-                            Icons.description_outlined,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildStatCard(
-                            'This Month',
-                            '23',
-                            Icons.calendar_today_outlined,
-                          ),
-                        ),
-                      ],
-                    ),
-                    
-                    const SizedBox(height: 24),
-                    
-                    // Recent Reports List
-                    Text(
-                      'Recent Reports',
-                      style: AppTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 16),
                     Expanded(
-                      child: ListView(
-                        children: [
-                          _buildReportCard(
-                            'Pipeline Segment A-123',
-                            'Corrosion Assessment',
-                            '2 hours ago',
-                            'High Priority',
-                            Colors.red,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildReportCard(
-                            'Valve Station B-456',
-                            'Pressure Test Results',
-                            '1 day ago',
-                            'Medium Priority',
-                            Colors.orange,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildReportCard(
-                            'Compressor Station C-789',
-                            'Equipment Inspection',
-                            '2 days ago',
-                            'Low Priority',
-                            Colors.green,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildReportCard(
-                            'Pipeline Segment D-012',
-                            'Crack Assessment',
-                            '3 days ago',
-                            'High Priority',
-                            Colors.red,
-                          ),
-                          const SizedBox(height: 12),
-                          _buildReportCard(
-                            'Valve Station E-345',
-                            'Leak Test Results',
-                            '4 days ago',
-                            'Medium Priority',
-                            Colors.orange,
-                          ),
-                        ],
+                      child: StreamBuilder<List<Report>>(
+                        stream: _reportService.getReports(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            print('Firestore error: \n\n\n');
+                            print(snapshot.error);
+                            debugPrint('Firestore error: \n');
+                            debugPrint(snapshot.error.toString());
+                            return Center(
+                              child: Text(
+                                'Error: \n'+snapshot.error.toString(),
+                                style: AppTheme.bodyMedium.copyWith(color: Colors.red),
+                              ),
+                            );
+                          }
+
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          final reports = snapshot.data ?? [];
+
+                          // Calculate stats
+                          final totalReports = reports.length;
+                          final now = DateTime.now();
+                          final monthlyReports = reports.where((report) =>
+                            report.createdAt.year == now.year && report.createdAt.month == now.month
+                          ).length;
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      'Total Reports',
+                                      totalReports.toString(),
+                                      Icons.description_outlined,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      'This Month',
+                                      monthlyReports.toString(),
+                                      Icons.calendar_today_outlined,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'Recent Reports',
+                                style: AppTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 16),
+                              Expanded(
+                                child: reports.isEmpty
+                                    ? Center(
+                                        child: Text(
+                                          'No reports yet. Create your first report!',
+                                          style: AppTheme.bodyMedium,
+                                        ),
+                                      )
+                                    : ListView.builder(
+                                        itemCount: reports.length,
+                                        itemBuilder: (context, index) {
+                                          final report = reports[index];
+                                          return _buildReportCard(
+                                            report.location,
+                                            report.method,
+                                            _formatDate(report.createdAt),
+                                            _getPriorityColor(report),
+                                            report: report,
+                                          );
+                                        },
+                                      ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -107,9 +131,9 @@ class ReportsScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Implement new report creation
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Create new report')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ReportFormScreen()),
           );
         },
         backgroundColor: AppTheme.primaryBlue,
@@ -148,7 +172,7 @@ class ReportsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReportCard(String title, String type, String time, String priority, Color priorityColor) {
+  Widget _buildReportCard(String title, String type, String time, Color priorityColor, {Report? report}) {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -156,7 +180,14 @@ class ReportsScreen extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to report detail screen
+          if (report != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ReportFormScreen(report: report, reportId: report.id),
+              ),
+            );
+          }
         },
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         child: Padding(
@@ -185,7 +216,7 @@ class ReportsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                     ),
                     child: Text(
-                      priority,
+                      type,
                       style: AppTheme.bodyMedium.copyWith(
                         color: priorityColor,
                         fontWeight: FontWeight.bold,
@@ -196,13 +227,6 @@ class ReportsScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Text(
-                type,
-                style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 4),
               Text(
                 time,
                 style: AppTheme.bodyMedium.copyWith(
@@ -215,5 +239,40 @@ class ReportsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      if (difference.inHours == 0) {
+        return '${difference.inMinutes} minutes ago';
+      }
+      return '${difference.inHours} hours ago';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} days ago';
+    } else {
+      return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    }
+  }
+
+  Color _getPriorityColor(Report report) {
+    // You can implement your own priority logic here
+    // For now, we'll just use different colors based on the inspection method
+    switch (report.method) {
+      case 'MT':
+        return Colors.blue;
+      case 'UT':
+        return Colors.green;
+      case 'PT':
+        return Colors.orange;
+      case 'PAUT':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 } 
