@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-// import 'package:supabase_flutter/supabase_flutter.dart'; // Removed Supabase import
 import 'screens/main_screen.dart';
 import 'screens/corrosion_grid_logger_screen.dart';
 import 'screens/inspection_checklist_screen.dart';
@@ -30,12 +29,6 @@ void main() async {
     print('Error initializing Firebase: $e');
   }
   
-  // Then initialize Supabase
-  // await Supabase.initialize(
-  //   url: 'https://cefujtovqdicsfqywfxw.supabase.co',
-  //   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlZnVqdG92cWRpY3NmcXl3Znh3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY5MDE5NTQsImV4cCI6MjA2MjQ3Nzk1NH0.B-gvG-6hchT6sOV6rhJBl8KbDlumorIzx4L8YauypDE',
-  // );
-  
   runApp(const MyApp());
 }
 
@@ -50,7 +43,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const AuthGate(),
       routes: {
-        // '/': (context) => const MainScreen(), // Removed to avoid conflict with home
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
         '/corrosion_grid_logger': (context) => const CorrosionGridLoggerScreen(),

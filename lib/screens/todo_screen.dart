@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_header.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import '../services/todo_service.dart';
+import '../models/todo_item.dart';
 
 class TodoScreen extends StatefulWidget {
   const TodoScreen({super.key});
@@ -14,47 +14,14 @@ class TodoScreen extends StatefulWidget {
 class _TodoScreenState extends State<TodoScreen> {
   final TextEditingController _taskController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
-  List<TodoItem> _tasks = [];
+  final TodoService _todoService = TodoService();
   FilterType _currentFilter = FilterType.all;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTasks();
-  }
 
   @override
   void dispose() {
     _taskController.dispose();
     _notesController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadTasks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final tasksJson = prefs.getStringList('tasks') ?? [];
-    setState(() {
-      _tasks = tasksJson.map((json) => TodoItem.fromJson(jsonDecode(json))).toList();
-    });
-  }
-
-  Future<void> _saveTasks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final tasksJson = _tasks.map((task) => jsonEncode(task.toJson())).toList();
-    await prefs.setStringList('tasks', tasksJson);
-  }
-
-  void _addTask() {
-    if (_taskController.text.trim().isEmpty) return;
-
-    setState(() {
-      _tasks.add(TodoItem(
-        text: _taskController.text.trim(),
-        dateCreated: DateTime.now(),
-      ));
-      _taskController.clear();
-    });
-    _saveTasks();
   }
 
   void _showAddTaskDialog() {
@@ -84,20 +51,7 @@ class _TodoScreenState extends State<TodoScreen> {
               ),
               items: TaskTag.values.map((tag) => DropdownMenuItem(
                 value: tag,
-                child: Row(
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: tag.color,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(tag.label),
-                  ],
-                ),
+                child: Text(tag.label),
               )).toList(),
               onChanged: (value) {
                 selectedTag = value!;
@@ -114,18 +68,16 @@ class _TodoScreenState extends State<TodoScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_taskController.text.trim().isNotEmpty) {
-                setState(() {
-                  _tasks.add(TodoItem(
-                    text: _taskController.text.trim(),
-                    dateCreated: DateTime.now(),
-                    tag: selectedTag,
-                  ));
-                  _taskController.clear();
-                });
-                _saveTasks();
-                Navigator.pop(context);
+                final task = TodoItem(
+                  text: _taskController.text.trim(),
+                  dateCreated: DateTime.now(),
+                  tag: selectedTag,
+                );
+                await _todoService.addTask(task);
+                _taskController.clear();
+                if (mounted) Navigator.pop(context);
               }
             },
             child: const Text('Add'),
@@ -133,20 +85,6 @@ class _TodoScreenState extends State<TodoScreen> {
         ],
       ),
     );
-  }
-
-  void _toggleTask(int index) {
-    setState(() {
-      _tasks[index].isCompleted = !_tasks[index].isCompleted;
-    });
-    _saveTasks();
-  }
-
-  void _deleteTask(int index) {
-    setState(() {
-      _tasks.removeAt(index);
-    });
-    _saveTasks();
   }
 
   void _editNotes(TodoItem task) {
@@ -179,12 +117,19 @@ class _TodoScreenState extends State<TodoScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                task.notes = _notesController.text;
-              });
-              _saveTasks();
-              Navigator.pop(context);
+            onPressed: () async {
+              if (task.id != null) {
+                final updatedTask = TodoItem(
+                  id: task.id,
+                  text: task.text,
+                  notes: _notesController.text,
+                  dateCreated: task.dateCreated,
+                  isCompleted: task.isCompleted,
+                  tag: task.tag,
+                );
+                await _todoService.updateTask(task.id!, updatedTask);
+                if (mounted) Navigator.pop(context);
+              }
             },
             child: const Text('Save'),
           ),
@@ -193,21 +138,19 @@ class _TodoScreenState extends State<TodoScreen> {
     );
   }
 
-  List<TodoItem> _getFilteredTasks() {
+  List<TodoItem> _getFilteredTasks(List<TodoItem> tasks) {
     switch (_currentFilter) {
       case FilterType.all:
-        return _tasks;
+        return tasks;
       case FilterType.incomplete:
-        return _tasks.where((task) => !task.isCompleted).toList();
+        return tasks.where((task) => !task.isCompleted).toList();
       case FilterType.completed:
-        return _tasks.where((task) => task.isCompleted).toList();
+        return tasks.where((task) => task.isCompleted).toList();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredTasks = _getFilteredTasks();
-
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: SafeArea(
@@ -260,94 +203,130 @@ class _TodoScreenState extends State<TodoScreen> {
 
             // Task List
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                itemCount: filteredTasks.length,
-                itemBuilder: (context, index) {
-                  final task = filteredTasks[index];
-                  return Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                      side: const BorderSide(color: AppTheme.divider),
-                    ),
-                    child: InkWell(
-                      onTap: () => _editNotes(task),
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            leading: Checkbox(
-                              value: task.isCompleted,
-                              onChanged: (_) => _toggleTask(_tasks.indexOf(task)),
-                              activeColor: AppTheme.primaryBlue,
-                            ),
-                            title: Text(
-                              task.text,
-                              style: task.isCompleted
-                                  ? AppTheme.bodyMedium.copyWith(
-                                      decoration: TextDecoration.lineThrough,
-                                      color: AppTheme.textSecondary,
-                                    )
-                                  : AppTheme.bodyMedium,
-                            ),
-                            subtitle: Text(
-                              _formatDate(task.dateCreated),
-                              style: AppTheme.bodySmall,
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: task.tag.color.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: task.tag.color,
-                                      width: 1,
+              child: StreamBuilder<List<TodoItem>>(
+                stream: _todoService.getTasks(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  }
+
+                  if (!snapshot.hasData) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  final tasks = snapshot.data!;
+                  final filteredTasks = _getFilteredTasks(tasks);
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                    itemCount: filteredTasks.length,
+                    itemBuilder: (context, index) {
+                      final task = filteredTasks[index];
+                      return Card(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                          side: const BorderSide(color: AppTheme.divider),
+                        ),
+                        child: InkWell(
+                          onTap: () => _editNotes(task),
+                          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                leading: Checkbox(
+                                  value: task.isCompleted,
+                                  onChanged: (value) async {
+                                    if (task.id != null) {
+                                      final updatedTask = TodoItem(
+                                        id: task.id,
+                                        text: task.text,
+                                        notes: task.notes,
+                                        dateCreated: task.dateCreated,
+                                        isCompleted: value ?? false,
+                                        tag: task.tag,
+                                      );
+                                      await _todoService.updateTask(task.id!, updatedTask);
+                                    }
+                                  },
+                                  activeColor: AppTheme.primaryBlue,
+                                ),
+                                title: Text(
+                                  task.text,
+                                  style: task.isCompleted
+                                      ? AppTheme.bodyMedium.copyWith(
+                                          decoration: TextDecoration.lineThrough,
+                                          color: AppTheme.textSecondary,
+                                        )
+                                      : AppTheme.bodyMedium,
+                                ),
+                                subtitle: Text(
+                                  _formatDate(task.dateCreated),
+                                  style: AppTheme.bodySmall,
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: task.tag.color.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: task.tag.color,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        task.tag.label,
+                                        style: TextStyle(
+                                          color: task.tag.color,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
                                     ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete_outline),
+                                      onPressed: () async {
+                                        if (task.id != null) {
+                                          await _todoService.deleteTask(task.id!);
+                                        }
+                                      },
+                                      color: AppTheme.textSecondary,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (task.notes.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    AppTheme.paddingLarge,
+                                    0,
+                                    AppTheme.paddingLarge,
+                                    AppTheme.paddingMedium,
                                   ),
                                   child: Text(
-                                    task.tag.label,
-                                    style: TextStyle(
-                                      color: task.tag.color,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
+                                    task.notes,
+                                    style: AppTheme.bodySmall.copyWith(
+                                      color: AppTheme.textSecondary,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline),
-                                  onPressed: () => _deleteTask(_tasks.indexOf(task)),
-                                  color: AppTheme.textSecondary,
-                                ),
-                              ],
-                            ),
+                            ],
                           ),
-                          if (task.notes.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                AppTheme.paddingLarge,
-                                0,
-                                AppTheme.paddingLarge,
-                                AppTheme.paddingMedium,
-                              ),
-                              child: Text(
-                                task.notes,
-                                style: AppTheme.bodySmall.copyWith(
-                                  color: AppTheme.textSecondary,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -396,70 +375,4 @@ enum FilterType {
   all,
   incomplete,
   completed,
-}
-
-enum TaskTag {
-  urgent,
-  normal,
-  lax,
-}
-
-extension TaskTagColor on TaskTag {
-  Color get color {
-    switch (this) {
-      case TaskTag.urgent:
-        return Colors.red;
-      case TaskTag.normal:
-        return AppTheme.primaryBlue;
-      case TaskTag.lax:
-        return Colors.green[300]!;
-    }
-  }
-
-  String get label {
-    switch (this) {
-      case TaskTag.urgent:
-        return 'Urgent';
-      case TaskTag.normal:
-        return 'Normal';
-      case TaskTag.lax:
-        return 'Lax';
-    }
-  }
-}
-
-class TodoItem {
-  String text;
-  String notes;
-  DateTime dateCreated;
-  bool isCompleted;
-  TaskTag tag;
-
-  TodoItem({
-    required this.text,
-    required this.dateCreated,
-    this.notes = '',
-    this.isCompleted = false,
-    this.tag = TaskTag.normal,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'text': text,
-      'notes': notes,
-      'dateCreated': dateCreated.toIso8601String(),
-      'isCompleted': isCompleted,
-      'tag': tag.index,
-    };
-  }
-
-  factory TodoItem.fromJson(Map<String, dynamic> json) {
-    return TodoItem(
-      text: json['text'] as String,
-      notes: json['notes'] as String? ?? '',
-      dateCreated: DateTime.parse(json['dateCreated'] as String),
-      isCompleted: json['isCompleted'] as bool,
-      tag: TaskTag.values[json['tag'] as int? ?? TaskTag.normal.index],
-    );
-  }
 } 

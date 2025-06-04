@@ -50,8 +50,11 @@
   <link rel="manifest" href="manifest.json">
 
   <script>
+    // The value below is injected by flutter build, do not touch.
     var serviceWorkerVersion = null;
   </script>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter.js" defer></script>
 </head>
 <body>
   <div id="loading">
@@ -92,6 +95,7 @@
 
   <script>
     window.addEventListener('load', function(ev) {
+      // Download main.dart.js
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
@@ -101,21 +105,19 @@
             appRunner.runApp();
           });
         }
-      })
-      .catch(function(error) {
-        console.error('Error initializing Flutter app:', error);
       });
     });
   </script>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-analytics-compat.js"></script>
 
-  <!-- Initialize Firebase -->
   <script>
+    // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAi67zypYsAY4et0BZNG6HQ2N9KDcOWJ9s",
       authDomain: "integrity-tools.firebaseapp.com",
@@ -125,11 +127,10 @@
       appId: "1:787811700889:web:3dc5902b7778191b566808",
       measurementId: "G-FL0FRBEMPC"
     };
+
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();
   </script>
-
-  <script src="flutter.js" defer></script>
 </body>
 </html>
