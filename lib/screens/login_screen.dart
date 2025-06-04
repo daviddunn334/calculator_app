@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -30,11 +30,21 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     );
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
+
+    // Listen to auth state changes
+    _authService.authStateChanges.listen((User? user) {
+      print('Auth state changed: ${user?.email ?? 'No user'}');
+      if (user != null && mounted) {
+        Navigator.of(context).pushReplacementNamed('/');
+      }
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -56,14 +66,22 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         throw 'Please enter both email and password';
       }
 
-      await _authService.signInWithEmailAndPassword(
+      print('Attempting to sign in with email: $email');
+      final userCredential = await _authService.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+      print('Sign in successful: ${userCredential.user?.email}');
+
+      if (_rememberMe) {
+        // Set persistence to LOCAL if remember me is checked
+        await _authService.initialize();
+      }
     } catch (e) {
+      print('Sign in error: $e');
       String errorMessage = 'An error occurred during sign in';
       
-      if (e is fb_auth.FirebaseAuthException) {
+      if (e is FirebaseAuthException) {
         switch (e.code) {
           case 'user-not-found':
             errorMessage = 'No user found with this email';

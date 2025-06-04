@@ -3,7 +3,9 @@ import '../models/company_employee.dart';
 import '../theme/app_theme.dart';
 
 class AddEmployeeDialog extends StatefulWidget {
-  const AddEmployeeDialog({super.key});
+  final CompanyEmployee? employee;
+
+  const AddEmployeeDialog({super.key, this.employee});
 
   @override
   State<AddEmployeeDialog> createState() => _AddEmployeeDialogState();
@@ -17,21 +19,33 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   final _departmentController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final List<String> _selectedCertifications = [];
   String _selectedStatus = 'active';
+  final List<String> _selectedCertifications = [];
 
   final List<String> _availableCertifications = [
-    'API 653',
+    'API 510',
     'API 570',
-    'UT Level I',
-    'UT Level II',
-    'MT Level I',
-    'MT Level II',
-    'PT Level I',
-    'PT Level II',
-    'RT Level I',
-    'RT Level II',
+    'API 653',
+    'CWI',
+    'NACE',
+    'ASNT Level II',
+    'ASNT Level III',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.employee != null) {
+      _firstNameController.text = widget.employee!.firstName;
+      _lastNameController.text = widget.employee!.lastName;
+      _positionController.text = widget.employee!.position;
+      _departmentController.text = widget.employee!.department;
+      _emailController.text = widget.employee!.email;
+      _phoneController.text = widget.employee!.phone;
+      _selectedStatus = widget.employee!.status;
+      _selectedCertifications.addAll(widget.employee!.certifications);
+    }
+  }
 
   @override
   void dispose() {
@@ -46,170 +60,114 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-      ),
-      child: Container(
-        width: 500,
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
+    return AlertDialog(
+      title: Text(widget.employee == null ? 'Add Employee' : 'Edit Employee'),
+      content: SingleChildScrollView(
         child: Form(
           key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Add New Team Member',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _firstNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'First Name',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) =>
-                            value?.isEmpty ?? true ? 'Required' : null,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _lastNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Last Name',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: (value) =>
-                            value?.isEmpty ?? true ? 'Required' : null,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _positionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Position',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _departmentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Department',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _phoneController,
-                  decoration: const InputDecoration(
-                    labelText: 'Phone',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.phone,
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: _selectedStatus,
-                  decoration: const InputDecoration(
-                    labelText: 'Status',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'active', child: Text('Active')),
-                    DropdownMenuItem(value: 'onsite', child: Text('On Site')),
-                    DropdownMenuItem(value: 'offsite', child: Text('Off Site')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) {
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _firstNameController,
+                decoration: const InputDecoration(labelText: 'First Name'),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Please enter first name' : null,
+              ),
+              TextFormField(
+                controller: _lastNameController,
+                decoration: const InputDecoration(labelText: 'Last Name'),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Please enter last name' : null,
+              ),
+              TextFormField(
+                controller: _positionController,
+                decoration: const InputDecoration(labelText: 'Position'),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Please enter position' : null,
+              ),
+              TextFormField(
+                controller: _departmentController,
+                decoration: const InputDecoration(labelText: 'Department'),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Please enter department' : null,
+              ),
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Please enter email' : null,
+              ),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(labelText: 'Phone'),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? 'Please enter phone' : null,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedStatus,
+                decoration: const InputDecoration(labelText: 'Status'),
+                items: const [
+                  DropdownMenuItem(value: 'active', child: Text('Active')),
+                  DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
+                  DropdownMenuItem(value: 'on_leave', child: Text('On Leave')),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => _selectedStatus = value);
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                children: _availableCertifications.map((cert) {
+                  final isSelected = _selectedCertifications.contains(cert);
+                  return FilterChip(
+                    label: Text(cert),
+                    selected: isSelected,
+                    onSelected: (selected) {
                       setState(() {
-                        _selectedStatus = value;
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Certifications',
-                  style: AppTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: _availableCertifications.map((cert) {
-                    final isSelected = _selectedCertifications.contains(cert);
-                    return FilterChip(
-                      label: Text(cert),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          if (selected) {
-                            _selectedCertifications.add(cert);
-                          } else {
-                            _selectedCertifications.remove(cert);
-                          }
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancel'),
-                    ),
-                    const SizedBox(width: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          final employee = CompanyEmployee(
-                            firstName: _firstNameController.text,
-                            lastName: _lastNameController.text,
-                            position: _positionController.text,
-                            department: _departmentController.text,
-                            email: _emailController.text,
-                            phone: _phoneController.text,
-                            certifications: _selectedCertifications,
-                            status: _selectedStatus,
-                          );
-                          Navigator.of(context).pop(employee);
+                        if (selected) {
+                          _selectedCertifications.add(cert);
+                        } else {
+                          _selectedCertifications.remove(cert);
                         }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBlue,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text('Add Member'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ],
           ),
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              final employee = CompanyEmployee(
+                id: widget.employee?.id,
+                firstName: _firstNameController.text,
+                lastName: _lastNameController.text,
+                position: _positionController.text,
+                department: _departmentController.text,
+                email: _emailController.text,
+                phone: _phoneController.text,
+                status: _selectedStatus,
+                certifications: _selectedCertifications,
+              );
+              Navigator.pop(context, employee);
+            }
+          },
+          child: Text(widget.employee == null ? 'Add' : 'Save'),
+        ),
+      ],
     );
   }
 } 

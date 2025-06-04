@@ -1,24 +1,26 @@
 import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/company_employee.dart';
 
 class CompanyDirectoryService {
-  final SupabaseClient _supabase = Supabase.instance.client;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CollectionReference _employeesCollection = FirebaseFirestore.instance.collection('company_directory');
 
   Future<List<CompanyEmployee>> getEmployees() async {
     try {
-      final response = await _supabase
-          .from('company_directory')
-          .select()
-          .order('last_name');
+      final snapshot = await _employeesCollection
+          .orderBy('last_name')
+          .get();
       
       if (kDebugMode) {
-        print('Supabase response: $response');
+        print('Firestore response: ${snapshot.docs.map((doc) => doc.data()).toList()}');
       }
       
-      return (response as List)
-          .map((json) => CompanyEmployee.fromMap(json))
-          .toList();
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        data['id'] = doc.id;
+        return CompanyEmployee.fromMap(data);
+      }).toList();
     } catch (e) {
       if (kDebugMode) {
         print('Error getting employees: $e');
@@ -29,17 +31,21 @@ class CompanyDirectoryService {
 
   Future<CompanyEmployee> addEmployee(CompanyEmployee employee) async {
     try {
-      final response = await _supabase
-          .from('company_directory')
-          .insert(employee.toMap())
-          .select()
-          .single();
+      final docRef = await _employeesCollection.add({
+        ...employee.toMap(),
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+      
+      final doc = await docRef.get();
+      final data = doc.data() as Map<String, dynamic>;
+      data['id'] = doc.id;
       
       if (kDebugMode) {
-        print('Supabase response: $response');
+        print('Firestore response: $data');
       }
       
-      return CompanyEmployee.fromMap(response);
+      return CompanyEmployee.fromMap(data);
     } catch (e) {
       if (kDebugMode) {
         print('Error adding employee: $e');
@@ -54,10 +60,10 @@ class CompanyDirectoryService {
     }
     
     try {
-      await _supabase
-          .from('company_directory')
-          .update(employee.toMap())
-          .eq('id', employee.id!);
+      await _employeesCollection.doc(employee.id).update({
+        ...employee.toMap(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
     } catch (e) {
       if (kDebugMode) {
         print('Error updating employee: $e');
@@ -66,12 +72,9 @@ class CompanyDirectoryService {
     }
   }
 
-  Future<void> deleteEmployee(int id) async {
+  Future<void> deleteEmployee(String id) async {
     try {
-      await _supabase
-          .from('company_directory')
-          .delete()
-          .eq('id', id);
+      await _employeesCollection.doc(id).delete();
     } catch (e) {
       if (kDebugMode) {
         print('Error deleting employee: $e');
