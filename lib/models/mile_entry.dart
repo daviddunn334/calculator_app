@@ -5,6 +5,7 @@ class MileEntry {
   final String userId;
   final DateTime date;
   final double miles;
+  final double hours;
   final String jobSite;
   final String purpose;
   final DateTime createdAt;
@@ -15,6 +16,7 @@ class MileEntry {
     required this.userId,
     required this.date,
     required this.miles,
+    required this.hours,
     required this.jobSite,
     required this.purpose,
     DateTime? createdAt,
@@ -30,9 +32,10 @@ class MileEntry {
     try {
       return MileEntry(
         id: map['id'] as String?,
-        userId: map['user_id'] as String,
+        userId: map['userId'] as String,
         date: DateTime.parse(map['date'] as String),
         miles: (map['miles'] as num).toDouble(),
+        hours: (map['hours'] as num).toDouble(),
         jobSite: map['job_site'] as String,
         purpose: map['purpose'] as String,
         createdAt: DateTime.parse(map['created_at'] as String),
@@ -50,9 +53,10 @@ class MileEntry {
 
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{
-      'user_id': userId,
+      'userId': userId,
       'date': date.toIso8601String(),
       'miles': miles,
+      'hours': hours,
       'job_site': jobSite,
       'purpose': purpose,
       'created_at': createdAt.toIso8601String(),
@@ -75,6 +79,7 @@ class MileEntry {
     String? userId,
     DateTime? date,
     double? miles,
+    double? hours,
     String? jobSite,
     String? purpose,
     DateTime? createdAt,
@@ -85,6 +90,7 @@ class MileEntry {
       userId: userId ?? this.userId,
       date: date ?? this.date,
       miles: miles ?? this.miles,
+      hours: hours ?? this.hours,
       jobSite: jobSite ?? this.jobSite,
       purpose: purpose ?? this.purpose,
       createdAt: createdAt ?? this.createdAt,
