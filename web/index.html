@@ -102,7 +102,13 @@
         },
         onEntrypointLoaded: function(engineInitializer) {
           engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
+            appRunner.runApp().then(function() {
+              // Remove the loading indicator once the app is running
+              var loading = document.querySelector('#loading');
+              if (loading) {
+                loading.remove();
+              }
+            });
           });
         }
       });
