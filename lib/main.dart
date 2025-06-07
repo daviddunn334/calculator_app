@@ -14,6 +14,7 @@ import 'screens/equipment_guides_screen.dart';
 import 'screens/reporting_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
+import 'screens/news_updates_screen.dart';
 import 'services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'theme/app_theme.dart';
@@ -59,6 +60,7 @@ class MyApp extends StatelessWidget {
         '/defect_types': (context) => const DefectTypesScreen(),
         '/equipment_guides': (context) => const EquipmentGuidesScreen(),
         '/reporting': (context) => const ReportingScreen(),
+        '/news_updates': (context) => const NewsUpdatesScreen(),
       }
     );
   }

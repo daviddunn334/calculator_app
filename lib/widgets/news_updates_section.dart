@@ -127,7 +127,7 @@ class NewsUpdatesSection extends StatelessWidget {
                 ),
                 TextButton.icon(
                   onPressed: () {
-                    // TODO: Implement view all functionality
+                    Navigator.pushNamed(context, '/news_updates');
                   },
                   icon: const Icon(Icons.arrow_forward),
                   label: const Text('View All'),
@@ -217,4 +217,4 @@ class NewsUpdatesSection extends StatelessWidget {
       ],
     );
   }
-} 
+}

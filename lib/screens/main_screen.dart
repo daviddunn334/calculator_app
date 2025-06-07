@@ -6,11 +6,10 @@ import '../theme/app_theme.dart';
 import 'profile_screen.dart';
 import 'knowledge_base_screen.dart';
 import 'reports_screen.dart';
-import 'todo_screen.dart';
-import 'certifications_screen.dart';
 import 'inventory_screen.dart';
 import 'company_directory_screen.dart';
 import 'field_log_screen.dart';
+import 'news_updates_screen.dart';
 import '../widgets/app_drawer.dart';
 
 class MainScreen extends StatefulWidget {
@@ -20,27 +19,53 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   final List<Widget> _screens = [
     const HomeScreen(),
     const ToolsScreen(),
     const ReportsScreen(),
     const FieldLogScreen(),
-    const TodoScreen(),
     const KnowledgeBaseScreen(),
     const ProfileScreen(),
-    const CertificationsScreen(),
     const InventoryScreen(),
     const CompanyDirectoryScreen(),
+    const NewsUpdatesScreen(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index != _selectedIndex) {
+      setState(() {
+        _selectedIndex = index;
+      });
+      // Animate screen transition
+      _animationController.reset();
+      _animationController.forward();
+    }
   }
 
   @override
@@ -52,6 +77,8 @@ class _MainScreenState extends State<MainScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 2,
+        shadowColor: Colors.black.withOpacity(0.1),
         leading: !isLargeScreen
             ? IconButton(
                 icon: const Icon(Icons.menu, color: AppTheme.textPrimary),
@@ -62,8 +89,26 @@ class _MainScreenState extends State<MainScreen> {
             : null,
         title: Text(
           _getLabelForIndex(_selectedIndex),
-          style: AppTheme.titleLarge.copyWith(color: AppTheme.textPrimary),
+          style: AppTheme.titleLarge.copyWith(
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: AppTheme.textSecondary),
+            onPressed: () {
+              // TODO: Implement search functionality
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: AppTheme.textSecondary),
+            onPressed: () {
+              // TODO: Implement notifications
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       drawer: !isLargeScreen
           ? AppDrawer(
@@ -87,8 +132,11 @@ class _MainScreenState extends State<MainScreen> {
             Expanded(
               child: Container(
                 color: AppTheme.background,
-                child: ClipRect(
-                  child: _screens[_selectedIndex],
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: ClipRect(
+                    child: _screens[_selectedIndex],
+                  ),
                 ),
               ),
             ),
@@ -108,8 +156,8 @@ class _MainScreenState extends State<MainScreen> {
                 ],
               ),
               child: BottomNavigationBar(
-                items: List.generate(7, (index) {
-                  final bool isSelected = index == _selectedIndex && _selectedIndex <= 6;
+                items: List.generate(5, (index) {
+                  final bool isSelected = index == _selectedIndex && _selectedIndex < 5;
                   return BottomNavigationBarItem(
                     icon: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -134,7 +182,7 @@ class _MainScreenState extends State<MainScreen> {
                     label: _getLabelForIndex(index),
                   );
                 }),
-                currentIndex: _selectedIndex <= 6 ? _selectedIndex : 0,
+                currentIndex: _selectedIndex < 5 ? _selectedIndex : 0,
                 selectedItemColor: AppTheme.primaryBlue,
                 unselectedItemColor: AppTheme.textSecondary,
                 showUnselectedLabels: true,
@@ -159,17 +207,15 @@ class _MainScreenState extends State<MainScreen> {
       case 3:
         return isSelected ? Icons.note_alt : Icons.note_alt_outlined;
       case 4:
-        return isSelected ? Icons.checklist : Icons.checklist_outlined;
-      case 5:
         return isSelected ? Icons.psychology : Icons.psychology_outlined;
-      case 6:
+      case 5:
         return isSelected ? Icons.person : Icons.person_outline;
-      case 7:
-        return isSelected ? Icons.verified_user : Icons.verified_user_outlined;
-      case 8:
+      case 6:
         return isSelected ? Icons.inventory_2 : Icons.inventory_2_outlined;
-      case 9:
+      case 7:
         return isSelected ? Icons.people_alt : Icons.people_alt_outlined;
+      case 8:
+        return isSelected ? Icons.newspaper : Icons.newspaper_outlined;
       default:
         return Icons.home_outlined;
     }
@@ -186,19 +232,17 @@ class _MainScreenState extends State<MainScreen> {
       case 3:
         return 'Field Log';
       case 4:
-        return 'To-Do';
+        return 'Knowledge Base';
       case 5:
-        return 'KB';
-      case 6:
         return 'Profile';
-      case 7:
-        return 'Certifications';
-      case 8:
+      case 6:
         return 'Inventory';
-      case 9:
+      case 7:
         return 'Directory';
+      case 8:
+        return 'News & Updates';
       default:
         return '';
     }
   }
-} 
+}

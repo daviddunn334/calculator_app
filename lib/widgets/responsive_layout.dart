@@ -25,7 +25,10 @@ class ResponsiveLayout extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 280,
-                  child: AppDrawer(),
+                  child: AppDrawer(
+                    selectedIndex: selectedIndex,
+                    onItemSelected: onNavigationItemSelected,
+                  ),
                 ),
                 Expanded(
                   child: child,
@@ -38,7 +41,10 @@ class ResponsiveLayout extends StatelessWidget {
         // Mobile layout
         return Scaffold(
           body: child,
-          drawer: AppDrawer(),
+          drawer: AppDrawer(
+            selectedIndex: selectedIndex,
+            onItemSelected: onNavigationItemSelected,
+          ),
           bottomNavigationBar: BottomNavBar(
             currentIndex: selectedIndex,
             onTap: onNavigationItemSelected,
@@ -47,4 +53,4 @@ class ResponsiveLayout extends StatelessWidget {
       },
     );
   }
-} 
+}
