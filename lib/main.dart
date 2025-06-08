@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:path_provider/path_provider.dart';
 import 'firebase_options.dart';
 import 'screens/main_screen.dart';
 import 'screens/corrosion_grid_logger_screen.dart';
@@ -11,7 +12,7 @@ import 'screens/terminology_screen.dart';
 import 'screens/ndt_procedures_screen.dart';
 import 'screens/defect_types_screen.dart';
 import 'screens/equipment_guides_screen.dart';
-import 'screens/reporting_screen.dart';
+import 'screens/reports_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/news_updates_screen.dart';
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
         '/ndt_procedures': (context) => const NDTProceduresScreen(),
         '/defect_types': (context) => const DefectTypesScreen(),
         '/equipment_guides': (context) => const EquipmentGuidesScreen(),
-        '/reporting': (context) => const ReportingScreen(),
+        '/reporting': (context) => const ReportsScreen(),
         '/news_updates': (context) => const NewsUpdatesScreen(),
       }
     );

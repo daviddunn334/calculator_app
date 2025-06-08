@@ -49,6 +49,7 @@ dependencies:
   firebase_auth: ^4.17.4
   flutter_pdfview: ^1.4.0+1
   syncfusion_flutter_pdfviewer: ^27.2.5
+  pdf: ^3.11.3
 
 dev_dependencies:
   flutter_test:

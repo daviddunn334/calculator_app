@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
 import '../models/report.dart';
 import '../services/report_service.dart';
+import '../services/pdf_service.dart';
 import 'report_preview_screen.dart';
 
 class ReportFormScreen extends StatefulWidget {
@@ -27,6 +28,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   DateTime _inspectionDate = DateTime.now();
   String _selectedMethod = 'MT';
   bool _isSubmitting = false;
+  bool _isGeneratingPdf = false;
 
   final List<String> _inspectionMethods = [
     'MT',
@@ -37,6 +39,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   ];
 
   final ReportService _reportService = ReportService();
+  final PdfService _pdfService = PdfService();
 
   @override
   void initState() {
@@ -123,7 +126,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
         }
       } else {
         // Create mode: add new report
-        await _reportService.addReport(report);
+        final reportId = await _reportService.addReport(report);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Report saved successfully')),
@@ -141,6 +144,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                 findings: report.findings,
                 correctiveActions: report.correctiveActions,
                 additionalNotes: report.additionalNotes,
+                reportId: reportId,
               ),
             ),
           );
@@ -161,12 +165,53 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     }
   }
 
+  /// Generate and share a PDF report
+  Future<void> _generateAndSharePdf() async {
+    if (widget.report == null || widget.reportId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please save the report first')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isGeneratingPdf = true;
+    });
+
+    try {
+      final file = await _pdfService.generateReportPdf(widget.report!);
+      if (mounted) {
+        await _pdfService.sharePdf(file);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error generating PDF: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isGeneratingPdf = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.report != null;
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? 'Edit Report' : 'NDT Report Form'),
+        actions: [
+          if (isEdit)
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf),
+              tooltip: 'Generate Final Report',
+              onPressed: _isGeneratingPdf ? null : _generateAndSharePdf,
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppTheme.paddingLarge),
@@ -327,11 +372,30 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                         maxLines: 3,
                       ),
                       const SizedBox(height: AppTheme.paddingLarge),
-                      ElevatedButton(
-                        onPressed: _isSubmitting ? null : _submitForm,
-                        child: _isSubmitting
-                            ? const CircularProgressIndicator()
-                            : Text(isEdit ? 'Update Report' : 'Save Report'),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _isSubmitting ? null : _submitForm,
+                              child: _isSubmitting
+                                  ? const CircularProgressIndicator()
+                                  : Text(isEdit ? 'Update Report' : 'Save Report'),
+                            ),
+                          ),
+                          if (isEdit) ...[
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                icon: const Icon(Icons.picture_as_pdf),
+                                label: const Text('Final Report'),
+                                onPressed: _isGeneratingPdf ? null : _generateAndSharePdf,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),
@@ -343,4 +407,4 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
       ),
     );
   }
-} 
+}

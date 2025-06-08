@@ -240,81 +240,44 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
 
                                   final reports = snapshot.data ?? [];
 
-                                  // Calculate stats
-                                  final totalReports = reports.length;
-                                  final now = DateTime.now();
-                                  final monthlyReports = reports.where((report) =>
-                                    report.createdAt.year == now.year && report.createdAt.month == now.month
-                                  ).length;
-
                                   return Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      // Stats cards
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: _buildStatCard(
-                                              'Total Reports',
-                                              totalReports.toString(),
-                                              Icons.description_outlined,
-                                              AppTheme.primaryBlue,
+                                      // Recent reports section header
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 16),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Recent Reports',
+                                              style: AppTheme.titleMedium.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: AppTheme.textPrimary,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 16),
-                                          Expanded(
-                                            child: _buildStatCard(
-                                              'This Month',
-                                              monthlyReports.toString(),
-                                              Icons.calendar_today_outlined,
-                                              AppTheme.accent1,
+                                            TextButton.icon(
+                                              onPressed: () {
+                                                // TODO: Navigate to all reports view
+                                              },
+                                              icon: const Icon(Icons.visibility_outlined, size: 18),
+                                              label: const Text('View All'),
+                                              style: TextButton.styleFrom(
+                                                foregroundColor: AppTheme.primaryBlue,
+                                                padding: EdgeInsets.zero,
+                                                visualDensity: VisualDensity.compact,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(width: 16),
-                                          Expanded(
-                                            child: _buildStatCard(
-                                              'Completion Rate',
-                                              '87%',
-                                              Icons.check_circle_outline,
-                                              AppTheme.accent2,
-                                            ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                      const SizedBox(height: 24),
                                       
-                                      // Recent reports section
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            'Recent Reports',
-                                            style: AppTheme.titleMedium.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: AppTheme.textPrimary,
-                                            ),
-                                          ),
-                                          TextButton.icon(
-                                            onPressed: () {
-                                              // TODO: Navigate to all reports view
-                                            },
-                                            icon: const Icon(Icons.visibility_outlined, size: 18),
-                                            label: const Text('View All'),
-                                            style: TextButton.styleFrom(
-                                              foregroundColor: AppTheme.primaryBlue,
-                                              padding: EdgeInsets.zero,
-                                              visualDensity: VisualDensity.compact,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 16),
-                                      
-                                      // Reports list
+                                      // Reports list - takes up all remaining space
                                       Expanded(
                                         child: reports.isEmpty
                                             ? _buildEmptyState()
                                             : ListView.builder(
+                                                physics: const AlwaysScrollableScrollPhysics(),
                                                 itemCount: reports.length,
                                                 itemBuilder: (context, index) {
                                                   final report = reports[index];
@@ -360,58 +323,6 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                ),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                value,
-                style: AppTheme.headlineMedium.copyWith(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: AppTheme.bodyMedium.copyWith(
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildReportCard(
     String title,

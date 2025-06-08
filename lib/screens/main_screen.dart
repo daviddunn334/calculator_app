@@ -232,7 +232,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       case 3:
         return 'Field Log';
       case 4:
-        return 'Knowledge Base';
+        return 'KB';
       case 5:
         return 'Profile';
       case 6:
