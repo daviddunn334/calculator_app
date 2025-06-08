@@ -233,10 +233,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       ),
                                       _buildQuickActionItem(
                                         context,
-                                        'To-Do',
-                                        Icons.checklist_rounded,
+                                        'KB',
+                                        Icons.psychology_outlined,
                                         AppTheme.accent3,
-                                        () => Navigator.pushNamed(context, '/todo'),
+                                        () => Navigator.pushNamed(context, '/knowledge_base'),
                                       ),
                                     ],
                                   ),
