@@ -208,266 +208,270 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
                       position: _slideAnimation,
                       child: Padding(
                         padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Title section for mobile
-                            if (MediaQuery.of(context).size.width < 1200)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppTheme.paddingLarge,
-                                  vertical: AppTheme.paddingMedium,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Title section for mobile
+                              if (MediaQuery.of(context).size.width < 1200)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppTheme.paddingLarge,
+                                    vertical: AppTheme.paddingMedium,
+                                  ),
+                                  margin: const EdgeInsets.only(bottom: 24),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              AppTheme.primaryBlue,
+                                              AppTheme.primaryBlue.withOpacity(0.8),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: AppTheme.primaryBlue.withOpacity(0.3),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.note_alt_rounded,
+                                          size: 32,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: AppTheme.paddingLarge),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Field Log',
+                                              style: AppTheme.titleLarge.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: AppTheme.textPrimary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Track your daily work hours and mileage',
+                                              style: AppTheme.bodyMedium.copyWith(
+                                                color: AppTheme.textSecondary,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                margin: const EdgeInsets.only(bottom: 24),
+                              
+                              // Calendar section
+                              Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 5),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                                child: Row(
+                                padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                                child: Column(
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            AppTheme.primaryBlue,
-                                            AppTheme.primaryBlue.withOpacity(0.8),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Calendar',
+                                          style: AppTheme.titleMedium.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: AppTheme.textPrimary,
+                                          ),
                                         ),
-                                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: AppTheme.primaryBlue.withOpacity(0.3),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: const Icon(
-                                        Icons.note_alt_rounded,
-                                        size: 32,
-                                        color: Colors.white,
-                                      ),
+                                        Row(
+                                          children: [
+                                            _buildFormatButton(CalendarFormat.month, 'Month'),
+                                            const SizedBox(width: 8),
+                                            _buildFormatButton(CalendarFormat.twoWeeks, '2 Weeks'),
+                                            const SizedBox(width: 8),
+                                            _buildFormatButton(CalendarFormat.week, 'Week'),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: AppTheme.paddingLarge),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Field Log',
-                                            style: AppTheme.titleLarge.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: AppTheme.textPrimary,
-                                            ),
+                                    const SizedBox(height: 16),
+                                    TableCalendar(
+                                      firstDay: DateTime.utc(2020, 1, 1),
+                                      lastDay: DateTime.utc(2030, 12, 31),
+                                      focusedDay: _focusedDay,
+                                      calendarFormat: _calendarFormat,
+                                      selectedDayPredicate: (day) {
+                                        return isSameDay(_selectedDay, day);
+                                      },
+                                      onDaySelected: (selectedDay, focusedDay) {
+                                        setState(() {
+                                          _selectedDay = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+                                          _focusedDay = focusedDay;
+                                        });
+                                        _addOrUpdateEntry(selectedDay);
+                                      },
+                                      onFormatChanged: (format) {
+                                        setState(() {
+                                          _calendarFormat = format;
+                                        });
+                                      },
+                                      onPageChanged: (focusedDay) {
+                                        _focusedDay = focusedDay;
+                                      },
+                                      calendarStyle: CalendarStyle(
+                                        todayDecoration: BoxDecoration(
+                                          color: AppTheme.primaryBlue.withOpacity(0.7),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        selectedDecoration: const BoxDecoration(
+                                          color: AppTheme.primaryBlue,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        markerDecoration: const BoxDecoration(
+                                          color: AppTheme.accent2,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        weekendTextStyle: const TextStyle(color: Color(0xFFFF5252)),
+                                        outsideTextStyle: TextStyle(color: AppTheme.textSecondary.withOpacity(0.5)),
+                                      ),
+                                      headerStyle: HeaderStyle(
+                                        titleTextStyle: AppTheme.titleMedium.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        formatButtonVisible: false,
+                                        leftChevronIcon: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.primaryBlue.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(8),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'Track your daily work hours and mileage',
-                                            style: AppTheme.bodyMedium.copyWith(
-                                              color: AppTheme.textSecondary,
-                                            ),
+                                          child: Icon(
+                                            Icons.chevron_left,
+                                            color: AppTheme.primaryBlue,
+                                            size: 20,
                                           ),
-                                        ],
+                                        ),
+                                        rightChevronIcon: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.primaryBlue.withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(
+                                            Icons.chevron_right,
+                                            color: AppTheme.primaryBlue,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                      calendarBuilders: CalendarBuilders(
+                                        markerBuilder: (context, date, events) {
+                                          if (_daysWithEntries.contains(DateTime(
+                                            date.year,
+                                            date.month,
+                                            date.day,
+                                          ))) {
+                                            return Positioned(
+                                              bottom: 1,
+                                              child: Container(
+                                                width: 8,
+                                                height: 8,
+                                                decoration: BoxDecoration(
+                                                  color: AppTheme.accent2,
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: AppTheme.accent2.withOpacity(0.3),
+                                                      blurRadius: 4,
+                                                      offset: const Offset(0, 1),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }
+                                          return null;
+                                        },
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            
-                            // Calendar section
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                              child: Column(
+                              const SizedBox(height: 24),
+                              
+                              // Recent entries section
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Calendar',
-                                        style: AppTheme.titleMedium.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: AppTheme.textPrimary,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          _buildFormatButton(CalendarFormat.month, 'Month'),
-                                          const SizedBox(width: 8),
-                                          _buildFormatButton(CalendarFormat.twoWeeks, '2 Weeks'),
-                                          const SizedBox(width: 8),
-                                          _buildFormatButton(CalendarFormat.week, 'Week'),
-                                        ],
-                                      ),
-                                    ],
+                                  Text(
+                                    'Recent Entries',
+                                    style: AppTheme.titleMedium.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.textPrimary,
+                                    ),
                                   ),
-                                  const SizedBox(height: 16),
-                                  TableCalendar(
-                                    firstDay: DateTime.utc(2020, 1, 1),
-                                    lastDay: DateTime.utc(2030, 12, 31),
-                                    focusedDay: _focusedDay,
-                                    calendarFormat: _calendarFormat,
-                                    selectedDayPredicate: (day) {
-                                      return isSameDay(_selectedDay, day);
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      // TODO: Navigate to all entries view
                                     },
-                                    onDaySelected: (selectedDay, focusedDay) {
-                                      setState(() {
-                                        _selectedDay = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
-                                        _focusedDay = focusedDay;
-                                      });
-                                      _addOrUpdateEntry(selectedDay);
-                                    },
-                                    onFormatChanged: (format) {
-                                      setState(() {
-                                        _calendarFormat = format;
-                                      });
-                                    },
-                                    onPageChanged: (focusedDay) {
-                                      _focusedDay = focusedDay;
-                                    },
-                                    calendarStyle: CalendarStyle(
-                                      todayDecoration: BoxDecoration(
-                                        color: AppTheme.primaryBlue.withOpacity(0.7),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      selectedDecoration: const BoxDecoration(
-                                        color: AppTheme.primaryBlue,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      markerDecoration: const BoxDecoration(
-                                        color: AppTheme.accent2,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      weekendTextStyle: const TextStyle(color: Color(0xFFFF5252)),
-                                      outsideTextStyle: TextStyle(color: AppTheme.textSecondary.withOpacity(0.5)),
-                                    ),
-                                    headerStyle: HeaderStyle(
-                                      titleTextStyle: AppTheme.titleMedium.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      formatButtonVisible: false,
-                                      leftChevronIcon: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.primaryBlue.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: Icon(
-                                          Icons.chevron_left,
-                                          color: AppTheme.primaryBlue,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      rightChevronIcon: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: AppTheme.primaryBlue.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        child: Icon(
-                                          Icons.chevron_right,
-                                          color: AppTheme.primaryBlue,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    ),
-                                    calendarBuilders: CalendarBuilders(
-                                      markerBuilder: (context, date, events) {
-                                        if (_daysWithEntries.contains(DateTime(
-                                          date.year,
-                                          date.month,
-                                          date.day,
-                                        ))) {
-                                          return Positioned(
-                                            bottom: 1,
-                                            child: Container(
-                                              width: 8,
-                                              height: 8,
-                                              decoration: BoxDecoration(
-                                                color: AppTheme.accent2,
-                                                shape: BoxShape.circle,
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: AppTheme.accent2.withOpacity(0.3),
-                                                    blurRadius: 4,
-                                                    offset: const Offset(0, 1),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        return null;
-                                      },
+                                    icon: const Icon(Icons.visibility_outlined, size: 18),
+                                    label: const Text('View All'),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: AppTheme.primaryBlue,
+                                      padding: EdgeInsets.zero,
+                                      visualDensity: VisualDensity.compact,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(height: 24),
-                            
-                            // Recent entries section
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Recent Entries',
-                                  style: AppTheme.titleMedium.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.textPrimary,
-                                  ),
-                                ),
-                                TextButton.icon(
-                                  onPressed: () {
-                                    // TODO: Navigate to all entries view
-                                  },
-                                  icon: const Icon(Icons.visibility_outlined, size: 18),
-                                  label: const Text('View All'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: AppTheme.primaryBlue,
-                                    padding: EdgeInsets.zero,
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            
-                            // Entries list
-                            Expanded(
-                              child: _isLoading
+                              const SizedBox(height: 16),
+                              
+                              // Entries list
+                              _isLoading
                                   ? _buildLoadingState()
                                   : _recentEntries.isEmpty
                                       ? _buildEmptyState()
                                       : ListView.builder(
+                                          shrinkWrap: true,
+                                          physics: const NeverScrollableScrollPhysics(),
                                           itemCount: _recentEntries.length,
                                           itemBuilder: (context, index) {
                                             final entry = _recentEntries[index];
                                             return _buildEntryCard(entry, index);
                                           },
                                         ),
-                            ),
-                          ],
+                              // Add some bottom padding for better spacing with FAB
+                              const SizedBox(height: 80),
+                            ],
+                          ),
                         ),
                       ),
                     ),
