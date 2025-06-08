@@ -315,25 +315,20 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+        side: BorderSide(color: AppTheme.divider, width: 1.5),
       ),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.1),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 10,
+              spreadRadius: 1,
               offset: const Offset(0, 4),
             ),
           ],
-          gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              color.withOpacity(0.05),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
         ),
         child: Material(
           color: Colors.transparent,

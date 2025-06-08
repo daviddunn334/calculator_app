@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
 import '../services/profile_service.dart';
+import '../services/image_service.dart';
 import '../models/user_profile.dart';
 import '../widgets/app_header.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,6 +17,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
   final ProfileService _profileService = ProfileService();
   final AuthService _authService = AuthService();
+  final ImageService _imageService = ImageService();
   final _displayNameController = TextEditingController();
   final _bioController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -358,19 +361,51 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                                   ),
                                                 ],
                                               ),
-                                              child: CircleAvatar(
-                                                radius: 50,
-                                                backgroundColor: Colors.white,
-                                                backgroundImage: profile.photoUrl != null
-                                                    ? NetworkImage(profile.photoUrl!)
-                                                    : null,
-                                                child: profile.photoUrl == null
-                                                    ? const Icon(
-                                                        Icons.person,
-                                                        size: 50,
+                                              child: Stack(
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 50,
+                                                    backgroundColor: Colors.white,
+                                                    backgroundImage: profile.photoUrl != null
+                                                        ? NetworkImage(profile.photoUrl!)
+                                                        : null,
+                                                    child: profile.photoUrl == null
+                                                        ? const Icon(
+                                                            Icons.person,
+                                                            size: 50,
+                                                            color: AppTheme.primaryBlue,
+                                                          )
+                                                        : null,
+                                                  ),
+                                                  Positioned(
+                                                    right: 0,
+                                                    bottom: 0,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
                                                         color: AppTheme.primaryBlue,
-                                                      )
-                                                    : null,
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          color: Colors.white,
+                                                          width: 2,
+                                                        ),
+                                                      ),
+                                                      child: IconButton(
+                                                        icon: const Icon(
+                                                          Icons.camera_alt,
+                                                          color: Colors.white,
+                                                          size: 20,
+                                                        ),
+                                                        onPressed: () => _showImagePickerOptions(context, profile),
+                                                        constraints: const BoxConstraints(
+                                                          minWidth: 36,
+                                                          minHeight: 36,
+                                                        ),
+                                                        padding: const EdgeInsets.all(8),
+                                                        tooltip: 'Change profile picture',
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             const SizedBox(width: 20),
@@ -825,6 +860,251 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           style: AppTheme.bodySmall,
         ),
       ],
+    );
+  }
+  
+  void _showImagePickerOptions(BuildContext context, UserProfile profile) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.radiusLarge)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(AppTheme.paddingLarge),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBlue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                    ),
+                    child: const Icon(Icons.photo_library, color: AppTheme.primaryBlue),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Change Profile Picture',
+                    style: AppTheme.titleMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildImagePickerOption(
+                    context,
+                    icon: Icons.photo_library,
+                    label: 'Gallery',
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final XFile? image = await _imageService.pickImageFromGallery();
+                      if (image != null && mounted) {
+                        _uploadProfileImage(image, profile);
+                      }
+                    },
+                  ),
+                  _buildImagePickerOption(
+                    context,
+                    icon: Icons.camera_alt,
+                    label: 'Camera',
+                    onTap: () async {
+                      Navigator.pop(context);
+                      final XFile? photo = await _imageService.takePhoto();
+                      if (photo != null && mounted) {
+                        _uploadProfileImage(photo, profile);
+                      }
+                    },
+                  ),
+                  if (profile.photoUrl != null)
+                    _buildImagePickerOption(
+                      context,
+                      icon: Icons.delete,
+                      label: 'Remove',
+                      color: AppTheme.accent3,
+                      onTap: () async {
+                        Navigator.pop(context);
+                        _removeProfileImage(profile);
+                      },
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildImagePickerOption(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color color = AppTheme.primaryBlue,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      child: Padding(
+        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: AppTheme.bodyMedium.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  Future<void> _uploadProfileImage(XFile image, UserProfile profile) async {
+    try {
+      // Show loading indicator
+      _showLoadingDialog('Uploading profile picture...');
+      
+      // Upload image to Firebase Storage
+      final String? downloadUrl = await _imageService.uploadProfileImage(image, profile.userId);
+      
+      if (downloadUrl != null && mounted) {
+        // Update profile with new photo URL
+        await _profileService.updateProfileFields({
+          'photoUrl': downloadUrl,
+        });
+        
+        // Close loading dialog
+        if (mounted) Navigator.of(context, rootNavigator: true).pop();
+        
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile picture updated successfully'),
+              backgroundColor: AppTheme.accent2,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } else {
+        // Close loading dialog
+        if (mounted) Navigator.of(context, rootNavigator: true).pop();
+        
+        // Show error message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to upload profile picture'),
+              backgroundColor: AppTheme.accent3,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+      
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.accent3,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+  
+  Future<void> _removeProfileImage(UserProfile profile) async {
+    try {
+      if (profile.photoUrl == null) return;
+      
+      // Show loading indicator
+      _showLoadingDialog('Removing profile picture...');
+      
+      // Delete image from Firebase Storage
+      if (profile.photoUrl != null) {
+        await _imageService.deleteImage(profile.photoUrl!);
+      }
+      
+      // Update profile to remove photo URL
+      await _profileService.updateProfileFields({
+        'photoUrl': null,
+      });
+      
+      // Close loading dialog
+      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+      
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile picture removed successfully'),
+            backgroundColor: AppTheme.accent2,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      // Close loading dialog
+      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+      
+      // Show error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.accent3,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+  
+  void _showLoadingDialog(String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Row(
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(width: 20),
+              Text(message),
+            ],
+          ),
+        );
+      },
     );
   }
 }

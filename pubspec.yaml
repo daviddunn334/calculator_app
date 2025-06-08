@@ -50,6 +50,7 @@ dependencies:
   flutter_pdfview: ^1.4.0+1
   syncfusion_flutter_pdfviewer: ^27.2.5
   pdf: ^3.11.3
+  image_picker: ^1.0.7
 
 dev_dependencies:
   flutter_test:
