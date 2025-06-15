@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../services/offline_service.dart';
 
 class AbsEsCalculator extends StatefulWidget {
   const AbsEsCalculator({super.key});
@@ -13,6 +14,8 @@ class _AbsEsCalculatorState extends State<AbsEsCalculator> {
   final TextEditingController _absController = TextEditingController();
   final TextEditingController _esController = TextEditingController();
   final TextEditingController _rgwController = TextEditingController();
+  final OfflineService _offlineService = OfflineService();
+  bool _isOnline = true;
 
   double? _newAbs;
   double? _newEs;
@@ -24,6 +27,50 @@ class _AbsEsCalculatorState extends State<AbsEsCalculator> {
     _absController.addListener(_clearResults);
     _esController.addListener(_clearResults);
     _rgwController.addListener(_clearResults);
+    
+    // Load saved data
+    _loadSavedData();
+    
+    // Listen to connectivity changes
+    _isOnline = _offlineService.isOnline;
+    _offlineService.onConnectivityChanged.listen((online) {
+      setState(() {
+        _isOnline = online;
+      });
+    });
+  }
+  
+  // Load saved calculator data
+  Future<void> _loadSavedData() async {
+    final data = await _offlineService.loadCalculatorData('abs_es_calculator');
+    if (data != null) {
+      setState(() {
+        _absController.text = data['abs'] ?? '';
+        _esController.text = data['es'] ?? '';
+        _rgwController.text = data['rgw'] ?? '';
+        
+        if (data['newAbs'] != null) {
+          _newAbs = double.tryParse(data['newAbs'].toString());
+        }
+        
+        if (data['newEs'] != null) {
+          _newEs = double.tryParse(data['newEs'].toString());
+        }
+      });
+    }
+  }
+  
+  // Save calculator data
+  Future<void> _saveData() async {
+    final data = {
+      'abs': _absController.text,
+      'es': _esController.text,
+      'rgw': _rgwController.text,
+      'newAbs': _newAbs,
+      'newEs': _newEs,
+    };
+    
+    await _offlineService.saveCalculatorData('abs_es_calculator', data);
   }
 
   @override
@@ -61,6 +108,9 @@ class _AbsEsCalculatorState extends State<AbsEsCalculator> {
         _newAbs = abs + rgw;
         _newEs = es + rgw;
       });
+      
+      // Save data for offline use
+      _saveData();
     } catch (e) {
       setState(() {
         _newAbs = null;
@@ -82,6 +132,29 @@ class _AbsEsCalculatorState extends State<AbsEsCalculator> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Offline indicator
+                if (!_isOnline)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.wifi_off, color: Colors.orange),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'You are offline. Your calculations will be saved locally.',
+                            style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 Row(
                   children: [
                     IconButton(
@@ -197,4 +270,4 @@ class _AbsEsCalculatorState extends State<AbsEsCalculator> {
       ),
     );
   }
-} 
+}

@@ -8,6 +8,19 @@
     "description": "Pipeline Integrity Tools - Your comprehensive pipeline integrity toolkit",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
+    "scope": "/",
+    "categories": ["utilities", "productivity", "tools"],
+    "lang": "en-US",
+    "dir": "ltr",
+    "iarc_rating_id": "",
+    "shortcuts": [
+        {
+            "name": "Calculator Tools",
+            "url": "/tools",
+            "description": "Open calculator tools"
+        }
+    ],
+    "screenshots": [],
     "icons": [
         {
             "src": "icons/app_icon.png",

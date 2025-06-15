@@ -6,6 +6,8 @@ import '../calculators/dent_ovality_calculator.dart';
 import '../calculators/b31g_calculator.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_header.dart';
+import '../widgets/offline_indicator.dart';
+import '../services/offline_service.dart';
 import 'corrosion_grid_logger_screen.dart';
 
 class ToolsScreen extends StatefulWidget {
@@ -19,6 +21,8 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  final OfflineService _offlineService = OfflineService();
+  bool _isOnline = true;
   
   final List<Map<String, dynamic>> _calculators = [
     {
@@ -93,6 +97,16 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
     ));
     
     _animationController.forward();
+    
+    // Check online status
+    _isOnline = _offlineService.isOnline;
+    _offlineService.onConnectivityChanged.listen((online) {
+      if (mounted) {
+        setState(() {
+          _isOnline = online;
+        });
+      }
+    });
   }
 
   @override
@@ -138,6 +152,10 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Offline indicator
+                OfflineIndicator(
+                  message: 'You are offline. Calculator tools will work without internet.',
+                ),
                 if (MediaQuery.of(context).size.width >= 1200)
                   const AppHeader(
                     title: 'NDT Tools',
@@ -227,34 +245,62 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                                 ),
                               ),
                             
-                            // Search bar
-                            Container(
-                              margin: const EdgeInsets.only(bottom: 24),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 2),
+                            // Search bar with offline indicator
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 24),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.05),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: TextField(
+                                      decoration: InputDecoration(
+                                        hintText: 'Search tools...',
+                                        hintStyle: TextStyle(color: AppTheme.textSecondary),
+                                        prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                      ),
+                                    ),
                                   ),
-                                ],
-                              ),
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  hintText: 'Search tools...',
-                                  hintStyle: TextStyle(color: AppTheme.textSecondary),
-                                  prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                                  filled: true,
-                                  fillColor: Colors.white,
                                 ),
-                              ),
+                                if (!_isOnline)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8, bottom: 24),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.05),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const OfflineIndicator(
+                                        compact: true,
+                                        backgroundColor: Colors.orange,
+                                      ),
+                                    ),
+                                  ),
+                              ],
                             ),
                             
                             // Tools grid
