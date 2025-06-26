@@ -372,6 +372,11 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
               );
             }
           },
+          onLongPress: () {
+            if (report != null) {
+              _showReportOptions(report);
+            }
+          },
           borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
           child: Padding(
             padding: const EdgeInsets.all(AppTheme.paddingLarge),
@@ -437,15 +442,72 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
                               fontSize: 12,
                             ),
                           ),
+                          if (report?.imageUrls.isNotEmpty == true) ...[
+                            const SizedBox(width: 12),
+                            Icon(
+                              Icons.photo_camera,
+                              size: 14,
+                              color: AppTheme.textSecondary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${report!.imageUrls.length}',
+                              style: AppTheme.bodyMedium.copyWith(
+                                color: AppTheme.textSecondary,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ],
                   ),
                 ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: AppTheme.textSecondary,
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (report != null) {
+                      switch (value) {
+                        case 'edit':
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ReportFormScreen(report: report, reportId: report.id),
+                            ),
+                          );
+                          break;
+                        case 'delete':
+                          _deleteReport(report);
+                          break;
+                      }
+                    }
+                  },
+                  itemBuilder: (BuildContext context) => [
+                    const PopupMenuItem<String>(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, size: 18),
+                          SizedBox(width: 8),
+                          Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, size: 18, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Delete', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  child: const Icon(
+                    Icons.more_vert,
+                    size: 16,
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -619,6 +681,105 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
         return Color(0xFF673AB7); // Deep Purple
       default:
         return Color(0xFF607D8B); // Blue Grey
+    }
+  }
+
+  /// Show report options (edit/delete)
+  void _showReportOptions(Report report) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit Report'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ReportFormScreen(report: report, reportId: report.id),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Delete Report', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _deleteReport(report);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Delete a report with confirmation
+  Future<void> _deleteReport(Report report) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Report'),
+          content: Text('Are you sure you want to delete the report for "${report.location}"?\n\nThis action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      try {
+        // Delete the report from Firestore
+        await _reportService.deleteReport(report.id);
+        
+        // Delete associated images from Firebase Storage
+        for (final imageUrl in report.imageUrls) {
+          try {
+            // Extract the image path from the URL and delete it
+            // This is a simplified approach - you might need to adjust based on your URL structure
+            final uri = Uri.parse(imageUrl);
+            final path = uri.pathSegments.last;
+            // You would implement deleteImageByPath in ImageService
+            // await _imageService.deleteImageByPath(path);
+          } catch (e) {
+            print('Error deleting image: $e');
+          }
+        }
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Report "${report.location}" deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error deleting report: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 }
