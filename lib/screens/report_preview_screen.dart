@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/report.dart';
-import '../services/pdf_service.dart';
-import 'dart:io';
+import '../services/enhanced_pdf_service.dart';
 
 class ReportPreviewScreen extends StatefulWidget {
   final String technicianName;
@@ -35,7 +34,7 @@ class ReportPreviewScreen extends StatefulWidget {
 }
 
 class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
-  final PdfService _pdfService = PdfService();
+  final EnhancedPdfService _pdfService = EnhancedPdfService();
   bool _isGeneratingPdf = false;
 
   Future<void> _generateAndSharePdf() async {
@@ -64,13 +63,22 @@ class _ReportPreviewScreenState extends State<ReportPreviewScreen> {
         findings: widget.findings,
         correctiveActions: widget.correctiveActions,
         additionalNotes: widget.additionalNotes,
+        imageUrls: const [], // Empty for preview, actual report will have images
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
-      final file = await _pdfService.generateReportPdf(report);
+      final pdfBytes = await _pdfService.generateProfessionalReportPdf(report);
       if (mounted) {
-        await _pdfService.sharePdf(file);
+        final filename = 'Integrity_Specialists_Report_${widget.location}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+        await _pdfService.downloadPdfWeb(pdfBytes, filename);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Professional PDF report generated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {

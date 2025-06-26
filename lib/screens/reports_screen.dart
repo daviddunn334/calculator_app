@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_header.dart';
 import '../models/report.dart';
@@ -227,72 +228,83 @@ class _ReportsScreenState extends State<ReportsScreen> with SingleTickerProvider
                             
                             // Reports content
                             Expanded(
-                              child: StreamBuilder<List<Report>>(
-                                stream: _reportService.getReports(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasError) {
-                                    return _buildErrorState(snapshot.error.toString());
+                              child: StreamBuilder<User?>(
+                                stream: FirebaseAuth.instance.authStateChanges(),
+                                builder: (context, authSnapshot) {
+                                  if (!authSnapshot.hasData) {
+                                    return _buildErrorState('Please log in to view reports');
                                   }
+                                  
+                                  final user = authSnapshot.data!;
+                                  
+                                  return StreamBuilder<List<Report>>(
+                                    stream: _reportService.getUserReportsStream(user.uid),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasError) {
+                                        return _buildErrorState(snapshot.error.toString());
+                                      }
 
-                                  if (snapshot.connectionState == ConnectionState.waiting) {
-                                    return _buildLoadingState();
-                                  }
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return _buildLoadingState();
+                                      }
 
-                                  final reports = snapshot.data ?? [];
+                                      final reports = snapshot.data ?? [];
 
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      // Recent reports section header
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 16),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              'Recent Reports',
-                                              style: AppTheme.titleMedium.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: AppTheme.textPrimary,
-                                              ),
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Recent reports section header
+                                          Padding(
+                                            padding: const EdgeInsets.only(bottom: 16),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  'Recent Reports',
+                                                  style: AppTheme.titleMedium.copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: AppTheme.textPrimary,
+                                                  ),
+                                                ),
+                                                TextButton.icon(
+                                                  onPressed: () {
+                                                    // TODO: Navigate to all reports view
+                                                  },
+                                                  icon: const Icon(Icons.visibility_outlined, size: 18),
+                                                  label: const Text('View All'),
+                                                  style: TextButton.styleFrom(
+                                                    foregroundColor: AppTheme.primaryBlue,
+                                                    padding: EdgeInsets.zero,
+                                                    visualDensity: VisualDensity.compact,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            TextButton.icon(
-                                              onPressed: () {
-                                                // TODO: Navigate to all reports view
-                                              },
-                                              icon: const Icon(Icons.visibility_outlined, size: 18),
-                                              label: const Text('View All'),
-                                              style: TextButton.styleFrom(
-                                                foregroundColor: AppTheme.primaryBlue,
-                                                padding: EdgeInsets.zero,
-                                                visualDensity: VisualDensity.compact,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      
-                                      // Reports list - takes up all remaining space
-                                      Expanded(
-                                        child: reports.isEmpty
-                                            ? _buildEmptyState()
-                                            : ListView.builder(
-                                                physics: const AlwaysScrollableScrollPhysics(),
-                                                itemCount: reports.length,
-                                                itemBuilder: (context, index) {
-                                                  final report = reports[index];
-                                                  return _buildReportCard(
-                                                    report.location,
-                                                    report.method,
-                                                    _formatDate(report.createdAt),
-                                                    _getPriorityColor(report),
-                                                    report: report,
-                                                    index: index,
-                                                  );
-                                                },
-                                              ),
-                                      ),
-                                    ],
+                                          ),
+                                          
+                                          // Reports list - takes up all remaining space
+                                          Expanded(
+                                            child: reports.isEmpty
+                                                ? _buildEmptyState()
+                                                : ListView.builder(
+                                                    physics: const AlwaysScrollableScrollPhysics(),
+                                                    itemCount: reports.length,
+                                                    itemBuilder: (context, index) {
+                                                      final report = reports[index];
+                                                      return _buildReportCard(
+                                                        report.location,
+                                                        report.method,
+                                                        _formatDate(report.createdAt),
+                                                        _getPriorityColor(report),
+                                                        report: report,
+                                                        index: index,
+                                                      );
+                                                    },
+                                                  ),
+                                          ),
+                                        ],
+                                      );
+                                    },
                                   );
                                 },
                               ),

@@ -61,6 +61,47 @@ class ImageService {
     }
   }
   
+  // Upload report image to Firebase Storage and return download URL
+  Future<String?> uploadReportImage(XFile imageFile, String reportId) async {
+    try {
+      // Create a unique filename
+      final String fileName = '${reportId}_${const Uuid().v4()}';
+      final Reference storageRef = _storage.ref().child('report_images/$fileName');
+      
+      UploadTask uploadTask;
+      
+      if (kIsWeb) {
+        // Handle web platform
+        final bytes = await imageFile.readAsBytes();
+        uploadTask = storageRef.putData(bytes);
+      } else {
+        // Handle mobile platforms
+        final File file = File(imageFile.path);
+        uploadTask = storageRef.putFile(file);
+      }
+      
+      // Wait for the upload to complete
+      final TaskSnapshot snapshot = await uploadTask;
+      
+      // Get the download URL
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading report image: $e');
+      return null;
+    }
+  }
+  
+  // Pick multiple images from gallery
+  Future<List<XFile>?> pickMultipleImages() async {
+    final List<XFile>? images = await _picker.pickMultiImage(
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+    );
+    return images;
+  }
+  
   // Delete an image from Firebase Storage
   Future<bool> deleteImage(String imageUrl) async {
     try {

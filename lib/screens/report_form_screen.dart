@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import '../theme/app_theme.dart';
 import '../models/report.dart';
 import '../services/report_service.dart';
-import '../services/pdf_service.dart';
+import '../services/enhanced_pdf_service.dart';
+import '../services/image_service.dart';
 import 'report_preview_screen.dart';
 
 class ReportFormScreen extends StatefulWidget {
@@ -29,6 +31,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   String _selectedMethod = 'MT';
   bool _isSubmitting = false;
   bool _isGeneratingPdf = false;
+  List<String> _imageUrls = [];
+  bool _isUploadingImages = false;
 
   final List<String> _inspectionMethods = [
     'MT',
@@ -39,7 +43,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   ];
 
   final ReportService _reportService = ReportService();
-  final PdfService _pdfService = PdfService();
+  final EnhancedPdfService _pdfService = EnhancedPdfService();
+  final ImageService _imageService = ImageService();
 
   @override
   void initState() {
@@ -55,6 +60,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
       _additionalNotesController.text = r.additionalNotes ?? '';
       _inspectionDate = r.inspectionDate;
       _selectedMethod = r.method;
+      _imageUrls = List.from(r.imageUrls);
     }
   }
 
@@ -81,6 +87,158 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
       setState(() {
         _inspectionDate = picked;
       });
+    }
+  }
+
+  /// Add photos to the report
+  Future<void> _addPhotos() async {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImagesFromGallery();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take Photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _takePhoto();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// Pick multiple images from gallery
+  Future<void> _pickImagesFromGallery() async {
+    try {
+      final List<XFile>? images = await _imageService.pickMultipleImages();
+      if (images != null && images.isNotEmpty) {
+        await _uploadImages(images);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error picking images: $e')),
+        );
+      }
+    }
+  }
+
+  /// Take a photo with camera
+  Future<void> _takePhoto() async {
+    try {
+      final XFile? photo = await _imageService.takePhoto();
+      if (photo != null) {
+        await _uploadImages([photo]);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error taking photo: $e')),
+        );
+      }
+    }
+  }
+
+  /// Upload images to Firebase Storage
+  Future<void> _uploadImages(List<XFile> images) async {
+    setState(() {
+      _isUploadingImages = true;
+    });
+
+    try {
+      final reportId = widget.reportId ?? 'temp_${DateTime.now().millisecondsSinceEpoch}';
+      
+      for (final image in images) {
+        final imageUrl = await _imageService.uploadReportImage(image, reportId);
+        if (imageUrl != null) {
+          setState(() {
+            _imageUrls.add(imageUrl);
+          });
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${images.length} image(s) uploaded successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading images: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploadingImages = false;
+        });
+      }
+    }
+  }
+
+  /// Remove an image from the report
+  Future<void> _removeImage(int index) async {
+    final imageUrl = _imageUrls[index];
+    
+    // Show confirmation dialog
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Remove Image'),
+          content: const Text('Are you sure you want to remove this image?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Remove'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      setState(() {
+        _imageUrls.removeAt(index);
+      });
+
+      // Delete from Firebase Storage
+      try {
+        await _imageService.deleteImage(imageUrl);
+      } catch (e) {
+        print('Error deleting image from storage: $e');
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Image removed successfully'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     }
   }
 
@@ -111,6 +269,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
         findings: _findingsController.text,
         correctiveActions: _correctiveActionsController.text,
         additionalNotes: _additionalNotesController.text,
+        imageUrls: _imageUrls,
         createdAt: widget.report?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -165,7 +324,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     }
   }
 
-  /// Generate and share a PDF report
+  /// Generate and download a professional PDF report
   Future<void> _generateAndSharePdf() async {
     if (widget.report == null || widget.reportId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -179,9 +338,17 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     });
 
     try {
-      final file = await _pdfService.generateReportPdf(widget.report!);
+      final pdfBytes = await _pdfService.generateProfessionalReportPdf(widget.report!);
       if (mounted) {
-        await _pdfService.sharePdf(file);
+        final filename = 'Integrity_Specialists_Report_${widget.report!.location}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+        await _pdfService.downloadPdfWeb(pdfBytes, filename);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Professional PDF report generated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -371,6 +538,118 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                         ),
                         maxLines: 3,
                       ),
+                      const SizedBox(height: AppTheme.paddingLarge),
+                      
+                      // Photos Section
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Photos (${_imageUrls.length})',
+                            style: AppTheme.titleMedium,
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: _isUploadingImages ? null : _addPhotos,
+                            icon: _isUploadingImages 
+                                ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.add_a_photo),
+                            label: Text(_isUploadingImages ? 'Uploading...' : 'Add Photos'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppTheme.paddingMedium),
+                      
+                      // Photo Grid
+                      if (_imageUrls.isNotEmpty)
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                          itemCount: _imageUrls.length,
+                          itemBuilder: (context, index) {
+                            return Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    _imageUrls[index],
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    loadingBuilder: (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return Container(
+                                        color: Colors.grey[200],
+                                        child: const Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey[200],
+                                        child: const Icon(Icons.error),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: GestureDetector(
+                                    onTap: () => _removeImage(index),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      
+                      if (_imageUrls.isEmpty)
+                        Container(
+                          height: 100,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[300]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.photo_library, color: Colors.grey, size: 32),
+                                SizedBox(height: 8),
+                                Text(
+                                  'No photos added yet',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      
                       const SizedBox(height: AppTheme.paddingLarge),
                       Row(
                         children: [

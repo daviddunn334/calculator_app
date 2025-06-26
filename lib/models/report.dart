@@ -12,6 +12,7 @@ class Report {
   final String findings;
   final String correctiveActions;
   final String? additionalNotes;
+  final List<String> imageUrls;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -27,6 +28,7 @@ class Report {
     required this.findings,
     required this.correctiveActions,
     this.additionalNotes,
+    this.imageUrls = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -44,6 +46,7 @@ class Report {
       findings: map['findings'] as String,
       correctiveActions: map['correctiveActions'] as String,
       additionalNotes: map['additionalNotes'] as String?,
+      imageUrls: List<String>.from(map['imageUrls'] ?? []),
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       updatedAt: (map['updatedAt'] as Timestamp).toDate(),
     );
@@ -61,8 +64,9 @@ class Report {
       'findings': findings,
       'correctiveActions': correctiveActions,
       'additionalNotes': additionalNotes,
+      'imageUrls': imageUrls,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
   }
-} 
+}
