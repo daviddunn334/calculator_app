@@ -160,10 +160,13 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     });
 
     try {
-      final reportId = widget.reportId ?? 'temp_${DateTime.now().millisecondsSinceEpoch}';
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception('User not authenticated');
+      }
       
       for (final image in images) {
-        final imageUrl = await _imageService.uploadReportImage(image, reportId);
+        final imageUrl = await _imageService.uploadReportImage(image, user.uid);
         if (imageUrl != null) {
           setState(() {
             _imageUrls.add(imageUrl);

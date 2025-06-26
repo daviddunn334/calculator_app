@@ -62,11 +62,11 @@ class ImageService {
   }
   
   // Upload report image to Firebase Storage and return download URL
-  Future<String?> uploadReportImage(XFile imageFile, String reportId) async {
+  Future<String?> uploadReportImage(XFile imageFile, String userId) async {
     try {
       // Create a unique filename
-      final String fileName = '${reportId}_${const Uuid().v4()}';
-      final Reference storageRef = _storage.ref().child('report_images/$fileName');
+      final String imageId = const Uuid().v4();
+      final Reference storageRef = _storage.ref().child('report_images/$userId/$imageId');
       
       UploadTask uploadTask;
       
