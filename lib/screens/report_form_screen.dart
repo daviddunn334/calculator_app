@@ -26,7 +26,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   final _findingsController = TextEditingController();
   final _correctiveActionsController = TextEditingController();
   final _additionalNotesController = TextEditingController();
-  
+
   DateTime _inspectionDate = DateTime.now();
   String _selectedMethod = 'MT';
   bool _isSubmitting = false;
@@ -34,7 +34,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   List<String> _imageUrls = [];
   List<ReportImage> _reportImages = [];
   bool _isUploadingImages = false;
-  
+
   // Photo type definitions
   final List<Map<String, dynamic>> _photoTypes = [
     {
@@ -60,6 +60,18 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
       'label': 'Take Coating Overview Photo',
       'icon': Icons.format_paint,
       'color': Colors.orange,
+    },
+    {
+      'type': 'longseam',
+      'label': 'Take Longseam Photo',
+      'icon': Icons.linear_scale,
+      'color': Colors.purple,
+    },
+    {
+      'type': 'deposits',
+      'label': 'Take Deposits Photo',
+      'icon': Icons.layers,
+      'color': Colors.indigo,
     },
   ];
 
@@ -134,7 +146,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
           throw Exception('User not authenticated');
         }
 
-        final imageUrl = await _imageService.uploadReportImageWithType(photo, user.uid, photoType);
+        final imageUrl = await _imageService.uploadReportImageWithType(
+            photo, user.uid, photoType);
         if (imageUrl != null) {
           final reportImage = ReportImage(
             url: imageUrl,
@@ -226,7 +239,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
       if (user == null) {
         throw Exception('User not authenticated');
       }
-      
+
       for (final image in images) {
         final imageUrl = await _imageService.uploadReportImage(image, user.uid);
         if (imageUrl != null) {
@@ -235,7 +248,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
             type: 'general',
             timestamp: DateTime.now(),
           );
-          
+
           setState(() {
             _imageUrls.add(imageUrl);
             _reportImages.add(reportImage);
@@ -270,16 +283,17 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   Future<void> _removeImage(int index) async {
     final sortedImages = _getSortedImages();
     if (index >= sortedImages.length) return;
-    
+
     final imageToRemove = sortedImages[index];
-    
+
     // Show confirmation dialog
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Remove Image'),
-          content: Text('Are you sure you want to remove this ${_getPhotoTypeLabel(imageToRemove.type)} image?'),
+          content: Text(
+              'Are you sure you want to remove this ${_getPhotoTypeLabel(imageToRemove.type)} image?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -320,26 +334,33 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
 
   /// Get sorted images for display
   List<ReportImage> _getSortedImages() {
-    final typeOrder = ['upstream', 'downstream', 'soil_strate', 'coating_overview'];
+    final typeOrder = [
+      'upstream',
+      'downstream',
+      'soil_strate',
+      'coating_overview',
+      'longseam',
+      'deposits'
+    ];
     final sorted = List<ReportImage>.from(_reportImages);
-    
+
     sorted.sort((a, b) {
       final aIndex = typeOrder.indexOf(a.type);
       final bIndex = typeOrder.indexOf(b.type);
-      
+
       // If both types are in the priority list, sort by priority
       if (aIndex != -1 && bIndex != -1) {
         return aIndex.compareTo(bIndex);
       }
-      
+
       // If only one is in the priority list, prioritize it
       if (aIndex != -1) return -1;
       if (bIndex != -1) return 1;
-      
+
       // If neither is in the priority list, sort by timestamp
       return a.timestamp.compareTo(b.timestamp);
     });
-    
+
     return sorted;
   }
 
@@ -354,6 +375,10 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
         return 'Soil Strate';
       case 'coating_overview':
         return 'Coating Overview';
+      case 'longseam':
+        return 'Longseam';
+      case 'deposits':
+        return 'Deposits';
       default:
         return 'General';
     }
@@ -461,11 +486,13 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     });
 
     try {
-      final pdfBytes = await _pdfService.generateProfessionalReportPdf(widget.report!);
+      final pdfBytes =
+          await _pdfService.generateProfessionalReportPdf(widget.report!);
       if (mounted) {
-        final filename = 'Integrity_Specialists_Report_${widget.report!.location}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+        final filename =
+            'Integrity_Specialists_Report_${widget.report!.location}_${DateTime.now().millisecondsSinceEpoch}.pdf';
         await _pdfService.downloadPdfWeb(pdfBytes, filename);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Professional PDF report generated successfully!'),
@@ -545,7 +572,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                               labelText: 'Inspection Date',
                             ),
                             controller: TextEditingController(
-                              text: '${_inspectionDate.year}-${_inspectionDate.month.toString().padLeft(2, '0')}-${_inspectionDate.day.toString().padLeft(2, '0')}',
+                              text:
+                                  '${_inspectionDate.year}-${_inspectionDate.month.toString().padLeft(2, '0')}-${_inspectionDate.day.toString().padLeft(2, '0')}',
                             ),
                           ),
                         ),
@@ -662,19 +690,20 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                         maxLines: 3,
                       ),
                       const SizedBox(height: AppTheme.paddingLarge),
-                      
+
                       // Photo Type Buttons Section
                       Text(
                         'Take Photos',
                         style: AppTheme.titleMedium,
                       ),
                       const SizedBox(height: AppTheme.paddingMedium),
-                      
+
                       // Photo Type Buttons Grid
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           crossAxisSpacing: 12,
                           mainAxisSpacing: 12,
@@ -684,13 +713,15 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                         itemBuilder: (context, index) {
                           final photoType = _photoTypes[index];
                           final hasPhoto = _hasPhotoType(photoType['type']);
-                          
+
                           return ElevatedButton.icon(
-                            onPressed: _isUploadingImages ? null : () => _takePhotoForType(
-                              photoType['type'],
-                              photoType['label'],
-                            ),
-                            icon: hasPhoto 
+                            onPressed: _isUploadingImages
+                                ? null
+                                : () => _takePhotoForType(
+                                      photoType['type'],
+                                      photoType['label'],
+                                    ),
+                            icon: hasPhoto
                                 ? const Icon(Icons.check_circle, size: 20)
                                 : Icon(photoType['icon'], size: 20),
                             label: Text(
@@ -699,11 +730,12 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                               textAlign: TextAlign.center,
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: hasPhoto 
+                              backgroundColor: hasPhoto
                                   ? Colors.green.withOpacity(0.8)
                                   : photoType['color'],
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -711,9 +743,9 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                           );
                         },
                       ),
-                      
+
                       const SizedBox(height: AppTheme.paddingLarge),
-                      
+
                       // Photos Section
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -724,14 +756,17 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                           ),
                           ElevatedButton.icon(
                             onPressed: _isUploadingImages ? null : _addPhotos,
-                            icon: _isUploadingImages 
+                            icon: _isUploadingImages
                                 ? const SizedBox(
                                     width: 16,
                                     height: 16,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
                                   )
                                 : const Icon(Icons.add_a_photo),
-                            label: Text(_isUploadingImages ? 'Uploading...' : 'Add from Gallery'),
+                            label: Text(_isUploadingImages
+                                ? 'Uploading...'
+                                : 'Add from Gallery'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
                             ),
@@ -739,13 +774,14 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                         ],
                       ),
                       const SizedBox(height: AppTheme.paddingMedium),
-                      
+
                       // Photo Grid
                       if (_reportImages.isNotEmpty)
                         GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
                             crossAxisSpacing: 8,
                             mainAxisSpacing: 8,
@@ -754,7 +790,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                           itemBuilder: (context, index) {
                             final sortedImages = _getSortedImages();
                             final image = sortedImages[index];
-                            
+
                             return Stack(
                               children: [
                                 ClipRRect(
@@ -764,7 +800,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                                     fit: BoxFit.cover,
                                     width: double.infinity,
                                     height: double.infinity,
-                                    loadingBuilder: (context, child, loadingProgress) {
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
                                       if (loadingProgress == null) return child;
                                       return Container(
                                         color: Colors.grey[200],
@@ -786,7 +823,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                                   bottom: 4,
                                   left: 4,
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
                                       color: Colors.black.withOpacity(0.7),
                                       borderRadius: BorderRadius.circular(4),
@@ -825,7 +863,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                             );
                           },
                         ),
-                      
+
                       if (_reportImages.isEmpty)
                         Container(
                           height: 100,
@@ -837,7 +875,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.photo_library, color: Colors.grey, size: 32),
+                                Icon(Icons.photo_library,
+                                    color: Colors.grey, size: 32),
                                 SizedBox(height: 8),
                                 Text(
                                   'No photos added yet',
@@ -845,13 +884,14 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                                 ),
                                 Text(
                                   'Use the buttons above to take photos',
-                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 12),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                      
+
                       const SizedBox(height: AppTheme.paddingLarge),
                       Row(
                         children: [
@@ -860,7 +900,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                               onPressed: _isSubmitting ? null : _submitForm,
                               child: _isSubmitting
                                   ? const CircularProgressIndicator()
-                                  : Text(isEdit ? 'Update Report' : 'Save Report'),
+                                  : Text(
+                                      isEdit ? 'Update Report' : 'Save Report'),
                             ),
                           ),
                           if (isEdit) ...[
@@ -869,7 +910,9 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                               child: ElevatedButton.icon(
                                 icon: const Icon(Icons.picture_as_pdf),
                                 label: const Text('Final Report'),
-                                onPressed: _isGeneratingPdf ? null : _generateAndSharePdf,
+                                onPressed: _isGeneratingPdf
+                                    ? null
+                                    : _generateAndSharePdf,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
                                 ),
