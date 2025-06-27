@@ -1,10 +1,14 @@
 [
   {
     "origin": [
+      "https://integrity-tools--preview-43jamxuv.web.app",
       "https://integrity-tools--preview-03buvqbj.web.app",
       "https://integrity-tools.web.app",
+      "http://localhost:8080",
+      "http://localhost:8081",
       "http://localhost:56528",
-      "http://localhost:8080"
+      "http://127.0.0.1:8080",
+      "http://127.0.0.1:8081"
     ],
     "method": ["GET", "HEAD", "PUT", "POST", "DELETE"],
     "maxAgeSeconds": 3600,
@@ -16,4 +20,4 @@
       "x-goog-resumable"
     ]
   }
-] 
+]

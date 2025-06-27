@@ -1,5 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+class ReportImage {
+  final String url;
+  final String type;
+  final DateTime timestamp;
+
+  ReportImage({
+    required this.url,
+    required this.type,
+    required this.timestamp,
+  });
+
+  factory ReportImage.fromMap(Map<String, dynamic> map) {
+    return ReportImage(
+      url: map['url'] as String,
+      type: map['type'] as String,
+      timestamp: (map['timestamp'] as Timestamp).toDate(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'url': url,
+      'type': type,
+      'timestamp': Timestamp.fromDate(timestamp),
+    };
+  }
+}
+
 class Report {
   final String id;
   final String userId;
@@ -12,7 +40,8 @@ class Report {
   final String findings;
   final String correctiveActions;
   final String? additionalNotes;
-  final List<String> imageUrls;
+  final List<String> imageUrls; // Keep for backward compatibility
+  final List<ReportImage> images; // New structured images
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -29,6 +58,7 @@ class Report {
     required this.correctiveActions,
     this.additionalNotes,
     this.imageUrls = const [],
+    this.images = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -47,6 +77,9 @@ class Report {
       correctiveActions: map['correctiveActions'] as String,
       additionalNotes: map['additionalNotes'] as String?,
       imageUrls: List<String>.from(map['imageUrls'] ?? []),
+      images: (map['images'] as List<dynamic>?)
+          ?.map((item) => ReportImage.fromMap(item as Map<String, dynamic>))
+          .toList() ?? [],
       createdAt: (map['createdAt'] as Timestamp).toDate(),
       updatedAt: (map['updatedAt'] as Timestamp).toDate(),
     );
@@ -65,8 +98,34 @@ class Report {
       'correctiveActions': correctiveActions,
       'additionalNotes': additionalNotes,
       'imageUrls': imageUrls,
+      'images': images.map((image) => image.toMap()).toList(),
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
+  }
+
+  // Helper method to get images sorted by type priority
+  List<ReportImage> get sortedImages {
+    final typeOrder = ['upstream', 'downstream', 'soil_strate', 'coating_overview'];
+    final sorted = List<ReportImage>.from(images);
+    
+    sorted.sort((a, b) {
+      final aIndex = typeOrder.indexOf(a.type);
+      final bIndex = typeOrder.indexOf(b.type);
+      
+      // If both types are in the priority list, sort by priority
+      if (aIndex != -1 && bIndex != -1) {
+        return aIndex.compareTo(bIndex);
+      }
+      
+      // If only one is in the priority list, prioritize it
+      if (aIndex != -1) return -1;
+      if (bIndex != -1) return 1;
+      
+      // If neither is in the priority list, sort by timestamp
+      return a.timestamp.compareTo(b.timestamp);
+    });
+    
+    return sorted;
   }
 }

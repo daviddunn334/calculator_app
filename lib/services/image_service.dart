@@ -91,6 +91,48 @@ class ImageService {
       return null;
     }
   }
+
+  // Upload report image with type to Firebase Storage and return download URL
+  Future<String?> uploadReportImageWithType(XFile imageFile, String userId, String photoType) async {
+    try {
+      // Create a unique filename with photo type
+      final String imageId = const Uuid().v4();
+      final Reference storageRef = _storage.ref().child('report_images/$userId/${photoType}_$imageId');
+      
+      UploadTask uploadTask;
+      
+      if (kIsWeb) {
+        // Handle web platform
+        final bytes = await imageFile.readAsBytes();
+        uploadTask = storageRef.putData(bytes);
+      } else {
+        // Handle mobile platforms
+        final File file = File(imageFile.path);
+        uploadTask = storageRef.putFile(file);
+      }
+      
+      // Wait for the upload to complete
+      final TaskSnapshot snapshot = await uploadTask;
+      
+      // Get the download URL
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading report image with type: $e');
+      return null;
+    }
+  }
+
+  // Take a photo with camera for a specific photo type
+  Future<XFile?> takePhotoForType(String photoType) async {
+    final XFile? photo = await _picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+    );
+    return photo;
+  }
   
   // Pick multiple images from gallery
   Future<List<XFile>?> pickMultipleImages() async {

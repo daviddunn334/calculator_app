@@ -32,7 +32,36 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   bool _isSubmitting = false;
   bool _isGeneratingPdf = false;
   List<String> _imageUrls = [];
+  List<ReportImage> _reportImages = [];
   bool _isUploadingImages = false;
+  
+  // Photo type definitions
+  final List<Map<String, dynamic>> _photoTypes = [
+    {
+      'type': 'upstream',
+      'label': 'Take Upstream Photo',
+      'icon': Icons.arrow_upward,
+      'color': Colors.blue,
+    },
+    {
+      'type': 'downstream',
+      'label': 'Take Downstream Photo',
+      'icon': Icons.arrow_downward,
+      'color': Colors.green,
+    },
+    {
+      'type': 'soil_strate',
+      'label': 'Take Soil Strate Photo',
+      'icon': Icons.landscape,
+      'color': Colors.brown,
+    },
+    {
+      'type': 'coating_overview',
+      'label': 'Take Coating Overview Photo',
+      'icon': Icons.format_paint,
+      'color': Colors.orange,
+    },
+  ];
 
   final List<String> _inspectionMethods = [
     'MT',
@@ -61,6 +90,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
       _inspectionDate = r.inspectionDate;
       _selectedMethod = r.method;
       _imageUrls = List.from(r.imageUrls);
+      _reportImages = List.from(r.images);
     }
   }
 
@@ -90,7 +120,63 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     }
   }
 
-  /// Add photos to the report
+  /// Take a photo for a specific type
+  Future<void> _takePhotoForType(String photoType, String label) async {
+    setState(() {
+      _isUploadingImages = true;
+    });
+
+    try {
+      final XFile? photo = await _imageService.takePhotoForType(photoType);
+      if (photo != null) {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          throw Exception('User not authenticated');
+        }
+
+        final imageUrl = await _imageService.uploadReportImageWithType(photo, user.uid, photoType);
+        if (imageUrl != null) {
+          final reportImage = ReportImage(
+            url: imageUrl,
+            type: photoType,
+            timestamp: DateTime.now(),
+          );
+
+          setState(() {
+            // Remove existing image of the same type if it exists
+            _reportImages.removeWhere((img) => img.type == photoType);
+            // Add new image
+            _reportImages.add(reportImage);
+            // Also add to legacy imageUrls for backward compatibility
+            _imageUrls.add(imageUrl);
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$label taken successfully'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error taking photo: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploadingImages = false;
+        });
+      }
+    }
+  }
+
+  /// Add photos to the report (legacy method for gallery)
   Future<void> _addPhotos() async {
     showModalBottomSheet(
       context: context,
@@ -104,14 +190,6 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                 onTap: () {
                   Navigator.pop(context);
                   _pickImagesFromGallery();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Take Photo'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _takePhoto();
                 },
               ),
             ],
@@ -137,23 +215,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     }
   }
 
-  /// Take a photo with camera
-  Future<void> _takePhoto() async {
-    try {
-      final XFile? photo = await _imageService.takePhoto();
-      if (photo != null) {
-        await _uploadImages([photo]);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error taking photo: $e')),
-        );
-      }
-    }
-  }
-
-  /// Upload images to Firebase Storage
+  /// Upload images to Firebase Storage (legacy method)
   Future<void> _uploadImages(List<XFile> images) async {
     setState(() {
       _isUploadingImages = true;
@@ -168,8 +230,15 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
       for (final image in images) {
         final imageUrl = await _imageService.uploadReportImage(image, user.uid);
         if (imageUrl != null) {
+          final reportImage = ReportImage(
+            url: imageUrl,
+            type: 'general',
+            timestamp: DateTime.now(),
+          );
+          
           setState(() {
             _imageUrls.add(imageUrl);
+            _reportImages.add(reportImage);
           });
         }
       }
@@ -199,7 +268,10 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
 
   /// Remove an image from the report
   Future<void> _removeImage(int index) async {
-    final imageUrl = _imageUrls[index];
+    final sortedImages = _getSortedImages();
+    if (index >= sortedImages.length) return;
+    
+    final imageToRemove = sortedImages[index];
     
     // Show confirmation dialog
     final bool? confirm = await showDialog<bool>(
@@ -207,7 +279,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Remove Image'),
-          content: const Text('Are you sure you want to remove this image?'),
+          content: Text('Are you sure you want to remove this ${_getPhotoTypeLabel(imageToRemove.type)} image?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -224,12 +296,13 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
 
     if (confirm == true) {
       setState(() {
-        _imageUrls.removeAt(index);
+        _reportImages.removeWhere((img) => img.url == imageToRemove.url);
+        _imageUrls.remove(imageToRemove.url);
       });
 
       // Delete from Firebase Storage
       try {
-        await _imageService.deleteImage(imageUrl);
+        await _imageService.deleteImage(imageToRemove.url);
       } catch (e) {
         print('Error deleting image from storage: $e');
       }
@@ -243,6 +316,52 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
         );
       }
     }
+  }
+
+  /// Get sorted images for display
+  List<ReportImage> _getSortedImages() {
+    final typeOrder = ['upstream', 'downstream', 'soil_strate', 'coating_overview'];
+    final sorted = List<ReportImage>.from(_reportImages);
+    
+    sorted.sort((a, b) {
+      final aIndex = typeOrder.indexOf(a.type);
+      final bIndex = typeOrder.indexOf(b.type);
+      
+      // If both types are in the priority list, sort by priority
+      if (aIndex != -1 && bIndex != -1) {
+        return aIndex.compareTo(bIndex);
+      }
+      
+      // If only one is in the priority list, prioritize it
+      if (aIndex != -1) return -1;
+      if (bIndex != -1) return 1;
+      
+      // If neither is in the priority list, sort by timestamp
+      return a.timestamp.compareTo(b.timestamp);
+    });
+    
+    return sorted;
+  }
+
+  /// Get photo type label for display
+  String _getPhotoTypeLabel(String type) {
+    switch (type) {
+      case 'upstream':
+        return 'Upstream';
+      case 'downstream':
+        return 'Downstream';
+      case 'soil_strate':
+        return 'Soil Strate';
+      case 'coating_overview':
+        return 'Coating Overview';
+      default:
+        return 'General';
+    }
+  }
+
+  /// Check if a photo type has been taken
+  bool _hasPhotoType(String type) {
+    return _reportImages.any((img) => img.type == type);
   }
 
   Future<void> _submitForm() async {
@@ -273,6 +392,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
         correctiveActions: _correctiveActionsController.text,
         additionalNotes: _additionalNotesController.text,
         imageUrls: _imageUrls,
+        images: _reportImages,
         createdAt: widget.report?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
       );
@@ -543,12 +663,63 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                       ),
                       const SizedBox(height: AppTheme.paddingLarge),
                       
+                      // Photo Type Buttons Section
+                      Text(
+                        'Take Photos',
+                        style: AppTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppTheme.paddingMedium),
+                      
+                      // Photo Type Buttons Grid
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 2.5,
+                        ),
+                        itemCount: _photoTypes.length,
+                        itemBuilder: (context, index) {
+                          final photoType = _photoTypes[index];
+                          final hasPhoto = _hasPhotoType(photoType['type']);
+                          
+                          return ElevatedButton.icon(
+                            onPressed: _isUploadingImages ? null : () => _takePhotoForType(
+                              photoType['type'],
+                              photoType['label'],
+                            ),
+                            icon: hasPhoto 
+                                ? const Icon(Icons.check_circle, size: 20)
+                                : Icon(photoType['icon'], size: 20),
+                            label: Text(
+                              photoType['label'],
+                              style: const TextStyle(fontSize: 12),
+                              textAlign: TextAlign.center,
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: hasPhoto 
+                                  ? Colors.green.withOpacity(0.8)
+                                  : photoType['color'],
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      
+                      const SizedBox(height: AppTheme.paddingLarge),
+                      
                       // Photos Section
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Photos (${_imageUrls.length})',
+                            'Photos (${_reportImages.length})',
                             style: AppTheme.titleMedium,
                           ),
                           ElevatedButton.icon(
@@ -560,7 +731,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                                     child: CircularProgressIndicator(strokeWidth: 2),
                                   )
                                 : const Icon(Icons.add_a_photo),
-                            label: Text(_isUploadingImages ? 'Uploading...' : 'Add Photos'),
+                            label: Text(_isUploadingImages ? 'Uploading...' : 'Add from Gallery'),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.blue,
                             ),
@@ -570,7 +741,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                       const SizedBox(height: AppTheme.paddingMedium),
                       
                       // Photo Grid
-                      if (_imageUrls.isNotEmpty)
+                      if (_reportImages.isNotEmpty)
                         GridView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -579,14 +750,17 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                             crossAxisSpacing: 8,
                             mainAxisSpacing: 8,
                           ),
-                          itemCount: _imageUrls.length,
+                          itemCount: _getSortedImages().length,
                           itemBuilder: (context, index) {
+                            final sortedImages = _getSortedImages();
+                            final image = sortedImages[index];
+                            
                             return Stack(
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: Image.network(
-                                    _imageUrls[index],
+                                    image.url,
                                     fit: BoxFit.cover,
                                     width: double.infinity,
                                     height: double.infinity,
@@ -607,6 +781,27 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                                     },
                                   ),
                                 ),
+                                // Photo type label
+                                Positioned(
+                                  bottom: 4,
+                                  left: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.7),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      _getPhotoTypeLabel(image.type),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Remove button
                                 Positioned(
                                   top: 4,
                                   right: 4,
@@ -631,7 +826,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                           },
                         ),
                       
-                      if (_imageUrls.isEmpty)
+                      if (_reportImages.isEmpty)
                         Container(
                           height: 100,
                           decoration: BoxDecoration(
@@ -647,6 +842,10 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                                 Text(
                                   'No photos added yet',
                                   style: TextStyle(color: Colors.grey),
+                                ),
+                                Text(
+                                  'Use the buttons above to take photos',
+                                  style: TextStyle(color: Colors.grey, fontSize: 12),
                                 ),
                               ],
                             ),
