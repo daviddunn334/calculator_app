@@ -180,6 +180,26 @@ class EnhancedPdfService {
             _buildPipeStaticDataTable(report),
             pw.SizedBox(height: 20),
 
+            // Pipe Evaluation Table
+            _buildPipeEvaluationTable(report),
+            pw.SizedBox(height: 20),
+
+            // Environment Table
+            _buildEnvironmentTable(report),
+            pw.SizedBox(height: 20),
+
+            // Joint and Girth Weld Details Table
+            _buildJointGirthWeldTable(report),
+            pw.SizedBox(height: 20),
+
+            // Defect Evaluation Table
+            _buildDefectEvaluationTable(report),
+            pw.SizedBox(height: 20),
+
+            // Summary Table
+            _buildSummaryTable(report),
+            pw.SizedBox(height: 20),
+
             // Findings Section
             _buildFindingsSection(report),
           ],
@@ -551,6 +571,268 @@ class EnhancedPdfService {
           fontSize: 10,
           fontWeight: isHeader ? pw.FontWeight.bold : pw.FontWeight.normal,
         ),
+      ),
+    );
+  }
+
+  /// Builds the pipe evaluation table
+  pw.Widget _buildPipeEvaluationTable(Report report) {
+    return pw.Container(
+      child: pw.Column(
+        children: [
+          // Table header
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              color: _tableHeaderColor,
+              border: pw.Border.all(color: _tableBorderColor),
+            ),
+            child: pw.Center(
+              child: pw.Text(
+                'PIPE EVALUATION',
+                style:
+                    pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ),
+          // Table content
+          pw.Table(
+            border: pw.TableBorder.all(color: _tableBorderColor),
+            children: [
+              _buildTableRow('CP System:', report.cpSystem ?? 'N/A'),
+              _buildTableRow(
+                  'Soil Resistivity:', report.soilResistivity ?? 'N/A'),
+              _buildTableRow('Test Type:', report.testType ?? 'N/A'),
+              _buildTableRow('Coating Type:', report.coatingType ?? 'N/A'),
+              _buildTableRow(
+                  'Overall Condition:', report.overallCondition ?? 'N/A'),
+              _buildTableRow(
+                  'Condition at Anomaly:', report.conditionAtAnomaly ?? 'N/A'),
+              _buildTableRow('% Bonded:', report.percentBonded ?? 'N/A'),
+              _buildTableRow('% Disbonded:', report.percentDisbonded ?? 'N/A'),
+              _buildTableRow('% Bare Pipe:', report.percentBarePipe ?? 'N/A'),
+              _buildTableRow(
+                  'Evidence of Soil Body Stress:',
+                  report.evidenceOfSoilBodyStress == true
+                      ? 'Yes'
+                      : report.evidenceOfSoilBodyStress == false
+                          ? 'No'
+                          : 'N/A'),
+              _buildTableRow(
+                  'Deposits:',
+                  report.deposits == true
+                      ? 'Yes'
+                      : report.deposits == false
+                          ? 'No'
+                          : 'N/A'),
+              _buildTableRow(
+                  'Pipe Bend:',
+                  report.pipeBend == true
+                      ? 'Yes'
+                      : report.pipeBend == false
+                          ? 'No'
+                          : 'N/A'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the environment table
+  pw.Widget _buildEnvironmentTable(Report report) {
+    return pw.Container(
+      child: pw.Column(
+        children: [
+          // Table header
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              color: _tableHeaderColor,
+              border: pw.Border.all(color: _tableBorderColor),
+            ),
+            child: pw.Center(
+              child: pw.Text(
+                'ENVIRONMENT',
+                style:
+                    pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ),
+          // Table content
+          pw.Table(
+            border: pw.TableBorder.all(color: _tableBorderColor),
+            children: [
+              _buildTableRow(
+                  'Terrain at Dig Site:', report.terrainAtDigSite ?? 'N/A'),
+              _buildTableRow('Soil Type at Pipe Level:',
+                  report.soilTypeAtPipeLevel ?? 'N/A'),
+              _buildTableRow(
+                  'Soil Type @ 6:00:', report.soilTypeAtSixOClock ?? 'N/A'),
+              _buildTableRow('Depth of Cover:', report.depthOfCover ?? 'N/A'),
+              _buildTableRow('Organic Depth:', report.organicDepth ?? 'N/A'),
+              _buildTableRow('Usage:', report.usage ?? 'N/A'),
+              _buildTableRow(
+                  'Pipe Temperature:', report.pipeTemperature ?? 'N/A'),
+              _buildTableRow(
+                  'Ambient Temperature:', report.ambientTemperature ?? 'N/A'),
+              _buildTableRow(
+                  'Weather Conditions:', report.weatherConditions ?? 'N/A'),
+              _buildTableRow('Drainage:', report.drainage ?? 'N/A'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the joint and girth weld details table
+  pw.Widget _buildJointGirthWeldTable(Report report) {
+    return pw.Container(
+      child: pw.Column(
+        children: [
+          // Table header
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              color: _tableHeaderColor,
+              border: pw.Border.all(color: _tableBorderColor),
+            ),
+            child: pw.Center(
+              child: pw.Text(
+                'JOINT AND GIRTH WELD DETAILS',
+                style:
+                    pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ),
+          // Table content
+          pw.Table(
+            border: pw.TableBorder.all(color: _tableBorderColor),
+            children: [
+              _buildTableRow(
+                  'Start of Dig ABS/ES:', report.startOfDigAbsEs ?? 'N/A'),
+              _buildTableRow(
+                  'End of Dig ABS/ES:', report.endOfDigAbsEs ?? 'N/A'),
+              _buildTableRow('Length of Pipe Exposed:',
+                  report.lengthOfPipeExposed ?? 'N/A'),
+              _buildTableRow('Length of Pipe Assessed:',
+                  report.lengthOfPipeAssessed ?? 'N/A'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the defect evaluation table
+  pw.Widget _buildDefectEvaluationTable(Report report) {
+    String methods = '';
+    if (report.methodB31G == true) methods += 'B31G ';
+    if (report.methodB31GModified == true) methods += 'B31G Modified ';
+    if (report.methodKapa == true) methods += 'Kapa ';
+    if (report.methodRstreng == true) methods += 'Rstreng ';
+    if (methods.isEmpty) methods = 'N/A';
+
+    return pw.Container(
+      child: pw.Column(
+        children: [
+          // Table header
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              color: _tableHeaderColor,
+              border: pw.Border.all(color: _tableBorderColor),
+            ),
+            child: pw.Center(
+              child: pw.Text(
+                'DEFECT EVALUATION',
+                style:
+                    pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ),
+          // Table content
+          pw.Table(
+            border: pw.TableBorder.all(color: _tableBorderColor),
+            children: [
+              _buildTableRow(
+                  'Defect Noted:',
+                  report.defectNoted == true
+                      ? 'Yes'
+                      : report.defectNoted == false
+                          ? 'No'
+                          : 'N/A'),
+              _buildTableRow('Type of Defect:', report.typeOfDefect ?? 'N/A'),
+              _buildTableRow(
+                  'Burst Pressure Analysis:',
+                  report.burstPressureAnalysis == true
+                      ? 'Yes'
+                      : report.burstPressureAnalysis == false
+                          ? 'No'
+                          : 'N/A'),
+              _buildTableRow('Methods:', methods.trim()),
+              _buildTableRow(
+                  'Wet MPI Performed:',
+                  report.wetMpiPerformed == true
+                      ? 'Yes'
+                      : report.wetMpiPerformed == false
+                          ? 'No'
+                          : 'N/A'),
+              _buildTableRow(
+                  'Start of Wet MPI:', report.startOfWetMpi ?? 'N/A'),
+              _buildTableRow('End of Wet MPI:', report.endOfWetMpi ?? 'N/A'),
+              _buildTableRow(
+                  'Length of Wet MPI:', report.lengthOfWetMpi ?? 'N/A'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the summary table
+  pw.Widget _buildSummaryTable(Report report) {
+    return pw.Container(
+      child: pw.Column(
+        children: [
+          // Table header
+          pw.Container(
+            width: double.infinity,
+            padding: const pw.EdgeInsets.all(8),
+            decoration: pw.BoxDecoration(
+              color: _tableHeaderColor,
+              border: pw.Border.all(color: _tableBorderColor),
+            ),
+            child: pw.Center(
+              child: pw.Text(
+                'SUMMARY',
+                style:
+                    pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ),
+          // Table content
+          pw.Table(
+            border: pw.TableBorder.all(color: _tableBorderColor),
+            children: [
+              _buildTableRow('Start of Recoat ABS/ES:',
+                  report.startOfRecoatAbsEs ?? 'N/A'),
+              _buildTableRow(
+                  'End of Recoat ABS/ES:', report.endOfRecoatAbsEs ?? 'N/A'),
+              _buildTableRow('Total Length of Recoat:',
+                  report.totalLengthOfRecoat ?? 'N/A'),
+              _buildTableRow(
+                  'Recoat Manufacturer:', report.recoatManufacturer ?? 'N/A'),
+              _buildTableRow('Recoat Product:', report.recoatProduct ?? 'N/A'),
+              _buildTableRow('Recoat Type:', report.recoatType ?? 'N/A'),
+            ],
+          ),
+        ],
       ),
     );
   }
