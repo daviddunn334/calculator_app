@@ -9,6 +9,7 @@ import '../widgets/app_header.dart';
 import '../widgets/offline_indicator.dart';
 import '../services/offline_service.dart';
 import 'corrosion_grid_logger_screen.dart';
+import 'pdf_to_excel_screen.dart';
 
 class ToolsScreen extends StatefulWidget {
   const ToolsScreen({super.key});
@@ -72,6 +73,14 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
       'tags': ['Grid', 'RSTRENG', 'Export'],
       'color': Color(0xFFFF9800), // Orange
       'route': const CorrosionGridLoggerScreen(),
+    },
+    {
+      'title': 'PDF to Excel Converter',
+      'icon': Icons.picture_as_pdf_outlined,
+      'description': 'Convert hardness PDF files to Excel format',
+      'tags': ['PDF', 'Excel', 'Hardness', 'Convert'],
+      'color': Color(0xFF4CAF50), // Green
+      'route': const PdfToExcelScreen(),
     },
   ];
 
