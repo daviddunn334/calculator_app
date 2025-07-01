@@ -133,6 +133,14 @@ class AppDrawer extends StatelessWidget {
                   4,
                   isLargeScreen,
                 ),
+                _buildMenuItem(
+                  context,
+                  'Equotip Data Converter',
+                  Icons.transform_outlined,
+                  Icons.transform,
+                  9,
+                  isLargeScreen,
+                ),
                 
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),

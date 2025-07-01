@@ -11,6 +11,7 @@ import 'company_directory_screen.dart';
 import 'field_log_screen.dart';
 import 'news_updates_screen.dart';
 import '../widgets/app_drawer.dart';
+import 'pdf_to_excel_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -35,6 +36,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     const InventoryScreen(),
     const CompanyDirectoryScreen(),
     const NewsUpdatesScreen(),
+    const PdfToExcelScreen(),
   ];
 
   @override
@@ -216,6 +218,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return isSelected ? Icons.people_alt : Icons.people_alt_outlined;
       case 8:
         return isSelected ? Icons.newspaper : Icons.newspaper_outlined;
+      case 9:
+        return isSelected ? Icons.transform : Icons.transform_outlined;
       default:
         return Icons.home_outlined;
     }
@@ -241,6 +245,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return 'Directory';
       case 8:
         return 'News & Updates';
+      case 9:
+        return 'Equotip Data Converter';
       default:
         return '';
     }

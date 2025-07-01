@@ -19,9 +19,21 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
   List<HardnessValue>? _extractedValues;
   String _statusMessage = '';
   ExcelFileData? _generatedExcelFile;
+  double? _shiftValue;
 
   @override
   Widget build(BuildContext context) {
+    final displayedValues = _shiftValue == null
+        ? _extractedValues
+        : _extractedValues?.map((v) {
+            return HardnessValue(
+              sequenceNumber: v.sequenceNumber,
+              hardnessValue: v.hardnessValue + _shiftValue!,
+              pageNumber: v.pageNumber,
+              rawText: v.rawText,
+            );
+          }).toList();
+
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
@@ -133,29 +145,49 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
               description: 'Process the PDF to extract hardness values',
               child: Column(
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: (_selectedPdfFile != null && !_isProcessing) 
-                        ? _extractHardnessData 
-                        : null,
-                    icon: _isProcessing 
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : const Icon(Icons.analytics),
-                    label: Text(_isProcessing ? 'Processing...' : 'Extract Data'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accent2,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: (_selectedPdfFile != null && !_isProcessing)
+                            ? _showShiftDialog
+                            : null,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Apply a Shift?'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.accent2,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                        ),
                       ),
-                    ),
+                      ElevatedButton.icon(
+                        onPressed: (_selectedPdfFile != null && !_isProcessing)
+                            ? _extractHardnessData
+                            : null,
+                        icon: _isProcessing
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : const Icon(Icons.analytics),
+                        label: Text(_isProcessing ? 'Processing...' : 'Extract Data'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.accent2,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   if (_statusMessage.isNotEmpty) ...[
                     const SizedBox(height: 12),
@@ -184,7 +216,7 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
             const SizedBox(height: 16),
             
             // Step 3: Preview Data
-            if (_extractedValues != null && _extractedValues!.isNotEmpty)
+            if (displayedValues != null && displayedValues.isNotEmpty)
               _buildStepCard(
                 stepNumber: 3,
                 title: 'Preview Extracted Data',
@@ -199,32 +231,42 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (_shiftValue != null) ...[
+                        Text(
+                          'Shift Applied: $_shiftValue HB',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryBlue,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       Text(
-                        'Found ${_extractedValues!.length} hardness values:',
+                        'Found ${displayedValues.length} hardness values:',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Container(
                         height: 200,
                         child: ListView.builder(
-                          itemCount: _extractedValues!.length > 10 
-                              ? 10 
-                              : _extractedValues!.length,
+                          itemCount: displayedValues.length > 10
+                              ? 10
+                              : displayedValues.length,
                           itemBuilder: (context, index) {
-                            final value = _extractedValues![index];
+                            final value = displayedValues[index];
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 2),
                               child: Text(
-                                '${value.sequenceNumber}. ${value.hardnessValue} HB (Page ${value.pageNumber})',
+                                '${value.sequenceNumber}. ${value.hardnessValue.toStringAsFixed(1)} HB (Page ${value.pageNumber})',
                                 style: const TextStyle(fontSize: 12),
                               ),
                             );
                           },
                         ),
                       ),
-                      if (_extractedValues!.length > 10)
+                      if (displayedValues.length > 10)
                         Text(
-                          '... and ${_extractedValues!.length - 10} more values',
+                          '... and ${displayedValues.length - 10} more values',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade600,
@@ -232,29 +274,29 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
                           ),
                         ),
                       const SizedBox(height: 8),
-                      if (_extractedValues!.isNotEmpty) ...[
+                      if (displayedValues.isNotEmpty) ...[
                         const Divider(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             _buildStatItem(
                               'Total',
-                              '${_extractedValues!.length}',
+                              '${displayedValues.length}',
                               Icons.format_list_numbered,
                             ),
                             _buildStatItem(
                               'Average',
-                              '${(_extractedValues!.map((v) => v.hardnessValue).reduce((a, b) => a + b) / _extractedValues!.length).toStringAsFixed(1)} HB',
+                              '${(displayedValues.map((v) => v.hardnessValue).reduce((a, b) => a + b) / displayedValues.length).toStringAsFixed(1)} HB',
                               Icons.analytics,
                             ),
-                             _buildStatItem(
+                            _buildStatItem(
                               'Highest',
-                              '${_extractedValues!.map((v) => v.hardnessValue).reduce((a, b) => a > b ? a : b).toStringAsFixed(1)}',
+                              '${displayedValues.map((v) => v.hardnessValue).reduce((a, b) => a > b ? a : b).toStringAsFixed(1)}',
                               Icons.arrow_upward,
                             ),
                             _buildStatItem(
                               'Range',
-                              '${(_extractedValues!.map((v) => v.hardnessValue).reduce((a, b) => a > b ? a : b) - _extractedValues!.map((v) => v.hardnessValue).reduce((a, b) => a < b ? a : b)).toStringAsFixed(1)}',
+                              '${(displayedValues.map((v) => v.hardnessValue).reduce((a, b) => a > b ? a : b) - displayedValues.map((v) => v.hardnessValue).reduce((a, b) => a < b ? a : b)).toStringAsFixed(1)}',
                               Icons.straighten,
                             ),
                           ],
@@ -284,7 +326,7 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
             const SizedBox(height: 16),
             
             // Step 4: Generate Excel
-            if (_extractedValues != null && _extractedValues!.isNotEmpty)
+            if (displayedValues != null && displayedValues.isNotEmpty)
               _buildStepCard(
                 stepNumber: 4,
                 title: 'Generate Excel File',
@@ -518,8 +560,19 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
     });
 
     try {
+      final valuesToExport = _shiftValue == null
+          ? _extractedValues!
+          : _extractedValues!.map((v) {
+              return HardnessValue(
+                sequenceNumber: v.sequenceNumber,
+                hardnessValue: v.hardnessValue + _shiftValue!,
+                pageNumber: v.pageNumber,
+                rawText: v.rawText,
+              );
+            }).toList();
+
       final fileName = _selectedPdfFile!.name;
-      final excelFile = await _pdfToExcelService.convertToExcel(_extractedValues!, fileName);
+      final excelFile = await _pdfToExcelService.convertToExcel(valuesToExport, fileName);
       
       setState(() {
         _generatedExcelFile = excelFile;
@@ -540,6 +593,51 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
     }
   }
 
+  Future<void> _showShiftDialog() async {
+    final shiftController = TextEditingController();
+    final result = await showDialog<double>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Apply a Shift'),
+        content: TextField(
+          controller: shiftController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: 'Shift Value',
+            hintText: 'Enter a number to add to each value',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              final value = double.tryParse(shiftController.text);
+              if (value != null) {
+                Navigator.of(context).pop(value);
+              }
+            },
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      setState(() {
+        _shiftValue = result;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Shift of $_shiftValue applied.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
   Future<void> _shareExcelFile() async {
     if (_generatedExcelFile == null) return;
 
@@ -551,22 +649,34 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
   }
 
   Future<void> _copyDataForTemplate() async {
-    if (_extractedValues == null || _extractedValues!.isEmpty) return;
+    final valuesToCopy = _shiftValue == null
+        ? _extractedValues
+        : _extractedValues?.map((v) {
+            return HardnessValue(
+              sequenceNumber: v.sequenceNumber,
+              hardnessValue: v.hardnessValue + _shiftValue!,
+              pageNumber: v.pageNumber,
+              rawText: v.rawText,
+            );
+          }).toList();
+
+    if (valuesToCopy == null || valuesToCopy.isEmpty) return;
 
     try {
       final buffer = StringBuffer();
       
       // First 84 values in two-column format
-      int twoColumnLimit = _extractedValues!.length > 84 ? 84 : _extractedValues!.length;
+      int twoColumnLimit = valuesToCopy.length > 84 ? 84 : valuesToCopy.length;
       List<String> leftColumn = [];
       List<String> rightColumn = [];
 
       for (int i = 0; i < twoColumnLimit; i++) {
-        final value = _extractedValues![i];
+        final value = valuesToCopy[i];
+        final hardnessStr = value.hardnessValue.toStringAsFixed(1);
         if (i < 42) {
-          leftColumn.add('${value.sequenceNumber}\t${value.sequenceNumber}\t${value.hardnessValue}\t${value.hardnessValue}\t---\t---');
+          leftColumn.add('${value.sequenceNumber}\t${value.sequenceNumber}\t$hardnessStr\t$hardnessStr\t---\t---');
         } else {
-          rightColumn.add('${value.sequenceNumber}\t${value.sequenceNumber}\t${value.hardnessValue}\t${value.hardnessValue}\t---\t---');
+          rightColumn.add('${value.sequenceNumber}\t${value.sequenceNumber}\t$hardnessStr\t$hardnessStr\t---\t---');
         }
       }
 
@@ -578,10 +688,10 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
       }
 
       // Rest of the values in single-column format
-      if (_extractedValues!.length > 84) {
-        for (int i = 84; i < _extractedValues!.length; i++) {
-          final value = _extractedValues![i];
-          buffer.writeln('${value.sequenceNumber}\t\t${value.hardnessValue}');
+      if (valuesToCopy.length > 84) {
+        for (int i = 84; i < valuesToCopy.length; i++) {
+          final value = valuesToCopy[i];
+          buffer.writeln('${value.sequenceNumber}\t\t${value.hardnessValue.toStringAsFixed(1)}');
         }
       }
 
@@ -606,6 +716,7 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
       _generatedExcelFile = null;
       _statusMessage = '';
       _isProcessing = false;
+      _shiftValue = null;
     });
   }
 
