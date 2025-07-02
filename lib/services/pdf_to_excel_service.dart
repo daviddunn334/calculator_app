@@ -9,66 +9,94 @@ import 'package:flutter/foundation.dart';
 import 'dart:html' as html show Blob, Url, document, AnchorElement;
 
 class PdfToExcelService {
-  /// Picks a PDF file from device storage
-  Future<PdfFileData?> pickPdfFile() async {
+  /// Picks one or more PDF files from device storage
+  Future<List<PdfFileData>> pickPdfFiles() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
-        allowMultiple: false,
+        allowMultiple: true, // Allow multiple files to be selected
       );
 
-      if (result != null && result.files.single.bytes != null) {
-        // For web platform, use bytes directly
-        if (kIsWeb) {
-          return PdfFileData(
-            bytes: result.files.single.bytes!,
-            name: result.files.single.name,
-          );
-        } 
-        // For mobile/desktop platforms, use file path
-        else if (result.files.single.path != null) {
-          final file = File(result.files.single.path!);
-          final bytes = await file.readAsBytes();
-          return PdfFileData(
-            bytes: bytes,
-            name: result.files.single.name,
-            file: file,
-          );
+      if (result != null && result.files.isNotEmpty) {
+        List<PdfFileData> files = [];
+        for (var file in result.files) {
+          if (file.bytes != null) {
+            // For web platform, use bytes directly
+            if (kIsWeb) {
+              files.add(PdfFileData(
+                bytes: file.bytes!,
+                name: file.name,
+              ));
+            }
+            // For mobile/desktop platforms, use file path
+            else if (file.path != null) {
+              final f = File(file.path!);
+              final bytes = await f.readAsBytes();
+              files.add(PdfFileData(
+                bytes: bytes,
+                name: file.name,
+                file: f,
+              ));
+            }
+          }
         }
+        return files;
       }
-      return null;
+      return [];
     } catch (e) {
-      print('Error picking PDF file: $e');
-      return null;
+      print('Error picking PDF files: $e');
+      return [];
     }
   }
 
-  /// Extracts hardness values from PDF file data
-  Future<List<HardnessValue>> extractHardnessValues(PdfFileData pdfData) async {
+  /// Extracts hardness values from a list of PDF files and combines them
+  Future<List<HardnessValue>> extractHardnessValues(List<PdfFileData> pdfFiles) async {
+    List<HardnessValue> allHardnessValues = [];
+    int sequenceOffset = 0;
+
     try {
-      // Read PDF file from bytes
-      final PdfDocument document = PdfDocument(inputBytes: pdfData.bytes);
-      
-      List<HardnessValue> hardnessValues = [];
-      
-      // Extract text from all pages
-      for (int i = 0; i < document.pages.count; i++) {
-        final PdfTextExtractor extractor = PdfTextExtractor(document);
-        final String text = extractor.extractText(startPageIndex: i, endPageIndex: i);
+      for (var pdfData in pdfFiles) {
+        // Read PDF file from bytes
+        final PdfDocument document = PdfDocument(inputBytes: pdfData.bytes);
+        List<HardnessValue> fileHardnessValues = [];
+
+        // Extract text from all pages
+        for (int i = 0; i < document.pages.count; i++) {
+          final PdfTextExtractor extractor = PdfTextExtractor(document);
+          final String text = extractor.extractText(startPageIndex: i, endPageIndex: i);
+          
+          // Parse hardness values from extracted text
+          final pageValues = _parseHardnessValues(text, i + 1);
+          fileHardnessValues.addAll(pageValues);
+        }
         
-        // Parse hardness values from extracted text
-        final pageValues = _parseHardnessValues(text, i + 1);
-        hardnessValues.addAll(pageValues);
+        // Close the document
+        document.dispose();
+        
+        // Sort values from the current file by their original sequence number
+        fileHardnessValues.sort((a, b) => a.sequenceNumber.compareTo(b.sequenceNumber));
+        
+        // Add to the combined list with updated sequence numbers
+        for (var value in fileHardnessValues) {
+          allHardnessValues.add(HardnessValue(
+            sequenceNumber: sequenceOffset + value.sequenceNumber,
+            hardnessValue: value.hardnessValue,
+            pageNumber: value.pageNumber,
+            rawText: value.rawText,
+          ));
+        }
+        
+        // Update the offset for the next file
+        if (fileHardnessValues.isNotEmpty) {
+          sequenceOffset += fileHardnessValues.length;
+        }
       }
       
-      // Close the document
-      document.dispose();
+      // Final sort of all combined values
+      allHardnessValues.sort((a, b) => a.sequenceNumber.compareTo(b.sequenceNumber));
       
-      // Sort by sequence number to maintain order
-      hardnessValues.sort((a, b) => a.sequenceNumber.compareTo(b.sequenceNumber));
-      
-      return hardnessValues;
+      return allHardnessValues;
     } catch (e) {
       print('Error extracting hardness values: $e');
       rethrow;
@@ -189,98 +217,70 @@ class PdfToExcelService {
     return values;
   }
 
-  /// Converts hardness values to Excel file matching the exact format from the provided example
-  Future<ExcelFileData> convertToExcel(List<HardnessValue> hardnessValues, String originalFileName) async {
+  /// Converts hardness values to an Excel file
+  Future<ExcelFileData> convertToExcel(List<HardnessValue> hardnessValues, String baseFileName) async {
     try {
       // Create a new Excel workbook
       final excel = Excel.createExcel();
-      
-      // Get the default sheet without trying to rename or delete
       final sheet = excel.sheets.values.first;
-      
-      // Add the header rows to match the exact format
-      // Row 1: "Equotip measurement report" across all columns
+
+      // Add header rows
       for (int col = 0; col < 15; col++) {
         sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0)).value = 'Equotip measurement report';
-      }
-      
-      // Row 2: "Table View" across all columns
-      for (int col = 0; col < 15; col++) {
         sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 1)).value = 'Table View';
       }
-      
-      // Row 3: Column headers for the data sections
-      // First section (columns A-G)
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: 2)).value = '#';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 2)).value = '#';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: 2)).value = 'HB';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: 2)).value = 'HB';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: 2)).value = '---';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: 2)).value = '---';
-      
-      // Second section (columns H-N)
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: 2)).value = '#';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 9, rowIndex: 2)).value = '#';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 10, rowIndex: 2)).value = 'HB';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 11, rowIndex: 2)).value = 'HB';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 12, rowIndex: 2)).value = '---';
-      sheet.cell(CellIndex.indexByColumnRow(columnIndex: 13, rowIndex: 2)).value = '---';
-      
-      // Define the layout properties
-      const int valuesPerSection = 42;
-      const int columnOffset = 7;
-      int startRow = 3; // Start from row 4 (index 3)
 
-      // Fill the first 84 values in the two-column format
-      int twoColumnLimit = hardnessValues.length > 84 ? 84 : hardnessValues.length;
-      for (int i = 0; i < twoColumnLimit; i++) {
-        final value = hardnessValues[i];
-        int sectionIndex = i ~/ valuesPerSection;
-        int rowInSection = i % valuesPerSection;
-        int actualRow = startRow + rowInSection;
-        int colOffset = sectionIndex * columnOffset;
-
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 1 + colOffset, rowIndex: actualRow)).value = value.sequenceNumber;
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 2 + colOffset, rowIndex: actualRow)).value = value.sequenceNumber;
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 3 + colOffset, rowIndex: actualRow)).value = value.hardnessValue;
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 4 + colOffset, rowIndex: actualRow)).value = value.hardnessValue;
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 5 + colOffset, rowIndex: actualRow)).value = '---';
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 6 + colOffset, rowIndex: actualRow)).value = '---';
+      // Add column headers
+      const headers = ['#', '#', 'HB', 'HB', '---', '---'];
+      for (int i = 0; i < headers.length; i++) {
+        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 1 + i, rowIndex: 2)).value = headers[i];
+        sheet.cell(CellIndex.indexByColumnRow(columnIndex: 8 + i, rowIndex: 2)).value = headers[i];
       }
 
-      // Fill the rest of the values in a single column format from row 49
-      if (hardnessValues.length > 84) {
-        int singleColumnStartRow = 48; // Start from row 49 (index 48)
-        for (int i = 84; i < hardnessValues.length; i++) {
-          final value = hardnessValues[i];
-          int actualRow = singleColumnStartRow + (i - 84);
+      // Fill data
+      const int valuesPerSection = 42;
+      const int columnOffset = 7;
+      int startRow = 3;
 
+      for (int i = 0; i < hardnessValues.length; i++) {
+        final value = hardnessValues[i];
+        
+        if (i < 84) { // Two-column format
+          int sectionIndex = i ~/ valuesPerSection;
+          int rowInSection = i % valuesPerSection;
+          int actualRow = startRow + rowInSection;
+          int colOffset = sectionIndex * columnOffset;
+
+          sheet.cell(CellIndex.indexByColumnRow(columnIndex: 1 + colOffset, rowIndex: actualRow)).value = value.sequenceNumber;
+          sheet.cell(CellIndex.indexByColumnRow(columnIndex: 2 + colOffset, rowIndex: actualRow)).value = value.sequenceNumber;
+          sheet.cell(CellIndex.indexByColumnRow(columnIndex: 3 + colOffset, rowIndex: actualRow)).value = value.hardnessValue;
+          sheet.cell(CellIndex.indexByColumnRow(columnIndex: 4 + colOffset, rowIndex: actualRow)).value = value.hardnessValue;
+          sheet.cell(CellIndex.indexByColumnRow(columnIndex: 5 + colOffset, rowIndex: actualRow)).value = '---';
+          sheet.cell(CellIndex.indexByColumnRow(columnIndex: 6 + colOffset, rowIndex: actualRow)).value = '---';
+        } else { // Single-column format
+          int actualRow = 48 + (i - 84);
           sheet.cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: actualRow)).value = value.sequenceNumber;
           sheet.cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: actualRow)).value = value.hardnessValue;
         }
       }
-      
+
       // Generate Excel bytes
       final excelBytes = excel.encode();
       if (excelBytes == null) {
         throw Exception('Failed to generate Excel file');
       }
-      
-      final fileName = '${originalFileName.replaceAll('.pdf', '')}_hardness_data.xlsx';
-      
-      // For web platform, return bytes directly
+
+      final fileName = '${baseFileName.replaceAll('.pdf', '')}_hardness_data.xlsx';
+
       if (kIsWeb) {
         return ExcelFileData(
           bytes: Uint8List.fromList(excelBytes),
           name: fileName,
         );
-      } 
-      // For mobile/desktop platforms, save to file
-      else {
+      } else {
         final directory = await getApplicationDocumentsDirectory();
         final file = File('${directory.path}/$fileName');
         await file.writeAsBytes(excelBytes);
-        
         return ExcelFileData(
           bytes: Uint8List.fromList(excelBytes),
           name: fileName,

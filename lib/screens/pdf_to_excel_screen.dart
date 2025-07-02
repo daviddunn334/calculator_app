@@ -15,7 +15,7 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
   final PdfToExcelService _pdfToExcelService = PdfToExcelService();
   
   bool _isProcessing = false;
-  PdfFileData? _selectedPdfFile;
+  List<PdfFileData> _selectedPdfFiles = [];
   List<HardnessValue>? _extractedValues;
   String _statusMessage = '';
   ExcelFileData? _generatedExcelFile;
@@ -93,11 +93,11 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
               description: 'Choose a PDF file containing hardness test data',
               child: Column(
                 children: [
-                  if (_selectedPdfFile == null)
+                  if (_selectedPdfFiles.isEmpty)
                     ElevatedButton.icon(
-                      onPressed: _isProcessing ? null : _selectPdfFile,
+                      onPressed: _isProcessing ? null : _selectPdfFiles,
                       icon: const Icon(Icons.file_upload),
-                      label: const Text('Select PDF File'),
+                      label: const Text('Select PDF Files'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primaryBlue,
                         foregroundColor: Colors.white,
@@ -108,29 +108,45 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
                       ),
                     )
                   else
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.green),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.check_circle, color: Colors.green),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Selected: ${_selectedPdfFile!.name}',
-                              style: const TextStyle(color: Colors.green),
+                    Column(
+                      children: [
+                        Container(
+                          height: 150, // Adjust height as needed
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: ListView.builder(
+                            itemCount: _selectedPdfFiles.length,
+                            itemBuilder: (context, index) {
+                              final file = _selectedPdfFiles[index];
+                              return ListTile(
+                                leading: const Icon(Icons.picture_as_pdf, color: AppTheme.primaryBlue),
+                                title: Text(file.name, style: const TextStyle(fontSize: 14)),
+                                dense: true,
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextButton.icon(
+                              onPressed: _isProcessing ? null : _selectPdfFiles,
+                              icon: const Icon(Icons.add_circle_outline),
+                              label: const Text('Add More'),
                             ),
-                          ),
-                          TextButton(
-                            onPressed: _isProcessing ? null : _clearSelection,
-                            child: const Text('Change'),
-                          ),
-                        ],
-                      ),
+                            TextButton.icon(
+                              onPressed: _isProcessing ? null : _clearSelection,
+                              icon: const Icon(Icons.cancel_outlined),
+                              label: const Text('Clear All'),
+                              style: TextButton.styleFrom(foregroundColor: Colors.red),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                 ],
               ),
@@ -149,7 +165,7 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: (_selectedPdfFile != null && !_isProcessing)
+                        onPressed: (_selectedPdfFiles.isNotEmpty && !_isProcessing)
                             ? _showShiftDialog
                             : null,
                         icon: const Icon(Icons.add),
@@ -164,7 +180,7 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
                         ),
                       ),
                       ElevatedButton.icon(
-                        onPressed: (_selectedPdfFile != null && !_isProcessing)
+                        onPressed: (_selectedPdfFiles.isNotEmpty && !_isProcessing)
                             ? _extractHardnessData
                             : null,
                         icon: _isProcessing
@@ -498,25 +514,25 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
     );
   }
 
-  Future<void> _selectPdfFile() async {
+  Future<void> _selectPdfFiles() async {
     try {
-      final file = await _pdfToExcelService.pickPdfFile();
-      if (file != null) {
+      final files = await _pdfToExcelService.pickPdfFiles();
+      if (files.isNotEmpty) {
         setState(() {
-          _selectedPdfFile = file;
+          _selectedPdfFiles.addAll(files);
           _extractedValues = null;
           _generatedExcelFile = null;
           _statusMessage = '';
         });
       }
     } catch (e) {
-      _showErrorDialog('Error selecting file: $e');
+      _showErrorDialog('Error selecting files: $e');
     }
   }
 
   void _clearSelection() {
     setState(() {
-      _selectedPdfFile = null;
+      _selectedPdfFiles.clear();
       _extractedValues = null;
       _generatedExcelFile = null;
       _statusMessage = '';
@@ -524,23 +540,23 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
   }
 
   Future<void> _extractHardnessData() async {
-    if (_selectedPdfFile == null) return;
+    if (_selectedPdfFiles.isEmpty) return;
 
     setState(() {
       _isProcessing = true;
-      _statusMessage = 'Processing PDF file...';
+      _statusMessage = 'Processing ${_selectedPdfFiles.length} PDF file(s)...';
     });
 
     try {
-      final values = await _pdfToExcelService.extractHardnessValues(_selectedPdfFile!);
+      final values = await _pdfToExcelService.extractHardnessValues(_selectedPdfFiles);
       
       setState(() {
         _extractedValues = values;
         _isProcessing = false;
         if (values.isEmpty) {
-          _statusMessage = 'No hardness values found in the PDF. Please check if the PDF contains hardness test data in a supported format.';
+          _statusMessage = 'No hardness values found in the selected PDFs. Please check if the files contain hardness test data in a supported format.';
         } else {
-          _statusMessage = 'Successfully extracted ${values.length} hardness values from the PDF.';
+          _statusMessage = 'Successfully extracted ${values.length} total hardness values from ${_selectedPdfFiles.length} PDF(s).';
         }
       });
     } catch (e) {
@@ -571,8 +587,8 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
               );
             }).toList();
 
-      final fileName = _selectedPdfFile!.name;
-      final excelFile = await _pdfToExcelService.convertToExcel(valuesToExport, fileName);
+      final baseFileName = _selectedPdfFiles.isNotEmpty ? _selectedPdfFiles.first.name : 'Combined';
+      final excelFile = await _pdfToExcelService.convertToExcel(valuesToExport, baseFileName);
       
       setState(() {
         _generatedExcelFile = excelFile;
@@ -711,7 +727,7 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
 
   void _resetConverter() {
     setState(() {
-      _selectedPdfFile = null;
+      _selectedPdfFiles.clear();
       _extractedValues = null;
       _generatedExcelFile = null;
       _statusMessage = '';
