@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import '../widgets/news_updates_section.dart';
+import '../models/news_update.dart';
+import '../services/news_service.dart';
+import '../services/user_service.dart';
+import 'admin/news_admin_screen.dart';
 
 class NewsUpdatesScreen extends StatefulWidget {
   const NewsUpdatesScreen({super.key});
@@ -9,374 +12,594 @@ class NewsUpdatesScreen extends StatefulWidget {
   State<NewsUpdatesScreen> createState() => _NewsUpdatesScreenState();
 }
 
-class _NewsUpdatesScreenState extends State<NewsUpdatesScreen> {
-  // Sample updates - in a real app, these would come from a backend
-  // Using the same sample data from NewsUpdatesSection for consistency
-  final List<NewsUpdate> allUpdates = [
-    ...NewsUpdatesSection.updates,
-    // Additional updates for the full page view
-    NewsUpdate(
-      title: 'Equipment Maintenance Schedule',
-      description: 'Updated maintenance schedule for Q3 2024',
-      date: DateTime.now().subtract(const Duration(days: 3)),
-      category: NewsCategory.company,
-      icon: Icons.build_circle,
-    ),
-    NewsUpdate(
-      title: 'New Safety Regulations',
-      description: 'Important updates to confined space entry procedures',
-      date: DateTime.now().subtract(const Duration(days: 4)),
-      category: NewsCategory.protocol,
-      icon: Icons.health_and_safety,
-    ),
-    NewsUpdate(
-      title: 'Team Building Event',
-      description: 'Annual company picnic scheduled for July 15th',
-      date: DateTime.now().subtract(const Duration(days: 5)),
-      category: NewsCategory.company,
-      icon: Icons.groups,
-    ),
-    NewsUpdate(
-      title: 'Certification Reminder',
-      description: 'NACE certification renewals due next month',
-      date: DateTime.now().subtract(const Duration(days: 6)),
-      category: NewsCategory.training,
-      icon: Icons.card_membership,
-    ),
-    NewsUpdate(
-      title: 'Industry Webinar',
-      description: 'Free webinar on advanced ultrasonic testing techniques',
-      date: DateTime.now().subtract(const Duration(days: 7)),
-      category: NewsCategory.industry,
-      icon: Icons.computer,
-    ),
-  ];
-
-  // Filter state
-  String _searchQuery = '';
+class _NewsUpdatesScreenState extends State<NewsUpdatesScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final NewsService _newsService = NewsService();
+  final UserService _userService = UserService();
+  
   NewsCategory? _selectedCategory;
+  String _searchQuery = '';
 
-  List<NewsUpdate> get _filteredUpdates {
-    return allUpdates.where((update) {
-      // Apply category filter
-      if (_selectedCategory != null && update.category != _selectedCategory) {
-        return false;
-      }
-      
-      // Apply search filter
-      if (_searchQuery.isNotEmpty) {
-        return update.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-               update.description.toLowerCase().contains(_searchQuery.toLowerCase());
-      }
-      
-      return true;
-    }).toList();
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 5, vsync: this); // 4 categories + All
   }
 
-  Color _getCategoryColor(NewsCategory category) {
-    switch (category) {
-      case NewsCategory.company:
-        return AppTheme.accent1;
-      case NewsCategory.industry:
-        return AppTheme.accent2;
-      case NewsCategory.protocol:
-        return AppTheme.accent3;
-      case NewsCategory.training:
-        return AppTheme.accent4;
-    }
-  }
-
-  String _getCategoryLabel(NewsCategory category) {
-    switch (category) {
-      case NewsCategory.company:
-        return 'Company';
-      case NewsCategory.industry:
-        return 'Industry';
-      case NewsCategory.protocol:
-        return 'Protocol';
-      case NewsCategory.training:
-        return 'Training';
-    }
-  }
-
-  String _getTimeAgo(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else {
-      return '${difference.inDays}d ago';
-    }
-  }
-
-  String _getFormattedDate(DateTime date) {
-    return '${date.month}/${date.day}/${date.year}';
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        backgroundColor: AppTheme.background,
+        appBar: AppBar(
+          title: const Text('News & Updates'),
+          backgroundColor: AppTheme.primaryBlue,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          bottom: TabBar(
+            controller: _tabController,
+            indicatorColor: Colors.white,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            isScrollable: true,
+            tabs: [
+              const Tab(text: 'All'),
+              Tab(text: NewsCategory.company.displayName),
+              Tab(text: NewsCategory.industry.displayName),
+              Tab(text: NewsCategory.protocol.displayName),
+              Tab(text: NewsCategory.training.displayName),
+            ],
+            onTap: (index) {
+              setState(() {
+                _selectedCategory = index == 0 ? null : NewsCategory.values[index - 1];
+              });
+            },
+          ),
+          actions: [
+            StreamBuilder<bool>(
+              stream: _userService.isCurrentUserAdminStream(),
+              builder: (context, snapshot) {
+                final isAdmin = snapshot.data ?? false;
+                if (!isAdmin) return const SizedBox.shrink();
+                
+                return IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NewsAdminScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.admin_panel_settings),
+                  tooltip: 'Admin Panel',
+                );
+              },
+            ),
+          ],
+        ),
+        body: Column(
           children: [
-            // Header with search
-            Container(
-              padding: const EdgeInsets.all(AppTheme.paddingLarge),
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            _buildSearchBar(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.newspaper, color: AppTheme.accent5, size: 28),
-                      const SizedBox(width: AppTheme.paddingMedium),
-                      Text(
-                        'News & Updates',
-                        style: AppTheme.titleLarge.copyWith(
-                          color: AppTheme.accent5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppTheme.paddingMedium),
-                  Text(
-                    'Stay informed with the latest company announcements, industry news, and important updates',
-                    style: AppTheme.bodyMedium.copyWith(
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: AppTheme.paddingLarge),
-                  TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Search updates...',
-                      prefixIcon: const Icon(Icons.search, color: AppTheme.textSecondary),
-                      filled: true,
-                      fillColor: AppTheme.background,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                  const SizedBox(height: AppTheme.paddingMedium),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _buildFilterChip(null, 'All'),
-                        const SizedBox(width: 8),
-                        _buildFilterChip(NewsCategory.company, 'Company'),
-                        const SizedBox(width: 8),
-                        _buildFilterChip(NewsCategory.industry, 'Industry'),
-                        const SizedBox(width: 8),
-                        _buildFilterChip(NewsCategory.protocol, 'Protocol'),
-                        const SizedBox(width: 8),
-                        _buildFilterChip(NewsCategory.training, 'Training'),
-                      ],
-                    ),
-                  ),
+                  _buildNewsTab(null), // All categories
+                  _buildNewsTab(NewsCategory.company),
+                  _buildNewsTab(NewsCategory.industry),
+                  _buildNewsTab(NewsCategory.protocol),
+                  _buildNewsTab(NewsCategory.training),
                 ],
               ),
             ),
-            
-            // Updates list
-            Expanded(
-              child: _filteredUpdates.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search_off,
-                            size: 64,
-                            color: AppTheme.textSecondary.withOpacity(0.5),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No updates found',
-                            style: AppTheme.titleMedium.copyWith(
-                              color: AppTheme.textSecondary,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Try adjusting your search or filters',
-                            style: AppTheme.bodyMedium.copyWith(
-                              color: AppTheme.textSecondary.withOpacity(0.7),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                      itemCount: _filteredUpdates.length,
-                      separatorBuilder: (context, index) => const Divider(height: 32),
-                      itemBuilder: (context, index) {
-                        final update = _filteredUpdates[index];
-                        return _buildUpdateItem(update);
-                      },
-                    ),
-            ),
           ],
+        ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+      color: Colors.white,
+      child: TextField(
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        decoration: InputDecoration(
+          hintText: 'Search news and updates...',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: _searchQuery.isNotEmpty
+              ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  icon: const Icon(Icons.clear),
+                )
+              : null,
+          filled: true,
+          fillColor: AppTheme.background,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildFilterChip(NewsCategory? category, String label) {
-    final bool isSelected = _selectedCategory == category;
-    final Color chipColor = category == null 
-        ? AppTheme.primaryBlue 
-        : _getCategoryColor(category);
-    
-    return FilterChip(
-      selected: isSelected,
-      label: Text(label),
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : chipColor,
-        fontWeight: FontWeight.w500,
-      ),
-      backgroundColor: chipColor.withOpacity(0.1),
-      selectedColor: chipColor,
-      checkmarkColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        side: BorderSide(
-          color: chipColor.withOpacity(isSelected ? 0 : 0.3),
-        ),
-      ),
-      onSelected: (selected) {
-        setState(() {
-          _selectedCategory = selected ? category : null;
-        });
+  Widget _buildNewsTab(NewsCategory? category) {
+    return StreamBuilder<List<NewsUpdate>>(
+      stream: _newsService.getPublishedUpdates(category: category),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error, size: 64, color: Colors.red[300]),
+                const SizedBox(height: 16),
+                Text('Error loading updates: ${snapshot.error}'),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => setState(() {}),
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final allUpdates = snapshot.data ?? [];
+        final filteredUpdates = _filterUpdates(allUpdates);
+
+        if (filteredUpdates.isEmpty) {
+          return _buildEmptyState(category);
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(AppTheme.paddingMedium),
+          itemCount: filteredUpdates.length,
+          itemBuilder: (context, index) {
+            return _buildUpdateCard(filteredUpdates[index]);
+          },
+        );
       },
     );
   }
 
-  Widget _buildUpdateItem(NewsUpdate update) {
-    return Container(
-      padding: const EdgeInsets.all(AppTheme.paddingMedium),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+  Widget _buildEmptyState(NewsCategory? category) {
+    String title = 'No updates found';
+    String subtitle = 'Check back later for new updates';
+    
+    if (_searchQuery.isNotEmpty) {
+      title = 'No results found';
+      subtitle = 'Try adjusting your search terms';
+    } else if (category != null) {
+      title = 'No ${category.displayName.toLowerCase()} updates';
+      subtitle = 'No updates available in this category yet';
+    }
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.article,
+            size: 64,
+            color: AppTheme.textSecondary.withOpacity(0.5),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: AppTheme.titleMedium.copyWith(
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            subtitle,
+            style: AppTheme.bodyMedium.copyWith(
+              color: AppTheme.textSecondary.withOpacity(0.7),
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    );
+  }
+
+  Widget _buildUpdateCard(NewsUpdate update) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: AppTheme.paddingMedium),
+      child: InkWell(
+        onTap: () => _showUpdateDetails(update),
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        child: Padding(
+          padding: const EdgeInsets.all(AppTheme.paddingMedium),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _getCategoryColor(update.category).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                ),
-                child: Icon(
-                  update.icon,
-                  color: _getCategoryColor(update.category),
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: AppTheme.paddingMedium),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      update.title,
-                      style: AppTheme.titleMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: update.category.color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                     ),
-                    const SizedBox(height: 4),
-                    Row(
+                    child: Icon(
+                      update.icon,
+                      color: update.category.color,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: AppTheme.paddingMedium),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getCategoryColor(update.category).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            _getCategoryLabel(update.category),
-                            style: AppTheme.bodySmall.copyWith(
-                              color: _getCategoryColor(update.category),
-                              fontWeight: FontWeight.w500,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: update.category.color.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                update.category.displayName,
+                                style: AppTheme.bodySmall.copyWith(
+                                  color: update.category.color,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            if (update.priority != NewsPriority.normal)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: update.priority.color.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  update.priority.displayName,
+                                  style: AppTheme.bodySmall.copyWith(
+                                    color: update.priority.color,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(height: 4),
                         Text(
-                          _getFormattedDate(update.date),
+                          _formatDate(update.publishDate ?? update.createdDate),
                           style: AppTheme.bodySmall.copyWith(
                             color: AppTheme.textSecondary,
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          _getTimeAgo(update.date),
-                          style: AppTheme.bodySmall.copyWith(
-                            color: AppTheme.textSecondary,
-                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ],
                     ),
+                  ),
+                  if (update.type != NewsType.update)
+                    Icon(
+                      update.type.icon,
+                      color: AppTheme.textSecondary,
+                      size: 16,
+                    ),
+                ],
+              ),
+              const SizedBox(height: AppTheme.paddingMedium),
+              Text(
+                update.title,
+                style: AppTheme.titleMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: AppTheme.paddingSmall),
+              Text(
+                update.description,
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.textSecondary,
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (update.links.isNotEmpty) ...[
+                const SizedBox(height: AppTheme.paddingMedium),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.link,
+                      size: 16,
+                      color: AppTheme.primaryBlue,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${update.links.length} link${update.links.length > 1 ? 's' : ''}',
+                      style: AppTheme.bodySmall.copyWith(
+                        color: AppTheme.primaryBlue,
+                      ),
+                    ),
                   ],
                 ),
+              ],
+              const SizedBox(height: AppTheme.paddingSmall),
+              Row(
+                children: [
+                  if (update.authorName != null) ...[
+                    Icon(Icons.person, size: 14, color: AppTheme.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(
+                      update.authorName!,
+                      style: AppTheme.bodySmall.copyWith(
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                  ],
+                  if (update.viewCount > 0) ...[
+                    Icon(Icons.visibility, size: 14, color: AppTheme.textSecondary),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${update.viewCount} views',
+                      style: AppTheme.bodySmall.copyWith(
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),
-          const SizedBox(height: AppTheme.paddingMedium),
-          Text(
-            update.description,
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: AppTheme.paddingMedium),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+        ),
+      ),
+    );
+  }
+
+  List<NewsUpdate> _filterUpdates(List<NewsUpdate> updates) {
+    if (_searchQuery.isEmpty) return updates;
+    
+    final query = _searchQuery.toLowerCase();
+    return updates.where((update) {
+      return update.title.toLowerCase().contains(query) ||
+             update.description.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    } else {
+      return '${date.month}/${date.day}/${date.year}';
+    }
+  }
+
+  void _showUpdateDetails(NewsUpdate update) {
+    // Increment view count
+    if (update.id != null) {
+      _newsService.incrementViewCount(update.id!);
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TextButton.icon(
-                onPressed: () {
-                  // TODO: Implement read more functionality
-                },
-                icon: const Icon(Icons.arrow_forward, size: 16),
-                label: const Text('Read More'),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppTheme.primaryBlue,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppTheme.paddingMedium,
-                    vertical: 8,
+              // Header
+              Container(
+                padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                decoration: BoxDecoration(
+                  color: update.category.color.withOpacity(0.1),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(AppTheme.radiusMedium),
+                    topRight: Radius.circular(AppTheme.radiusMedium),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      update.icon,
+                      color: update.category.color,
+                      size: 32,
+                    ),
+                    const SizedBox(width: AppTheme.paddingMedium),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            update.category.displayName,
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: update.category.color,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Text(
+                            update.title,
+                            style: AppTheme.titleLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+              ),
+              // Content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Metadata
+                      Row(
+                        children: [
+                          if (update.priority != NewsPriority.normal) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: update.priority.color.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                update.priority.displayName,
+                                style: AppTheme.bodySmall.copyWith(
+                                  color: update.priority.color,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Icon(
+                            update.type.icon,
+                            size: 16,
+                            color: AppTheme.textSecondary,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            update.type.displayName,
+                            style: AppTheme.bodySmall.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                          const Spacer(),
+                          Text(
+                            _formatDate(update.publishDate ?? update.createdDate),
+                            style: AppTheme.bodySmall.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppTheme.paddingLarge),
+                      // Description
+                      Text(
+                        update.description,
+                        style: AppTheme.bodyMedium,
+                      ),
+                      // Links
+                      if (update.links.isNotEmpty) ...[
+                        const SizedBox(height: AppTheme.paddingLarge),
+                        Text(
+                          'Related Links',
+                          style: AppTheme.titleMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.paddingMedium),
+                        ...update.links.map((link) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: InkWell(
+                            onTap: () {
+                              // TODO: Launch URL
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Opening: $link')),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.link,
+                                  size: 16,
+                                  color: AppTheme.primaryBlue,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    link,
+                                    style: AppTheme.bodyMedium.copyWith(
+                                      color: AppTheme.primaryBlue,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.open_in_new,
+                                  size: 16,
+                                  color: AppTheme.primaryBlue,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )),
+                      ],
+                      // Author and stats
+                      const SizedBox(height: AppTheme.paddingLarge),
+                      const Divider(),
+                      const SizedBox(height: AppTheme.paddingMedium),
+                      Row(
+                        children: [
+                          if (update.authorName != null) ...[
+                            Icon(Icons.person, size: 16, color: AppTheme.textSecondary),
+                            const SizedBox(width: 4),
+                            Text(
+                              'By ${update.authorName}',
+                              style: AppTheme.bodySmall.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                          ],
+                          Icon(Icons.visibility, size: 16, color: AppTheme.textSecondary),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${update.viewCount + 1} views',
+                            style: AppTheme.bodySmall.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../services/user_service.dart';
 import '../theme/app_theme.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -26,6 +27,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
   late Animation<Offset> _slideAnimation;
 
   final AuthService _authService = AuthService();
+  final UserService _userService = UserService();
 
   @override
   void initState() {
@@ -81,10 +83,21 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
     });
     
     try {
-      await _authService.signUpWithEmailAndPassword(
+      final userCredential = await _authService.signUpWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+      
+      // Create user profile in Firestore
+      if (userCredential.user != null) {
+        await _userService.createUserProfile(
+          userId: userCredential.user!.uid,
+          email: _emailController.text.trim(),
+          displayName: _nameController.text.trim().isNotEmpty 
+              ? _nameController.text.trim() 
+              : null,
+        );
+      }
       
       // Clear form fields after successful signup
       _emailController.clear();
