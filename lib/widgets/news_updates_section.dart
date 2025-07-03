@@ -1,89 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-
-class NewsUpdate {
-  final String title;
-  final String description;
-  final DateTime date;
-  final NewsCategory category;
-  final IconData icon;
-
-  const NewsUpdate({
-    required this.title,
-    required this.description,
-    required this.date,
-    required this.category,
-    required this.icon,
-  });
-}
-
-enum NewsCategory {
-  company,
-  industry,
-  protocol,
-  training,
-}
+import '../models/news_update.dart';
+import '../services/news_service.dart';
 
 class NewsUpdatesSection extends StatelessWidget {
   const NewsUpdatesSection({super.key});
 
-  // Sample updates - in a real app, these would come from a backend
-  static final List<NewsUpdate> updates = [
-    NewsUpdate(
-      title: 'Annual Safety Training Due',
-      description: 'Complete your annual safety certification by June 30th',
-      date: DateTime.now().subtract(const Duration(hours: 2)),
-      category: NewsCategory.training,
-      icon: Icons.school,
-    ),
-    NewsUpdate(
-      title: 'New Inspection Protocol',
-      description: 'Updated guidelines for corrosion assessment',
-      date: DateTime.now().subtract(const Duration(hours: 5)),
-      category: NewsCategory.protocol,
-      icon: Icons.new_releases,
-    ),
-    NewsUpdate(
-      title: 'Industry Conference 2024',
-      description: 'Registration open for Pipeline Tech Conference',
-      date: DateTime.now().subtract(const Duration(days: 1)),
-      category: NewsCategory.industry,
-      icon: Icons.business,
-    ),
-    NewsUpdate(
-      title: 'Company Milestone',
-      description: '1000 successful inspections completed this quarter',
-      date: DateTime.now().subtract(const Duration(days: 2)),
-      category: NewsCategory.company,
-      icon: Icons.celebration,
-    ),
-  ];
-
-  Color _getCategoryColor(NewsCategory category) {
-    switch (category) {
-      case NewsCategory.company:
-        return AppTheme.accent1;
-      case NewsCategory.industry:
-        return AppTheme.accent2;
-      case NewsCategory.protocol:
-        return AppTheme.accent3;
-      case NewsCategory.training:
-        return AppTheme.accent4;
-    }
-  }
-
-  String _getCategoryLabel(NewsCategory category) {
-    switch (category) {
-      case NewsCategory.company:
-        return 'Company';
-      case NewsCategory.industry:
-        return 'Industry';
-      case NewsCategory.protocol:
-        return 'Protocol';
-      case NewsCategory.training:
-        return 'Training';
-    }
-  }
+  NewsService get _newsService => NewsService();
 
   String _getTimeAgo(DateTime date) {
     final now = DateTime.now();
@@ -135,13 +58,75 @@ class NewsUpdatesSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppTheme.paddingLarge),
-            ...updates.map((update) => Column(
-              children: [
-                _buildUpdateItem(update),
-                if (update != updates.last)
-                  const Divider(height: 24),
-              ],
-            )).toList(),
+            FutureBuilder<List<NewsUpdate>>(
+              future: _newsService.getRecentUpdates(limit: 4),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(AppTheme.paddingLarge),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                      child: Column(
+                        children: [
+                          Icon(Icons.error, color: Colors.red[300], size: 48),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Error loading updates',
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final updates = snapshot.data ?? [];
+
+                if (updates.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                      child: Column(
+                        children: [
+                          Icon(Icons.article, color: AppTheme.textSecondary.withOpacity(0.5), size: 48),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No updates available',
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: updates.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final update = entry.value;
+                    return Column(
+                      children: [
+                        _buildUpdateItem(update),
+                        if (index < updates.length - 1)
+                          const Divider(height: 24),
+                      ],
+                    );
+                  }).toList(),
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -155,12 +140,12 @@ class NewsUpdatesSection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _getCategoryColor(update.category).withOpacity(0.1),
+            color: update.category.color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
           ),
           child: Icon(
             update.icon,
-            color: _getCategoryColor(update.category),
+            color: update.category.color,
             size: 24,
           ),
         ),
@@ -177,20 +162,20 @@ class NewsUpdatesSection extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: _getCategoryColor(update.category).withOpacity(0.1),
+                      color: update.category.color.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      _getCategoryLabel(update.category),
+                      update.category.displayName,
                       style: AppTheme.bodyMedium.copyWith(
-                        color: _getCategoryColor(update.category),
+                        color: update.category.color,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                   const SizedBox(width: AppTheme.paddingSmall),
                   Text(
-                    _getTimeAgo(update.date),
+                    _getTimeAgo(update.publishDate ?? update.createdDate),
                     style: AppTheme.bodyMedium.copyWith(
                       color: AppTheme.textSecondary,
                     ),
@@ -210,6 +195,8 @@ class NewsUpdatesSection extends StatelessWidget {
                 style: AppTheme.bodyMedium.copyWith(
                   color: AppTheme.textSecondary,
                 ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

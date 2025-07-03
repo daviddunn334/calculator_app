@@ -216,4 +216,167 @@ class ReportService {
       rethrow;
     }
   }
+
+  // ADMIN METHODS - Only for users with admin privileges
+
+  /// Get all reports (admin only)
+  Future<List<Report>> getAllReports() async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(_collection)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return Report.fromMap(data);
+      }).toList();
+    } catch (e) {
+      print('Error getting all reports: $e');
+      rethrow;
+    }
+  }
+
+  /// Get all reports stream (admin only)
+  Stream<List<Report>> getAllReportsStream() {
+    return _firestore
+        .collection(_collection)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return Report.fromMap(data);
+      }).toList();
+    });
+  }
+
+  /// Search all reports (admin only)
+  Future<List<Report>> searchAllReports(String searchTerm) async {
+    try {
+      final searchTermLower = searchTerm.toLowerCase();
+      
+      // Get all reports first, then filter locally
+      final allReports = await getAllReports();
+      
+      return allReports.where((report) {
+        return report.location.toLowerCase().contains(searchTermLower) ||
+               report.technicianName.toLowerCase().contains(searchTermLower) ||
+               report.method.toLowerCase().contains(searchTermLower);
+      }).toList();
+    } catch (e) {
+      print('Error searching all reports: $e');
+      rethrow;
+    }
+  }
+
+  /// Get reports by specific user (admin only)
+  Future<List<Report>> getReportsBySpecificUser(String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(_collection)
+          .where('userId', isEqualTo: userId)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return Report.fromMap(data);
+      }).toList();
+    } catch (e) {
+      print('Error getting reports by specific user: $e');
+      rethrow;
+    }
+  }
+
+  /// Get all reports by date range (admin only)
+  Future<List<Report>> getAllReportsByDateRange(
+    DateTime startDate,
+    DateTime endDate,
+  ) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(_collection)
+          .where('inspectionDate', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+          .where('inspectionDate', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
+          .orderBy('inspectionDate', descending: true)
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return Report.fromMap(data);
+      }).toList();
+    } catch (e) {
+      print('Error getting all reports by date range: $e');
+      rethrow;
+    }
+  }
+
+  /// Get all reports by inspection method (admin only)
+  Future<List<Report>> getAllReportsByMethod(String method) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(_collection)
+          .where('method', isEqualTo: method)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return Report.fromMap(data);
+      }).toList();
+    } catch (e) {
+      print('Error getting all reports by method: $e');
+      rethrow;
+    }
+  }
+
+  /// Get admin report statistics (admin only)
+  Future<Map<String, dynamic>> getAdminReportStatistics() async {
+    try {
+      final reports = await getAllReports();
+      
+      final stats = <String, dynamic>{
+        'totalReports': reports.length,
+        'methodBreakdown': <String, int>{},
+        'userBreakdown': <String, int>{},
+        'reportsThisMonth': 0,
+        'reportsThisYear': 0,
+      };
+
+      final now = DateTime.now();
+      final thisMonth = DateTime(now.year, now.month);
+      final thisYear = DateTime(now.year);
+
+      for (final report in reports) {
+        // Method breakdown
+        final method = report.method;
+        stats['methodBreakdown'][method] = (stats['methodBreakdown'][method] ?? 0) + 1;
+
+        // User breakdown
+        final userId = report.userId;
+        stats['userBreakdown'][userId] = (stats['userBreakdown'][userId] ?? 0) + 1;
+
+        // This month count
+        if (report.createdAt.isAfter(thisMonth)) {
+          stats['reportsThisMonth']++;
+        }
+
+        // This year count
+        if (report.createdAt.isAfter(thisYear)) {
+          stats['reportsThisYear']++;
+        }
+      }
+
+      return stats;
+    } catch (e) {
+      print('Error getting admin report statistics: $e');
+      rethrow;
+    }
+  }
 }
