@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../services/auth_service.dart';
-import '../services/user_service.dart';
-import '../screens/admin/admin_main_screen.dart';
 
-class AppDrawer extends StatelessWidget {
+class AdminDrawer extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
 
-  const AppDrawer({
+  const AdminDrawer({
     Key? key,
     required this.selectedIndex,
     required this.onItemSelected,
@@ -55,7 +53,7 @@ class AppDrawer extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
-                        Icons.shield_outlined, 
+                        Icons.admin_panel_settings, 
                         color: Colors.white, 
                         size: 32
                       ),
@@ -65,7 +63,7 @@ class AppDrawer extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Integrity Tools',
+                          'Admin Panel',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -74,7 +72,7 @@ class AppDrawer extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'NDT Professional Suite',
+                          'Content Management',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.8),
                             fontSize: 12,
@@ -97,50 +95,34 @@ class AppDrawer extends StatelessWidget {
                 const SizedBox(height: 8),
                 _buildMenuItem(
                   context,
-                  'Home',
-                  Icons.home_outlined,
-                  Icons.home,
+                  'Dashboard',
+                  Icons.dashboard_outlined,
+                  Icons.dashboard,
                   0,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
                   context,
-                  'Tools',
-                  Icons.build_outlined,
-                  Icons.build,
+                  'News Management',
+                  Icons.article_outlined,
+                  Icons.article,
                   1,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
                   context,
-                  'Reports',
-                  Icons.bar_chart_outlined,
-                  Icons.bar_chart,
+                  'User Management',
+                  Icons.people_outline,
+                  Icons.people,
                   2,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
                   context,
-                  'Field Log',
-                  Icons.note_alt_outlined,
-                  Icons.note_alt,
+                  'Analytics',
+                  Icons.analytics_outlined,
+                  Icons.analytics,
                   3,
-                  isLargeScreen,
-                ),
-                _buildMenuItem(
-                  context,
-                  'Knowledge Base',
-                  Icons.menu_book_outlined,
-                  Icons.menu_book,
-                  4,
-                  isLargeScreen,
-                ),
-                _buildMenuItem(
-                  context,
-                  'Equotip Data Converter',
-                  Icons.transform_outlined,
-                  Icons.transform,
-                  9,
                   isLargeScreen,
                 ),
                 
@@ -152,7 +134,7 @@ class AppDrawer extends StatelessWidget {
                 const Padding(
                   padding: EdgeInsets.only(left: 16, top: 8, bottom: 4),
                   child: Text(
-                    'PROFESSIONAL',
+                    'CONTENT',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -164,34 +146,26 @@ class AppDrawer extends StatelessWidget {
                 
                 _buildMenuItem(
                   context,
-                  'Inventory',
-                  Icons.inventory_2_outlined,
-                  Icons.inventory_2,
-                  6,
+                  'Create Post',
+                  Icons.add_circle_outline,
+                  Icons.add_circle,
+                  4,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
                   context,
-                  'Company Directory',
-                  Icons.people_outline,
-                  Icons.people,
-                  7,
-                  isLargeScreen,
-                ),
-                _buildMenuItem(
-                  context,
-                  'Profile',
-                  Icons.person_outline,
-                  Icons.person,
+                  'Drafts',
+                  Icons.drafts_outlined,
+                  Icons.drafts,
                   5,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
                   context,
-                  'News & Updates',
-                  Icons.newspaper_outlined,
-                  Icons.newspaper,
-                  8,
+                  'Published',
+                  Icons.public_outlined,
+                  Icons.public,
+                  6,
                   isLargeScreen,
                 ),
                 
@@ -200,6 +174,17 @@ class AppDrawer extends StatelessWidget {
                   child: Divider(height: 1),
                 ),
                 
+                _buildMenuItem(
+                  context,
+                  'Back to App',
+                  Icons.arrow_back_outlined,
+                  Icons.arrow_back,
+                  -1,
+                  isLargeScreen,
+                  onTap: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                ),
                 _buildMenuItem(
                   context,
                   'Settings',
@@ -211,58 +196,7 @@ class AppDrawer extends StatelessWidget {
                     if (!isLargeScreen) {
                       Navigator.pop(context);
                     }
-                    // TODO: Navigate to Settings screen
-                  },
-                ),
-                _buildMenuItem(
-                  context,
-                  'Help & Support',
-                  Icons.help_outline,
-                  Icons.help,
-                  -1,
-                  isLargeScreen,
-                  onTap: () {
-                    if (!isLargeScreen) {
-                      Navigator.pop(context);
-                    }
-                    // TODO: Navigate to Help & Support screen
-                  },
-                ),
-                
-                // Admin Dashboard - Only show for admin users
-                StreamBuilder<bool>(
-                  stream: UserService().isCurrentUserAdminStream(),
-                  builder: (context, snapshot) {
-                    final isAdmin = snapshot.data ?? false;
-                    if (!isAdmin) return const SizedBox.shrink();
-                    
-                    return Column(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Divider(height: 1),
-                        ),
-                        _buildMenuItem(
-                          context,
-                          'Admin Dashboard',
-                          Icons.admin_panel_settings_outlined,
-                          Icons.admin_panel_settings,
-                          -1,
-                          isLargeScreen,
-                          onTap: () {
-                            if (!isLargeScreen) {
-                              Navigator.pop(context);
-                            }
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const AdminMainScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    );
+                    // TODO: Navigate to Admin Settings screen
                   },
                 ),
               ],
