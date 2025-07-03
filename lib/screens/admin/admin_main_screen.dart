@@ -3,6 +3,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/admin_drawer.dart';
 import 'user_management_screen.dart';
 import 'news_editor_screen.dart';
+import 'admin_reports_screen.dart';
 import '../../models/news_update.dart';
 import '../../services/news_service.dart';
 
@@ -77,6 +78,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
         return _buildDrafts();
       case 6:
         return _buildPublished();
+      case 7:
+        return _buildReportManagement();
       default:
         return _buildDashboard();
     }
@@ -353,6 +356,10 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
 
   Widget _buildUserManagement() {
     return const UserManagementScreen();
+  }
+
+  Widget _buildReportManagement() {
+    return const AdminReportsScreen();
   }
 
   Widget _buildAnalytics() {

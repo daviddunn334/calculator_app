@@ -156,6 +156,9 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
   List<String> _imageUrls = [];
   List<ReportImage> _reportImages = [];
   bool _isUploadingImages = false;
+  
+  // Quick Test Mode
+  bool _isQuickTestMode = false;
 
   // Photo type definitions
   final List<Map<String, dynamic>> _photoTypes = [
@@ -724,6 +727,123 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
     return _reportImages.any((img) => img.type == type);
   }
 
+  /// Generate sample data for quick testing
+  void _generateSampleData() {
+    final random = DateTime.now().millisecondsSinceEpoch % 1000;
+    final sampleLocations = [
+      'Pipeline Station ${random}A',
+      'Compressor Station ${random}B', 
+      'Valve Station ${random}C',
+      'Meter Station ${random}D',
+      'Pig Launcher ${random}E'
+    ];
+    final sampleTechnicians = [
+      'John Smith',
+      'Sarah Johnson', 
+      'Mike Wilson',
+      'Lisa Brown',
+      'David Miller'
+    ];
+    final sampleFindings = [
+      'No significant defects detected. Coating in good condition.',
+      'Minor surface corrosion observed at 6 o\'clock position. Within acceptable limits.',
+      'Small area of coating disbondment noted. Requires monitoring.',
+      'Excellent pipe condition. No defects or anomalies found.',
+      'Slight metal loss detected. Calculated remaining life exceeds 20 years.'
+    ];
+    final sampleActions = [
+      'No immediate action required. Continue routine monitoring.',
+      'Applied temporary coating repair. Schedule follow-up inspection in 6 months.',
+      'Documented findings for trending analysis. No immediate repair needed.',
+      'Pipe meets all safety requirements. Continue normal operations.',
+      'Increased inspection frequency recommended. Monitor for progression.'
+    ];
+
+    setState(() {
+      // Basic required fields
+      _technicianNameController.text = sampleTechnicians[random % sampleTechnicians.length];
+      _locationController.text = sampleLocations[random % sampleLocations.length];
+      _pipeDiameterController.text = '${12 + (random % 20)} in';
+      _wallThicknessController.text = '0.${250 + (random % 250)} in';
+      _selectedMethod = _inspectionMethods[random % _inspectionMethods.length];
+      _findingsController.text = sampleFindings[random % sampleFindings.length];
+      _correctiveActionsController.text = sampleActions[random % sampleActions.length];
+      _additionalNotesController.text = 'Generated test data for quick testing purposes.';
+
+      // DIG Information
+      _digNumberController.text = 'DIG-${2024}-${(random % 999).toString().padLeft(3, '0')}';
+      _gformNumberController.text = 'GF-${(random % 9999).toString().padLeft(4, '0')}';
+      _clientWoNumberController.text = 'WO-${(random % 99999).toString().padLeft(5, '0')}';
+      _integritySpecialistsNumberController.text = 'IS-${(random % 999).toString().padLeft(3, '0')}';
+      _rfsNumberController.text = 'RFS-${(random % 9999).toString().padLeft(4, '0')}';
+      _reasonForDigController.text = 'ILI anomaly verification and assessment';
+      _stateController.text = 'Texas';
+      _countyController.text = 'Harris';
+      _projectNameController.text = 'Pipeline Integrity Assessment Project';
+      _lineNumberController.text = 'Line-${random % 10}';
+
+      // Pipe Static Data
+      _nominalWallThicknessController.text = '0.${250 + (random % 250)} in';
+      _pipeStaticDiameterController.text = '${12 + (random % 20)} in';
+      _longseamWeldTypeController.text = 'ERW';
+      _girthWeldTypeController.text = 'SMAW';
+      _smysController.text = '${35000 + (random % 30000)} psi';
+      _maopController.text = '${800 + (random % 400)} psi';
+      _safetyFactorController.text = '0.72';
+      _operatingPsiController.text = '${600 + (random % 200)} psi';
+      _pipeManufacturerController.text = 'US Steel';
+      _productController.text = 'Natural Gas';
+
+      // Pipe Evaluation
+      _cpSystemController.text = 'Impressed Current';
+      _soilResistivityController.text = '${1000 + (random % 5000)} ohms/cm²';
+      _testTypeController.text = 'Close Interval Survey';
+      _coatingTypeController.text = 'Fusion Bonded Epoxy';
+      _overallCondition = 'Fair';
+      _conditionAtAnomaly = 'Disbonded';
+      _percentBondedController.text = '${70 + (random % 25)}';
+      _percentDisbondedController.text = '${10 + (random % 15)}';
+      _percentBarePipeController.text = '${random % 10}';
+
+      // Environment
+      _terrainAtDigSiteController.text = 'Rural farmland';
+      _soilTypeAtPipeLevelController.text = 'Clay';
+      _soilTypeAtSixOClockController.text = 'Sandy clay';
+      _depthOfCoverController.text = '${3 + (random % 4)} ft';
+      _organicDepthController.text = '${6 + (random % 12)} in';
+      _usageController.text = 'Agricultural';
+      _pipeTemperatureController.text = '${60 + (random % 40)}';
+      _ambientTemperatureController.text = '${70 + (random % 30)}';
+      _weatherConditionsController.text = 'Clear and dry';
+      _drainage = 'Well Drained';
+
+      // Set some dates
+      final now = DateTime.now();
+      _excavationDate = now.subtract(Duration(days: random % 30));
+      _assessmentDate = now.subtract(Duration(days: (random % 30) + 1));
+      _reportDate = now;
+      _backfillDate = now.add(Duration(days: 1));
+
+      // Set some boolean values
+      _liveLine = random % 2 == 0;
+      _evidenceOfSoilBodyStress = random % 3 == 0;
+      _deposits = random % 4 == 0;
+      _pipeBend = random % 5 == 0;
+      _defectNoted = random % 3 == 0;
+      _burstPressureAnalysis = _defectNoted == true;
+      _wetMpiPerformed = random % 2 == 0;
+    });
+
+    // Show confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Sample data generated! Form is ready for quick testing.'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -1112,6 +1232,73 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Quick Test Mode Toggle
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                  side: BorderSide(color: _isQuickTestMode ? Colors.orange : AppTheme.divider),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.speed,
+                            color: _isQuickTestMode ? Colors.orange : AppTheme.textSecondary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Quick Test Mode',
+                            style: AppTheme.titleMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: _isQuickTestMode ? Colors.orange : AppTheme.textPrimary,
+                            ),
+                          ),
+                          const Spacer(),
+                          Switch(
+                            value: _isQuickTestMode,
+                            onChanged: (value) {
+                              setState(() {
+                                _isQuickTestMode = value;
+                              });
+                            },
+                            activeColor: Colors.orange,
+                          ),
+                        ],
+                      ),
+                      if (_isQuickTestMode) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'Quick Test Mode is enabled. Most fields are now optional for faster testing.',
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: Colors.orange.shade700,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: _generateSampleData,
+                            icon: const Icon(Icons.auto_fix_high),
+                            label: const Text('Generate Sample Data'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppTheme.paddingLarge),
+
               // DIG Information Card
               Card(
                 elevation: 0,
@@ -3056,7 +3243,7 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                           hintText: 'Enter your name',
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if (!_isQuickTestMode && (value == null || value.isEmpty)) {
                             return 'Please enter your name';
                           }
                           return null;

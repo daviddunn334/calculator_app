@@ -55,9 +55,16 @@ service cloud.firestore {
 
     // Allow users to read and write their own reports
     match /reports/{reportId} {
+      // Users can read their own reports
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Admins can read all reports
+      allow read: if request.auth != null && isAdmin();
+      // Users can create their own reports
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Users can update/delete their own reports
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Admins can update/delete any report (for admin management)
+      allow update, delete: if request.auth != null && isAdmin();
     }
 
     // Allow users to read and write their own mile entries
