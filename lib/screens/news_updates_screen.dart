@@ -3,7 +3,6 @@ import '../theme/app_theme.dart';
 import '../models/news_update.dart';
 import '../services/news_service.dart';
 import '../services/user_service.dart';
-import 'admin/news_admin_screen.dart';
 
 class NewsUpdatesScreen extends StatefulWidget {
   const NewsUpdatesScreen({super.key});
@@ -61,28 +60,6 @@ class _NewsUpdatesScreenState extends State<NewsUpdatesScreen>
               });
             },
           ),
-          actions: [
-            StreamBuilder<bool>(
-              stream: _userService.isCurrentUserAdminStream(),
-              builder: (context, snapshot) {
-                final isAdmin = snapshot.data ?? false;
-                if (!isAdmin) return const SizedBox.shrink();
-                
-                return IconButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NewsAdminScreen(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.admin_panel_settings),
-                  tooltip: 'Admin Panel',
-                );
-              },
-            ),
-          ],
         ),
         body: Column(
           children: [
