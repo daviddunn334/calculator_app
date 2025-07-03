@@ -15,12 +15,12 @@ class NewsEditorScreen extends StatefulWidget {
 class _NewsEditorScreenState extends State<NewsEditorScreen> {
   final _formKey = GlobalKey<FormState>();
   final NewsService _newsService = NewsService();
-  
+
   // Form controllers
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _linksController;
-  
+
   // Form state
   NewsCategory _selectedCategory = NewsCategory.company;
   NewsPriority _selectedPriority = NewsPriority.normal;
@@ -30,7 +30,7 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
   DateTime? _expirationDate;
   bool _publishImmediately = false;
   List<String> _links = [];
-  
+
   bool _isLoading = false;
   bool _isEditing = false;
 
@@ -38,12 +38,13 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
   void initState() {
     super.initState();
     _isEditing = widget.update != null;
-    
+
     // Initialize controllers
     _titleController = TextEditingController(text: widget.update?.title ?? '');
-    _descriptionController = TextEditingController(text: widget.update?.description ?? '');
+    _descriptionController =
+        TextEditingController(text: widget.update?.description ?? '');
     _linksController = TextEditingController();
-    
+
     // Initialize form state from existing update
     if (widget.update != null) {
       _selectedCategory = widget.update!.category;
@@ -70,212 +71,353 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Post' : 'Create Post'),
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          TextButton(
-            onPressed: _saveDraft,
-            child: const Text(
-              'Save Draft',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildBasicInfoSection(),
-                    const SizedBox(height: AppTheme.paddingLarge),
-                    _buildContentSection(),
-                    const SizedBox(height: AppTheme.paddingLarge),
-                    _buildLinksSection(),
-                    const SizedBox(height: AppTheme.paddingLarge),
-                    _buildPublishingSection(),
-                    const SizedBox(height: 100), // Space for FAB
-                  ],
+          : Column(
+              children: [
+                // Modern Header
+                _buildModernHeader(),
+
+                // Form Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildBasicInfoSection(),
+                          const SizedBox(height: 32),
+                          _buildContentSection(),
+                          const SizedBox(height: 32),
+                          _buildLinksSection(),
+                          const SizedBox(height: 32),
+                          _buildPublishingSection(),
+                          const SizedBox(height: 32),
+                          _buildActionButtons(),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (!_publishImmediately && !_isEditing)
-            FloatingActionButton.extended(
-              onPressed: _publishNow,
-              backgroundColor: Colors.green,
-              heroTag: 'publish',
-              icon: const Icon(Icons.publish),
-              label: const Text('Publish Now'),
-            ),
-          if (!_publishImmediately && !_isEditing)
-            const SizedBox(height: 8),
-          FloatingActionButton.extended(
-            onPressed: _savePost,
-            backgroundColor: AppTheme.primaryBlue,
-            heroTag: 'save',
-            icon: Icon(_isEditing ? Icons.save : Icons.add),
-            label: Text(_isEditing ? 'Update' : 'Create'),
+    );
+  }
+
+  Widget _buildModernHeader() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppTheme.primaryBlue,
+            AppTheme.primaryBlue.withOpacity(0.8),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryBlue.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                _isEditing ? Icons.edit_note : Icons.create,
+                color: Colors.white,
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _isEditing ? 'Edit Post' : 'Create New Post',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _isEditing
+                        ? 'Update your news content and settings'
+                        : 'Share updates and news with your team',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.close, color: Colors.white, size: 28),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildBasicInfoSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Basic Information',
-              style: AppTheme.titleMedium.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            TextFormField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Title *',
-                hintText: 'Enter post title',
-                border: OutlineInputBorder(),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Title is required';
-                }
-                return null;
-              },
-              maxLines: 2,
-            ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<NewsCategory>(
-                    value: _selectedCategory,
-                    decoration: const InputDecoration(
-                      labelText: 'Category *',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: NewsCategory.values.map((category) {
-                      return DropdownMenuItem(
-                        value: category,
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: category.color,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(category.displayName),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          _selectedCategory = value;
-                        });
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: AppTheme.paddingMedium),
-                Expanded(
-                  child: DropdownButtonFormField<NewsType>(
-                    value: _selectedType,
-                    decoration: const InputDecoration(
-                      labelText: 'Type',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: NewsType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Row(
-                          children: [
-                            Icon(type.icon, size: 16),
-                            const SizedBox(width: 8),
-                            Text(type.displayName),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          _selectedType = value;
-                        });
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<NewsPriority>(
-                    value: _selectedPriority,
-                    decoration: const InputDecoration(
-                      labelText: 'Priority',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: NewsPriority.values.map((priority) {
-                      return DropdownMenuItem(
-                        value: priority,
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: priority.color,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(priority.displayName),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          _selectedPriority = value;
-                        });
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: AppTheme.paddingMedium),
-                Expanded(
-                  child: _buildIconSelector(),
-                ),
-              ],
-            ),
-          ],
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryBlue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            color: AppTheme.primaryBlue,
+            size: 20,
+          ),
         ),
+        const SizedBox(width: 12),
+        Text(
+          title,
+          style: AppTheme.titleMedium.copyWith(
+            fontWeight: FontWeight.bold,
+            color: AppTheme.textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? hintText,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+    int? minLines,
+    Function(String)? onChanged,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      validator: validator,
+      maxLines: maxLines,
+      minLines: minLines,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hintText,
+        prefixIcon: Icon(icon, color: AppTheme.textSecondary),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.divider),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.divider),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelStyle: TextStyle(color: AppTheme.textSecondary),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      style: AppTheme.bodyMedium,
+    );
+  }
+
+  Widget _buildDropdownField<T>({
+    required T value,
+    required String label,
+    required IconData icon,
+    required List<DropdownMenuItem<T>> items,
+    required void Function(T?) onChanged,
+  }) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: AppTheme.textSecondary),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.divider),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.divider),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelStyle: TextStyle(color: AppTheme.textSecondary),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      items: items,
+      onChanged: onChanged,
+      style: AppTheme.bodyMedium,
+    );
+  }
+
+  Widget _buildBasicInfoSection() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader('Basic Information', Icons.info_outline),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _titleController,
+            label: 'Post Title',
+            icon: Icons.title,
+            hintText: 'Enter an engaging title for your post',
+            validator: (value) =>
+                value?.trim().isEmpty ?? true ? 'Title is required' : null,
+            maxLines: 2,
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildDropdownField<NewsCategory>(
+                  value: _selectedCategory,
+                  label: 'Category',
+                  icon: Icons.category,
+                  items: NewsCategory.values.map((category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: category.color,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(category.displayName),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedCategory = value);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildDropdownField<NewsType>(
+                  value: _selectedType,
+                  label: 'Type',
+                  icon: Icons.type_specimen,
+                  items: NewsType.values.map((type) {
+                    return DropdownMenuItem(
+                      value: type,
+                      child: Row(
+                        children: [
+                          Icon(type.icon, size: 16),
+                          const SizedBox(width: 8),
+                          Text(type.displayName),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedType = value);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildDropdownField<NewsPriority>(
+                  value: _selectedPriority,
+                  label: 'Priority',
+                  icon: Icons.priority_high,
+                  items: NewsPriority.values.map((priority) {
+                    return DropdownMenuItem(
+                      value: priority,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: priority.color,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(priority.displayName),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedPriority = value);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildIconSelector(),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -289,17 +431,22 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
 
     return InkWell(
       onTap: _showIconPicker,
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Icon',
-          border: OutlineInputBorder(),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppTheme.divider),
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
         ),
         child: Row(
           children: [
+            Icon(Icons.emoji_emotions, color: AppTheme.textSecondary),
+            const SizedBox(width: 12),
             Icon(selectedIcon['icon'], size: 20),
             const SizedBox(width: 8),
-            Expanded(child: Text(selectedIcon['label'])),
-            const Icon(Icons.arrow_drop_down),
+            Expanded(
+                child: Text(selectedIcon['label'], style: AppTheme.bodyMedium)),
+            const Icon(Icons.arrow_drop_down, color: AppTheme.textSecondary),
           ],
         ),
       ),
@@ -307,235 +454,477 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
   }
 
   Widget _buildContentSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Content',
-              style: AppTheme.titleMedium.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description *',
-                hintText: 'Enter post content...',
-                border: OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Description is required';
-                }
-                return null;
-              },
-              maxLines: 8,
-              minLines: 4,
-            ),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader('Content', Icons.article),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _descriptionController,
+            label: 'Post Content',
+            icon: Icons.description,
+            hintText:
+                'Write your news content here...\n\nProvide detailed information that will be helpful to your team.',
+            validator: (value) =>
+                value?.trim().isEmpty ?? true ? 'Content is required' : null,
+            maxLines: 10,
+            minLines: 6,
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildLinksSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Links & Resources',
-              style: AppTheme.titleMedium.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            TextFormField(
-              controller: _linksController,
-              decoration: const InputDecoration(
-                labelText: 'Links (one per line)',
-                hintText: 'https://example.com\nhttps://another-link.com',
-                border: OutlineInputBorder(),
-                alignLabelWithHint: true,
-              ),
-              maxLines: 4,
-              onChanged: (value) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader('Links & Resources', Icons.link),
+          const SizedBox(height: 20),
+          _buildTextField(
+            controller: _linksController,
+            label: 'Related Links',
+            icon: Icons.insert_link,
+            hintText:
+                'Add relevant links (one per line)\nhttps://example.com\nhttps://another-link.com',
+            maxLines: 4,
+            minLines: 3,
+            onChanged: (value) {
+              setState(() {
                 _links = value
                     .split('\n')
                     .where((link) => link.trim().isNotEmpty)
                     .toList();
-              },
-            ),
-            if (_links.isNotEmpty) ...[
-              const SizedBox(height: AppTheme.paddingMedium),
-              Text(
-                'Preview Links:',
-                style: AppTheme.bodyMedium.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
+              });
+            },
+          ),
+          if (_links.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryBlue.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(12),
+                border:
+                    Border.all(color: AppTheme.primaryBlue.withOpacity(0.2)),
               ),
-              const SizedBox(height: AppTheme.paddingSmall),
-              ..._links.map((link) => Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  children: [
-                    const Icon(Icons.link, size: 16, color: AppTheme.primaryBlue),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        link,
-                        style: AppTheme.bodySmall.copyWith(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.preview,
+                          color: AppTheme.primaryBlue, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Link Preview:',
+                        style: AppTheme.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w600,
                           color: AppTheme.primaryBlue,
-                          decoration: TextDecoration.underline,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              )),
-            ],
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  ..._links.map((link) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Icon(Icons.link,
+                                size: 16, color: AppTheme.primaryBlue),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                link,
+                                style: AppTheme.bodySmall.copyWith(
+                                  color: AppTheme.primaryBlue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                ],
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildPublishingSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Publishing Options',
-              style: AppTheme.titleMedium.copyWith(
-                fontWeight: FontWeight.bold,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader('Publishing Options', Icons.publish),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: _publishImmediately
+                  ? Colors.green.withOpacity(0.05)
+                  : AppTheme.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _publishImmediately
+                    ? Colors.green.withOpacity(0.3)
+                    : AppTheme.divider,
               ),
             ),
-            const SizedBox(height: AppTheme.paddingMedium),
-            SwitchListTile(
-              title: const Text('Publish Immediately'),
-              subtitle: const Text('Make this post visible to users right away'),
-              value: _publishImmediately,
-              onChanged: (value) {
-                setState(() {
-                  _publishImmediately = value;
-                  if (value) {
-                    _publishDate = DateTime.now();
+            child: Row(
+              children: [
+                Icon(
+                  _publishImmediately ? Icons.public : Icons.schedule,
+                  color: _publishImmediately
+                      ? Colors.green
+                      : AppTheme.textSecondary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Publish Immediately',
+                        style: AppTheme.bodyMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'Make this post visible to users right away',
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch(
+                  value: _publishImmediately,
+                  onChanged: (value) {
+                    setState(() {
+                      _publishImmediately = value;
+                      if (value) {
+                        _publishDate = DateTime.now();
+                      }
+                    });
+                  },
+                  activeColor: Colors.green,
+                ),
+              ],
+            ),
+          ),
+          if (!_publishImmediately) ...[
+            const SizedBox(height: 16),
+            _buildDateTimeSelector(
+              title: 'Publish Date',
+              subtitle: _publishDate != null
+                  ? 'Scheduled for ${_formatDateTime(_publishDate!)}'
+                  : 'Click to schedule publication',
+              icon: Icons.calendar_today,
+              onTap: _selectPublishDate,
+              hasValue: _publishDate != null,
+            ),
+          ],
+          const SizedBox(height: 16),
+          _buildDateTimeSelector(
+            title: 'Expiration Date',
+            subtitle: _expirationDate != null
+                ? 'Expires on ${_formatDateTime(_expirationDate!)}'
+                : 'Optional: Set when post expires',
+            icon: Icons.event_busy,
+            onTap: _selectExpirationDate,
+            hasValue: _expirationDate != null,
+            onClear: _expirationDate != null
+                ? () {
+                    setState(() => _expirationDate = null);
                   }
-                });
-              },
-            ),
-            if (!_publishImmediately) ...[
-              const Divider(),
-              ListTile(
-                title: const Text('Publish Date'),
-                subtitle: Text(_publishDate != null
-                    ? 'Scheduled for ${_formatDateTime(_publishDate!)}'
-                    : 'Not scheduled'),
-                trailing: const Icon(Icons.calendar_today),
-                onTap: _selectPublishDate,
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateTimeSelector({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required VoidCallback onTap,
+    required bool hasValue,
+    VoidCallback? onClear,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: hasValue
+            ? AppTheme.primaryBlue.withOpacity(0.05)
+            : AppTheme.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: hasValue
+              ? AppTheme.primaryBlue.withOpacity(0.3)
+              : AppTheme.divider,
+        ),
+      ),
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: hasValue ? AppTheme.primaryBlue : AppTheme.textSecondary,
+        ),
+        title: Text(
+          title,
+          style: AppTheme.bodyMedium.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: Text(
+          subtitle,
+          style: AppTheme.bodySmall.copyWith(
+            color: AppTheme.textSecondary,
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onClear != null)
+              IconButton(
+                onPressed: onClear,
+                icon: const Icon(Icons.clear),
+                iconSize: 20,
               ),
-            ],
-            const Divider(),
-            ListTile(
-              title: const Text('Expiration Date'),
-              subtitle: Text(_expirationDate != null
-                  ? 'Expires on ${_formatDateTime(_expirationDate!)}'
-                  : 'Never expires'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_expirationDate != null)
-                    IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _expirationDate = null;
-                        });
-                      },
-                      icon: const Icon(Icons.clear),
-                    ),
-                  const Icon(Icons.calendar_today),
-                ],
-              ),
-              onTap: _selectExpirationDate,
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: AppTheme.textSecondary,
             ),
           ],
         ),
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: _saveDraft,
+              icon: const Icon(Icons.save_outlined),
+              label: const Text('Save Draft'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTheme.textSecondary,
+                side: BorderSide(color: AppTheme.divider),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: ElevatedButton.icon(
+              onPressed: _publishImmediately ? _publishNow : _savePost,
+              icon: Icon(
+                _publishImmediately
+                    ? Icons.publish
+                    : (_isEditing ? Icons.save : Icons.add),
+              ),
+              label: Text(
+                _publishImmediately
+                    ? 'Publish Now'
+                    : (_isEditing ? 'Update Post' : 'Create Post'),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    _publishImmediately ? Colors.green : AppTheme.primaryBlue,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   void _showIconPicker() {
     final availableIcons = NewsUpdate.getAvailableIcons();
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Select Icon'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 1,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-            ),
-            itemCount: availableIcons.length,
-            itemBuilder: (context, index) {
-              final iconData = availableIcons[index];
-              final isSelected = iconData['name'] == _selectedIconName;
-              
-              return InkWell(
-                onTap: () {
-                  setState(() {
-                    _selectedIconName = iconData['name'];
-                  });
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: isSelected ? AppTheme.primaryBlue : Colors.grey[300]!,
-                      width: isSelected ? 2 : 1,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryBlue.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    borderRadius: BorderRadius.circular(8),
-                    color: isSelected ? AppTheme.primaryBlue.withOpacity(0.1) : null,
+                    child: Icon(
+                      Icons.emoji_emotions,
+                      color: AppTheme.primaryBlue,
+                      size: 20,
+                    ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        iconData['icon'],
-                        color: isSelected ? AppTheme.primaryBlue : Colors.grey[600],
-                        size: 24,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Select Icon',
+                      style: AppTheme.titleMedium.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        iconData['label'],
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isSelected ? AppTheme.primaryBlue : Colors.grey[600],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Icon Grid
+              Expanded(
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    childAspectRatio: 1,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: availableIcons.length,
+                  itemBuilder: (context, index) {
+                    final iconData = availableIcons[index];
+                    final isSelected = iconData['name'] == _selectedIconName;
+
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedIconName = iconData['name'];
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isSelected
+                                ? AppTheme.primaryBlue
+                                : AppTheme.divider,
+                            width: isSelected ? 2 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          color: isSelected
+                              ? AppTheme.primaryBlue.withOpacity(0.1)
+                              : Colors.white,
                         ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              iconData['icon'],
+                              color: isSelected
+                                  ? AppTheme.primaryBlue
+                                  : AppTheme.textSecondary,
+                              size: 24,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              iconData['label'],
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: isSelected
+                                    ? AppTheme.primaryBlue
+                                    : AppTheme.textSecondary,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+            ],
           ),
         ),
       ),
@@ -549,13 +938,13 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    
+
     if (date != null) {
       final time = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(_publishDate ?? DateTime.now()),
       );
-      
+
       if (time != null) {
         setState(() {
           _publishDate = DateTime(
@@ -573,17 +962,18 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
   Future<void> _selectExpirationDate() async {
     final date = await showDatePicker(
       context: context,
-      initialDate: _expirationDate ?? DateTime.now().add(const Duration(days: 30)),
+      initialDate:
+          _expirationDate ?? DateTime.now().add(const Duration(days: 30)),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
     );
-    
+
     if (date != null) {
       final time = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(_expirationDate ?? DateTime.now()),
       );
-      
+
       if (time != null) {
         setState(() {
           _expirationDate = DateTime(
@@ -611,7 +1001,7 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
 
     try {
       final update = _createNewsUpdate(isDraft: true, isPublished: false);
-      
+
       if (_isEditing) {
         await _newsService.updateUpdate(widget.update!.id!, update);
         _showSnackBar('Draft updated successfully');
@@ -619,7 +1009,7 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
         await _newsService.createUpdate(update);
         _showSnackBar('Draft saved successfully');
       }
-      
+
       Navigator.pop(context);
     } catch (e) {
       _showSnackBar('Error saving draft: $e', isError: true);
@@ -643,7 +1033,7 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
         isPublished: true,
         publishDate: DateTime.now(),
       );
-      
+
       if (_isEditing) {
         await _newsService.updateUpdate(widget.update!.id!, update);
         _showSnackBar('Post updated and published successfully');
@@ -651,7 +1041,7 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
         await _newsService.createUpdate(update);
         _showSnackBar('Post published successfully');
       }
-      
+
       Navigator.pop(context);
     } catch (e) {
       _showSnackBar('Error publishing post: $e', isError: true);
@@ -675,7 +1065,7 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
         isPublished: _publishImmediately,
         publishDate: _publishImmediately ? DateTime.now() : _publishDate,
       );
-      
+
       if (_isEditing) {
         await _newsService.updateUpdate(widget.update!.id!, update);
         _showSnackBar('Post updated successfully');
@@ -683,7 +1073,7 @@ class _NewsEditorScreenState extends State<NewsEditorScreen> {
         await _newsService.createUpdate(update);
         _showSnackBar('Post created successfully');
       }
-      
+
       Navigator.pop(context);
     } catch (e) {
       _showSnackBar('Error saving post: $e', isError: true);

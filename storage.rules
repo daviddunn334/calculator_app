@@ -11,9 +11,16 @@ service firebase.storage {
       allow read: if request.auth != null;
     }
     
+<<<<<<< HEAD
     // Allow authenticated users to read PDF procedures and standards
     match /procedures/{allPaths=**} {
       allow read: if request.auth != null;
+=======
+    // TEMPORARY: Allow all authenticated users to write to procedures (for testing)
+    // TODO: Restrict to admins only once we confirm this works
+    match /procedures/{allPaths=**} {
+      allow read, write, delete: if request.auth != null;
+>>>>>>> develop
     }
   }
 }

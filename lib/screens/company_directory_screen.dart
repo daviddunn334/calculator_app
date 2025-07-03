@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/company_employee.dart';
 import '../services/employee_service.dart';
+import '../services/user_service.dart';
 import '../widgets/add_employee_dialog.dart';
 import 'dart:math' as math;
 
@@ -12,16 +13,26 @@ class CompanyDirectoryScreen extends StatefulWidget {
   State<CompanyDirectoryScreen> createState() => _CompanyDirectoryScreenState();
 }
 
-class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with SingleTickerProviderStateMixin {
+class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
+    with SingleTickerProviderStateMixin {
   final EmployeeService _employeeService = EmployeeService();
+  final UserService _userService = UserService();
   String _searchQuery = '';
   String? _selectedDepartment;
   bool _isGridView = false;
+  bool _isAdmin = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
-  final List<String> _departments = ['All', 'Management', 'Field Operations', 'Office', 'Engineering', 'Quality Control'];
-  
+
+  final List<String> _departments = [
+    'All',
+    'Management',
+    'Field Operations',
+    'Office',
+    'Engineering',
+    'Quality Control'
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -29,15 +40,25 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    
+
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeIn,
     );
-    
+
     _animationController.forward();
+    _checkAdminStatus();
   }
-  
+
+  void _checkAdminStatus() async {
+    final isAdmin = await _userService.isCurrentUserAdmin();
+    if (mounted) {
+      setState(() {
+        _isAdmin = isAdmin;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -60,7 +81,8 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                     const Icon(Icons.check_circle, color: Colors.white),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text('${result.firstName} ${result.lastName} added successfully'),
+                      child: Text(
+                          '${result.firstName} ${result.lastName} added successfully'),
                     ),
                   ],
                 ),
@@ -104,11 +126,13 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddEmployeeDialog,
-        backgroundColor: AppTheme.primaryBlue,
-        child: const Icon(Icons.person_add, color: Colors.white),
-      ),
+      floatingActionButton: _isAdmin
+          ? FloatingActionButton(
+              onPressed: _showAddEmployeeDialog,
+              backgroundColor: AppTheme.primaryBlue,
+              child: const Icon(Icons.person_add, color: Colors.white),
+            )
+          : null,
       body: Stack(
         children: [
           // Background design elements
@@ -136,7 +160,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
               ),
             ),
           ),
-          
+
           // Main content
           SafeArea(
             child: FadeTransition(
@@ -161,7 +185,8 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                       child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                            padding:
+                                const EdgeInsets.all(AppTheme.paddingMedium),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
@@ -171,7 +196,8 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
-                              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                              borderRadius:
+                                  BorderRadius.circular(AppTheme.radiusMedium),
                               boxShadow: [
                                 BoxShadow(
                                   color: AppTheme.primaryBlue.withOpacity(0.3),
@@ -211,7 +237,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                         ],
                       ),
                     ),
-                    
+
                     Padding(
                       padding: const EdgeInsets.all(AppTheme.paddingLarge),
                       child: Column(
@@ -219,10 +245,12 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                         children: [
                           // Search and filter bar
                           Container(
-                            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                            padding:
+                                const EdgeInsets.all(AppTheme.paddingMedium),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                              borderRadius:
+                                  BorderRadius.circular(AppTheme.radiusLarge),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.05),
@@ -237,23 +265,32 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                   children: [
                                     Expanded(
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16),
                                         decoration: BoxDecoration(
                                           color: AppTheme.background,
-                                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                          border: Border.all(color: AppTheme.divider),
+                                          borderRadius: BorderRadius.circular(
+                                              AppTheme.radiusMedium),
+                                          border: Border.all(
+                                              color: AppTheme.divider),
                                         ),
                                         child: Row(
                                           children: [
-                                            const Icon(Icons.search, color: AppTheme.textSecondary, size: 20),
+                                            const Icon(Icons.search,
+                                                color: AppTheme.textSecondary,
+                                                size: 20),
                                             const SizedBox(width: 8),
                                             Expanded(
                                               child: TextField(
-                                                decoration: const InputDecoration(
-                                                  hintText: 'Search by name, email, or position...',
+                                                decoration:
+                                                    const InputDecoration(
+                                                  hintText:
+                                                      'Search by name, email, or position...',
                                                   border: InputBorder.none,
                                                   isDense: true,
-                                                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                                                  contentPadding:
+                                                      EdgeInsets.symmetric(
+                                                          vertical: 12),
                                                 ),
                                                 style: AppTheme.bodyMedium,
                                                 onChanged: (value) {
@@ -265,7 +302,8 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                             ),
                                             if (_searchQuery.isNotEmpty)
                                               IconButton(
-                                                icon: const Icon(Icons.clear, size: 18),
+                                                icon: const Icon(Icons.clear,
+                                                    size: 18),
                                                 onPressed: () {
                                                   setState(() {
                                                     _searchQuery = '';
@@ -280,12 +318,16 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                     Container(
                                       decoration: BoxDecoration(
                                         color: AppTheme.background,
-                                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                        border: Border.all(color: AppTheme.divider),
+                                        borderRadius: BorderRadius.circular(
+                                            AppTheme.radiusMedium),
+                                        border:
+                                            Border.all(color: AppTheme.divider),
                                       ),
                                       child: IconButton(
                                         icon: Icon(
-                                          _isGridView ? Icons.view_list : Icons.grid_view,
+                                          _isGridView
+                                              ? Icons.view_list
+                                              : Icons.grid_view,
                                           color: AppTheme.textSecondary,
                                         ),
                                         onPressed: () {
@@ -302,34 +344,48 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
                                     children: _departments.map((department) {
-                                      final isSelected = _selectedDepartment == department || 
-                                                        (department == 'All' && _selectedDepartment == null);
+                                      final isSelected =
+                                          _selectedDepartment == department ||
+                                              (department == 'All' &&
+                                                  _selectedDepartment == null);
                                       return Padding(
-                                        padding: const EdgeInsets.only(right: 8),
+                                        padding:
+                                            const EdgeInsets.only(right: 8),
                                         child: FilterChip(
                                           label: Text(department),
                                           selected: isSelected,
                                           onSelected: (selected) {
                                             setState(() {
-                                              _selectedDepartment = selected 
-                                                  ? (department == 'All' ? null : department)
+                                              _selectedDepartment = selected
+                                                  ? (department == 'All'
+                                                      ? null
+                                                      : department)
                                                   : null;
                                             });
                                           },
                                           backgroundColor: Colors.white,
-                                          selectedColor: AppTheme.primaryBlue.withOpacity(0.1),
+                                          selectedColor: AppTheme.primaryBlue
+                                              .withOpacity(0.1),
                                           checkmarkColor: AppTheme.primaryBlue,
                                           labelStyle: TextStyle(
-                                            color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
-                                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                            color: isSelected
+                                                ? AppTheme.primaryBlue
+                                                : AppTheme.textSecondary,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                            borderRadius: BorderRadius.circular(
+                                                AppTheme.radiusMedium),
                                             side: BorderSide(
-                                              color: isSelected ? AppTheme.primaryBlue : AppTheme.divider,
+                                              color: isSelected
+                                                  ? AppTheme.primaryBlue
+                                                  : AppTheme.divider,
                                             ),
                                           ),
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8),
                                         ),
                                       );
                                     }).toList(),
@@ -338,9 +394,9 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                               ],
                             ),
                           ),
-                          
+
                           const SizedBox(height: 24),
-                          
+
                           // Directory content
                           StreamBuilder<List<CompanyEmployee>>(
                             stream: _employeeService.getEmployees(),
@@ -381,7 +437,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                               }
 
                               final employees = snapshot.data!;
-                              
+
                               if (employees.isEmpty) {
                                 return Center(
                                   child: Column(
@@ -390,7 +446,8 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                       Icon(
                                         Icons.people_outline,
                                         size: 64,
-                                        color: AppTheme.textSecondary.withOpacity(0.5),
+                                        color: AppTheme.textSecondary
+                                            .withOpacity(0.5),
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
@@ -419,7 +476,8 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                             vertical: AppTheme.paddingMedium,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                            borderRadius: BorderRadius.circular(
+                                                AppTheme.radiusMedium),
                                           ),
                                         ),
                                       ),
@@ -428,18 +486,24 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                 );
                               }
 
-                              final filteredEmployees = employees.where((employee) {
+                              final filteredEmployees =
+                                  employees.where((employee) {
                                 final matchesSearch = _searchQuery.isEmpty ||
                                     ('${employee.firstName} ${employee.lastName}'
                                         .toLowerCase()
-                                        .contains(_searchQuery.toLowerCase())) ||
-                                    (employee.email.toLowerCase().contains(_searchQuery.toLowerCase())) ||
-                                    (employee.position.toLowerCase().contains(_searchQuery.toLowerCase()));
-                                final matchesDepartment = _selectedDepartment == null ||
+                                        .contains(
+                                            _searchQuery.toLowerCase())) ||
+                                    (employee.email.toLowerCase().contains(
+                                        _searchQuery.toLowerCase())) ||
+                                    (employee.position
+                                        .toLowerCase()
+                                        .contains(_searchQuery.toLowerCase()));
+                                final matchesDepartment = _selectedDepartment ==
+                                        null ||
                                     employee.department == _selectedDepartment;
                                 return matchesSearch && matchesDepartment;
                               }).toList();
-                              
+
                               if (filteredEmployees.isEmpty) {
                                 return Center(
                                   child: Column(
@@ -448,7 +512,8 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                       Icon(
                                         Icons.search_off,
                                         size: 64,
-                                        color: AppTheme.textSecondary.withOpacity(0.5),
+                                        color: AppTheme.textSecondary
+                                            .withOpacity(0.5),
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
@@ -470,10 +535,12 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                               }
 
                               // Group employees by department
-                              final Map<String, List<CompanyEmployee>> groupedEmployees = {};
+                              final Map<String, List<CompanyEmployee>>
+                                  groupedEmployees = {};
                               for (var employee in filteredEmployees) {
                                 final department = employee.department;
-                                groupedEmployees.putIfAbsent(department, () => []);
+                                groupedEmployees.putIfAbsent(
+                                    department, () => []);
                                 groupedEmployees[department]!.add(employee);
                               }
 
@@ -481,29 +548,38 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: groupedEmployees.entries.map((entry) {
                                   return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 16, horizontal: 4),
                                         child: Row(
                                           children: [
                                             Text(
                                               entry.key,
-                                              style: AppTheme.titleMedium.copyWith(
+                                              style:
+                                                  AppTheme.titleMedium.copyWith(
                                                 color: AppTheme.textPrimary,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                             const SizedBox(width: 8),
                                             Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 2),
                                               decoration: BoxDecoration(
-                                                color: AppTheme.primaryBlue.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(12),
+                                                color: AppTheme.primaryBlue
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                               ),
                                               child: Text(
                                                 '${entry.value.length}',
-                                                style: AppTheme.bodySmall.copyWith(
+                                                style:
+                                                    AppTheme.bodySmall.copyWith(
                                                   color: AppTheme.primaryBlue,
                                                   fontWeight: FontWeight.w600,
                                                 ),
@@ -515,8 +591,10 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                       _isGridView
                                           ? GridView.builder(
                                               shrinkWrap: true,
-                                              physics: const NeverScrollableScrollPhysics(),
-                                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
+                                              gridDelegate:
+                                                  const SliverGridDelegateWithFixedCrossAxisCount(
                                                 crossAxisCount: 2,
                                                 childAspectRatio: 0.8,
                                                 crossAxisSpacing: 16,
@@ -524,17 +602,22 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                                               ),
                                               itemCount: entry.value.length,
                                               itemBuilder: (context, index) {
-                                                return _buildEmployeeGridCard(entry.value[index]);
+                                                return _buildEmployeeGridCard(
+                                                    entry.value[index]);
                                               },
                                             )
                                           : ListView.builder(
                                               shrinkWrap: true,
-                                              physics: const NeverScrollableScrollPhysics(),
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
                                               itemCount: entry.value.length,
                                               itemBuilder: (context, index) {
                                                 return Padding(
-                                                  padding: const EdgeInsets.only(bottom: 16),
-                                                  child: _buildEmployeeCard(entry.value[index]),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 16),
+                                                  child: _buildEmployeeCard(
+                                                      entry.value[index]),
                                                 );
                                               },
                                             ),
@@ -647,67 +730,75 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                       ],
                     ),
                   ),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert, color: AppTheme.textSecondary),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                    ),
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: Row(
-                          children: [
-                            Icon(Icons.edit, size: 18),
-                            SizedBox(width: 8),
-                            Text('Edit'),
-                          ],
-                        ),
+                  if (_isAdmin)
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert,
+                          color: AppTheme.textSecondary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(AppTheme.radiusMedium),
                       ),
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: Row(
-                          children: [
-                            Icon(Icons.delete, size: 18, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete', style: TextStyle(color: Colors.red)),
-                          ],
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, size: 18),
+                              SizedBox(width: 8),
+                              Text('Edit'),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AddEmployeeDialog(employee: employee),
-                        ).then((result) async {
-                          if (result != null) {
-                            try {
-                              await _employeeService.updateEmployee(employee.id!, result);
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Employee updated successfully'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Error updating employee: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 18, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Delete',
+                                  style: TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                AddEmployeeDialog(employee: employee),
+                          ).then((result) async {
+                            if (result != null) {
+                              try {
+                                await _employeeService.updateEmployee(
+                                    employee.id!, result);
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content:
+                                          Text('Employee updated successfully'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text('Error updating employee: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
                               }
                             }
-                          }
-                        });
-                      } else if (value == 'delete') {
-                        _showDeleteConfirmation(employee);
-                      }
-                    },
-                  ),
+                          });
+                        } else if (value == 'delete') {
+                          _showDeleteConfirmation(employee);
+                        }
+                      },
+                    ),
                 ],
               ),
               if (employee.certifications.isNotEmpty) ...[
@@ -743,7 +834,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
       ),
     );
   }
-  
+
   Widget _buildEmployeeGridCard(CompanyEmployee employee) {
     return Card(
       elevation: 0,
@@ -828,38 +919,44 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                     },
                     tooltip: 'Call',
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: AppTheme.textSecondary),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AddEmployeeDialog(employee: employee),
-                      ).then((result) async {
-                        if (result != null) {
-                          try {
-                            await _employeeService.updateEmployee(employee.id!, result);
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Employee updated successfully'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Error updating employee: $e'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
+                  if (_isAdmin)
+                    IconButton(
+                      icon:
+                          const Icon(Icons.edit, color: AppTheme.textSecondary),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) =>
+                              AddEmployeeDialog(employee: employee),
+                        ).then((result) async {
+                          if (result != null) {
+                            try {
+                              await _employeeService.updateEmployee(
+                                  employee.id!, result);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content:
+                                        Text('Employee updated successfully'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content:
+                                        Text('Error updating employee: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             }
                           }
-                        }
-                      });
-                    },
-                  ),
+                        });
+                      },
+                    ),
                 ],
               ),
             ],
@@ -874,7 +971,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
     // Generate a consistent color based on the employee's name
     final String initials = '${employee.firstName[0]}${employee.lastName[0]}';
     final int hash = employee.firstName.hashCode + employee.lastName.hashCode;
-    
+
     // Use the available accent colors from AppTheme
     final List<Color> avatarColors = [
       AppTheme.primaryBlue,
@@ -884,9 +981,9 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
       AppTheme.accent4,
       AppTheme.accent5,
     ];
-    
+
     final int colorIndex = hash.abs() % avatarColors.length;
-    
+
     return CircleAvatar(
       radius: radius,
       backgroundColor: avatarColors[colorIndex],
@@ -900,7 +997,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
       ),
     );
   }
-  
+
   Widget _buildContactRow(IconData icon, String text) {
     return Row(
       children: [
@@ -919,7 +1016,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
       ],
     );
   }
-  
+
   Color _getStatusColor(String status) {
     switch (status) {
       case 'active':
@@ -932,7 +1029,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
         return Colors.grey;
     }
   }
-  
+
   String _getStatusLabel(String status) {
     switch (status) {
       case 'active':
@@ -945,7 +1042,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
         return 'Unknown';
     }
   }
-  
+
   void _showDeleteConfirmation(CompanyEmployee employee) {
     showDialog(
       context: context,
@@ -972,7 +1069,8 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen> with Si
                           const Icon(Icons.check_circle, color: Colors.white),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: Text('${employee.firstName} ${employee.lastName} deleted successfully'),
+                            child: Text(
+                                '${employee.firstName} ${employee.lastName} deleted successfully'),
                           ),
                         ],
                       ),
