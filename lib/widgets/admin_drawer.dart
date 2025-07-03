@@ -16,7 +16,7 @@ class AdminDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLargeScreen = MediaQuery.of(context).size.width >= 1200;
     final authService = AuthService();
-    
+
     return Container(
       color: Colors.white,
       child: Column(
@@ -52,11 +52,8 @@ class AdminDrawer extends StatelessWidget {
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Icon(
-                        Icons.admin_panel_settings, 
-                        color: Colors.white, 
-                        size: 32
-                      ),
+                      child: const Icon(Icons.admin_panel_settings,
+                          color: Colors.white, size: 32),
                     ),
                     const SizedBox(width: 16),
                     Column(
@@ -86,7 +83,7 @@ class AdminDrawer extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Menu Items
           Expanded(
             child: ListView(
@@ -119,10 +116,26 @@ class AdminDrawer extends StatelessWidget {
                 ),
                 _buildMenuItem(
                   context,
+                  'Employee Management',
+                  Icons.badge_outlined,
+                  Icons.badge,
+                  9,
+                  isLargeScreen,
+                ),
+                _buildMenuItem(
+                  context,
                   'Report Management',
                   Icons.assignment_outlined,
                   Icons.assignment,
                   7,
+                  isLargeScreen,
+                ),
+                _buildMenuItem(
+                  context,
+                  'PDF Management',
+                  Icons.picture_as_pdf_outlined,
+                  Icons.picture_as_pdf,
+                  8,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -133,12 +146,10 @@ class AdminDrawer extends StatelessWidget {
                   3,
                   isLargeScreen,
                 ),
-                
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Divider(height: 1),
                 ),
-                
                 const Padding(
                   padding: EdgeInsets.only(left: 16, top: 8, bottom: 4),
                   child: Text(
@@ -151,7 +162,6 @@ class AdminDrawer extends StatelessWidget {
                     ),
                   ),
                 ),
-                
                 _buildMenuItem(
                   context,
                   'Create Post',
@@ -176,12 +186,10 @@ class AdminDrawer extends StatelessWidget {
                   6,
                   isLargeScreen,
                 ),
-                
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Divider(height: 1),
                 ),
-                
                 _buildMenuItem(
                   context,
                   'Back to App',
@@ -210,7 +218,7 @@ class AdminDrawer extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Logout Button
           Container(
             width: double.infinity,
@@ -265,12 +273,14 @@ class AdminDrawer extends StatelessWidget {
     VoidCallback? onTap,
   }) {
     final isSelected = index == selectedIndex;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        color: isSelected ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.transparent,
+        color: isSelected
+            ? AppTheme.primaryBlue.withOpacity(0.1)
+            : Colors.transparent,
       ),
       child: ListTile(
         leading: Icon(
@@ -291,12 +301,13 @@ class AdminDrawer extends StatelessWidget {
         ),
         dense: true,
         visualDensity: const VisualDensity(horizontal: 0, vertical: -1),
-        onTap: onTap ?? () {
-          if (!isLargeScreen) {
-            Navigator.pop(context);
-          }
-          onItemSelected(index);
-        },
+        onTap: onTap ??
+            () {
+              if (!isLargeScreen) {
+                Navigator.pop(context);
+              }
+              onItemSelected(index);
+            },
       ),
     );
   }
