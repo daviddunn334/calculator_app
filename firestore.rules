@@ -81,5 +81,30 @@ service cloud.firestore {
       );
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
+
+    // Job Locations - Divisions, Projects, and Digs
+    // All authenticated users can read, only admins can write
+    match /divisions/{divisionId} {
+      // All authenticated users can read divisions
+      allow read: if request.auth != null;
+      // Only admins can create, update, delete divisions
+      allow create, update, delete: if request.auth != null && isAdmin();
+      
+      // Projects within divisions
+      match /projects/{projectId} {
+        // All authenticated users can read projects
+        allow read: if request.auth != null;
+        // Only admins can create, update, delete projects
+        allow create, update, delete: if request.auth != null && isAdmin();
+        
+        // Digs within projects
+        match /digs/{digId} {
+          // All authenticated users can read digs
+          allow read: if request.auth != null;
+          // Only admins can create, update, delete digs
+          allow create, update, delete: if request.auth != null && isAdmin();
+        }
+      }
+    }
   }
 }
