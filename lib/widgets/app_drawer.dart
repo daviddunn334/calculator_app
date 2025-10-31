@@ -113,9 +113,9 @@ class AppDrawer extends StatelessWidget {
                 ),
                 _buildMenuItem(
                   context,
-                  'Reports',
-                  Icons.bar_chart_outlined,
-                  Icons.bar_chart,
+                  'Maps',
+                  Icons.map_outlined,
+                  Icons.map,
                   2,
                   isLargeScreen,
                 ),
