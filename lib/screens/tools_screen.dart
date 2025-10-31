@@ -4,6 +4,7 @@ import '../calculators/pit_depth_calculator.dart';
 import '../calculators/time_clock_calculator.dart';
 import '../calculators/dent_ovality_calculator.dart';
 import '../calculators/b31g_calculator.dart';
+import '../calculators/depth_percentages_calculator.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_header.dart';
 import '../widgets/offline_indicator.dart';
@@ -81,6 +82,14 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
       'tags': ['PDF', 'Excel', 'Hardness', 'Convert'],
       'color': Color(0xFF4CAF50), // Green
       'route': const PdfToExcelScreen(),
+    },
+    {
+      'title': 'Depth Percentages Chart',
+      'icon': Icons.analytics_outlined,
+      'description': 'Visualize and analyze depth percentages for inspection data',
+      'tags': ['Charts', 'Analysis', 'Visualization', 'Depth'],
+      'color': Color(0xFF9C27B0), // Purple
+      'route': const DepthPercentagesCalculator(),
     },
   ];
 
