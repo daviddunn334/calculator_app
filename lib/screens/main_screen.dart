@@ -5,7 +5,7 @@ import 'tools_screen.dart';
 import '../theme/app_theme.dart';
 import 'profile_screen.dart';
 import 'knowledge_base_screen.dart';
-import 'reports_screen.dart';
+import 'maps_screen.dart';
 import 'inventory_screen.dart';
 import 'company_directory_screen.dart';
 import 'field_log_screen.dart';
@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   final List<Widget> _screens = [
     const HomeScreen(),
     const ToolsScreen(),
-    const ReportsScreen(),
+    const MapsScreen(),
     const FieldLogScreen(),
     const KnowledgeBaseScreen(),
     const ProfileScreen(),
@@ -205,7 +205,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       case 1:
         return isSelected ? Icons.build : Icons.build_outlined;
       case 2:
-        return isSelected ? Icons.bar_chart : Icons.bar_chart_outlined;
+        return isSelected ? Icons.map : Icons.map_outlined;
       case 3:
         return isSelected ? Icons.note_alt : Icons.note_alt_outlined;
       case 4:
@@ -232,7 +232,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       case 1:
         return 'Tools';
       case 2:
-        return 'Reports';
+        return 'Maps';
       case 3:
         return 'Field Log';
       case 4:
