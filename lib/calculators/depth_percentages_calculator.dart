@@ -78,6 +78,7 @@ class _DepthPercentagesCalculatorState extends State<DepthPercentagesCalculator>
     if (input.isEmpty) {
       _errorMessage = 'Enter a positive wall thickness in inches, e.g., 0.325';
       _wallThickness = null;
+      _tableData.clear(); // Clear table when input is empty
       return;
     }
 
@@ -85,11 +86,13 @@ class _DepthPercentagesCalculatorState extends State<DepthPercentagesCalculator>
     if (parsed == null || parsed <= 0) {
       _errorMessage = 'Enter a positive wall thickness in inches, e.g., 0.325';
       _wallThickness = null;
+      _tableData.clear(); // Clear table when input is invalid
       return;
     }
 
     _errorMessage = null;
     _wallThickness = parsed;
+    // Note: Don't regenerate table automatically, let user click Generate button
   }
 
   double _truncateTo3Decimals(double value) {
