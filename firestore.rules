@@ -82,6 +82,27 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
+    // Personal Locations Collections
+    // Users can manage their own personal folders
+    match /personal_folders/{folderId} {
+      // Users can read their own folders
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Users can create their own folders
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Users can update/delete their own folders
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    // Users can manage their own personal locations
+    match /personal_locations/{locationId} {
+      // Users can read their own locations
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Users can create their own locations
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Users can update/delete their own locations
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
     // Job Locations - Divisions, Projects, and Digs
     // All authenticated users can read, only admins can write
     match /divisions/{divisionId} {

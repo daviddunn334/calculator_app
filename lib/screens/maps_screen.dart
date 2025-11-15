@@ -3,11 +3,14 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/offline_service.dart';
 import '../services/job_locations_service.dart';
+import '../services/personal_locations_service.dart';
 import '../services/user_service.dart';
 import '../services/auth_service.dart';
 import '../models/division.dart';
 import '../models/project.dart';
 import '../models/dig.dart';
+import '../models/personal_folder.dart';
+import '../models/personal_location.dart';
 
 class MapsScreen extends StatefulWidget {
   const MapsScreen({super.key});
@@ -19,6 +22,7 @@ class MapsScreen extends StatefulWidget {
 class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateMixin {
   final OfflineService _offlineService = OfflineService();
   final JobLocationsService _locationsService = JobLocationsService();
+  final PersonalLocationsService _personalLocationsService = PersonalLocationsService();
   final UserService _userService = UserService();
   final AuthService _authService = AuthService();
   
@@ -30,6 +34,21 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
   // Navigation state
   Division? _selectedDivision;
   Project? _selectedProject;
+  PersonalFolder? _selectedPersonalFolder;
+  bool _showingPersonalLocations = false;
+  
+  // Pin state management
+  Set<String> _pinnedDivisions = {};
+  Set<String> _pinnedProjects = {};
+  Set<String> _pinnedDigs = {};
+  Set<String> _pinnedPersonalFolders = {};
+  Set<String> _pinnedPersonalLocations = {};
+  static const int maxPinnedItems = 3;
+
+  // Personal location colors (light pink theme)
+  static const Color _personalPrimary = Color(0xFFE91E63);
+  static const Color _personalLight = Color(0xFFFCE4EC);
+  static const Color _personalAccent = Color(0xFFF8BBD9);
 
   @override
   void initState() {
@@ -89,14 +108,111 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     });
   }
 
+  void _navigateToPersonalFolder(PersonalFolder folder) {
+    setState(() {
+      _selectedPersonalFolder = folder;
+    });
+  }
+
+  void _showPersonalLocations() {
+    setState(() {
+      _showingPersonalLocations = true;
+      _selectedDivision = null;
+      _selectedProject = null;
+      _selectedPersonalFolder = null;
+    });
+  }
+
+  void _showCompanyLocations() {
+    setState(() {
+      _showingPersonalLocations = false;
+      _selectedPersonalFolder = null;
+    });
+  }
+
   String _getAddButtonText() {
-    if (_selectedProject != null) {
-      return 'Add Dig';
-    } else if (_selectedDivision != null) {
-      return 'Add Project';
+    if (_showingPersonalLocations) {
+      if (_selectedPersonalFolder != null) {
+        return 'Add Location';
+      } else {
+        return 'Add Folder';
+      }
     } else {
-      return 'Add Division';
+      if (_selectedProject != null) {
+        return 'Add Location';
+      } else if (_selectedDivision != null) {
+        return 'Add Project';
+      } else {
+        return 'Add Division';
+      }
     }
+  }
+
+  // Pin functionality methods
+  void _togglePinDivision(String divisionId) {
+    setState(() {
+      if (_pinnedDivisions.contains(divisionId)) {
+        _pinnedDivisions.remove(divisionId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Division unpinned')),
+        );
+      } else {
+        if (_pinnedDivisions.length >= maxPinnedItems) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Maximum $maxPinnedItems items can be pinned')),
+          );
+          return;
+        }
+        _pinnedDivisions.add(divisionId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Division pinned to top')),
+        );
+      }
+    });
+  }
+
+  void _togglePinProject(String projectId) {
+    setState(() {
+      if (_pinnedProjects.contains(projectId)) {
+        _pinnedProjects.remove(projectId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Project unpinned')),
+        );
+      } else {
+        if (_pinnedProjects.length >= maxPinnedItems) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Maximum $maxPinnedItems items can be pinned')),
+          );
+          return;
+        }
+        _pinnedProjects.add(projectId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Project pinned to top')),
+        );
+      }
+    });
+  }
+
+  void _togglePinDig(String digId) {
+    setState(() {
+      if (_pinnedDigs.contains(digId)) {
+        _pinnedDigs.remove(digId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location unpinned')),
+        );
+      } else {
+        if (_pinnedDigs.length >= maxPinnedItems) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Maximum $maxPinnedItems items can be pinned')),
+          );
+          return;
+        }
+        _pinnedDigs.add(digId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location pinned to top')),
+        );
+      }
+    });
   }
 
   @override
@@ -250,46 +366,90 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildBreadcrumbs() {
-    List<Widget> breadcrumbs = [
-      TextButton.icon(
-        onPressed: () => setState(() {
-          _selectedDivision = null;
-          _selectedProject = null;
-        }),
-        icon: const Icon(Icons.home, size: 16),
-        label: const Text('Divisions'),
-        style: TextButton.styleFrom(
-          foregroundColor: _selectedDivision == null ? AppTheme.primaryBlue : AppTheme.textSecondary,
-        ),
-      ),
-    ];
+    List<Widget> breadcrumbs = [];
 
-    if (_selectedDivision != null) {
+    if (_showingPersonalLocations) {
+      breadcrumbs.add(
+        TextButton.icon(
+          onPressed: () => setState(() {
+            _showingPersonalLocations = false;
+            _selectedPersonalFolder = null;
+          }),
+          icon: const Icon(Icons.home, size: 16),
+          label: const Text('Locations'),
+          style: TextButton.styleFrom(
+            foregroundColor: AppTheme.textSecondary,
+          ),
+        ),
+      );
       breadcrumbs.addAll([
         const Icon(Icons.chevron_right, size: 16, color: AppTheme.textSecondary),
-        TextButton(
+        TextButton.icon(
           onPressed: () => setState(() {
+            _selectedPersonalFolder = null;
+          }),
+          icon: const Icon(Icons.folder_special, size: 16),
+          label: const Text('My Saved Locations'),
+          style: TextButton.styleFrom(
+            foregroundColor: _selectedPersonalFolder == null ? _personalPrimary : AppTheme.textSecondary,
+          ),
+        ),
+      ]);
+
+      if (_selectedPersonalFolder != null) {
+        breadcrumbs.addAll([
+          const Icon(Icons.chevron_right, size: 16, color: AppTheme.textSecondary),
+          Text(
+            _selectedPersonalFolder!.name,
+            style: AppTheme.bodyMedium.copyWith(
+              color: _personalPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ]);
+      }
+    } else {
+      breadcrumbs.add(
+        TextButton.icon(
+          onPressed: () => setState(() {
+            _selectedDivision = null;
             _selectedProject = null;
           }),
-          child: Text(_selectedDivision!.name),
+          icon: const Icon(Icons.home, size: 16),
+          label: const Text('Divisions'),
           style: TextButton.styleFrom(
-            foregroundColor: _selectedProject == null ? AppTheme.primaryBlue : AppTheme.textSecondary,
+            foregroundColor: _selectedDivision == null ? AppTheme.primaryBlue : AppTheme.textSecondary,
           ),
         ),
-      ]);
-    }
+      );
 
-    if (_selectedProject != null) {
-      breadcrumbs.addAll([
-        const Icon(Icons.chevron_right, size: 16, color: AppTheme.textSecondary),
-        Text(
-          _selectedProject!.name,
-          style: AppTheme.bodyMedium.copyWith(
-            color: AppTheme.primaryBlue,
-            fontWeight: FontWeight.w600,
+      if (_selectedDivision != null) {
+        breadcrumbs.addAll([
+          const Icon(Icons.chevron_right, size: 16, color: AppTheme.textSecondary),
+          TextButton(
+            onPressed: () => setState(() {
+              _selectedProject = null;
+            }),
+            child: Text(_selectedDivision!.name),
+            style: TextButton.styleFrom(
+              foregroundColor: _selectedProject == null ? AppTheme.primaryBlue : AppTheme.textSecondary,
+            ),
           ),
-        ),
-      ]);
+        ]);
+      }
+
+      if (_selectedProject != null) {
+        breadcrumbs.addAll([
+          const Icon(Icons.chevron_right, size: 16, color: AppTheme.textSecondary),
+          Text(
+            _selectedProject!.name,
+            style: AppTheme.bodyMedium.copyWith(
+              color: AppTheme.primaryBlue,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ]);
+      }
     }
 
     return Container(
@@ -301,12 +461,18 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildContent() {
-    if (_selectedProject != null && _selectedDivision != null) {
+    if (_showingPersonalLocations) {
+      if (_selectedPersonalFolder != null) {
+        return _buildPersonalLocationsList(_selectedPersonalFolder!.id!);
+      } else {
+        return _buildPersonalFoldersList();
+      }
+    } else if (_selectedProject != null && _selectedDivision != null) {
       return _buildDigsList(_selectedDivision!.id!, _selectedProject!.id!);
     } else if (_selectedDivision != null) {
       return _buildProjectsList(_selectedDivision!.id!);
     } else {
-      return _buildDivisionsList();
+      return _buildMainLocationsList();
     }
   }
 
@@ -322,9 +488,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           return _buildErrorState('Error loading divisions');
         }
 
-        final divisions = snapshot.data ?? [];
+        final allDivisions = snapshot.data ?? [];
 
-        if (divisions.isEmpty) {
+        if (allDivisions.isEmpty) {
           return _buildEmptyState(
             'No Divisions Yet',
             'Create your first division to organize job locations',
@@ -332,11 +498,22 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           );
         }
 
+        // Sort divisions: pinned items first, then unpinned
+        final sortedDivisions = List<Division>.from(allDivisions);
+        sortedDivisions.sort((a, b) {
+          final aIsPinned = _pinnedDivisions.contains(a.id);
+          final bIsPinned = _pinnedDivisions.contains(b.id);
+          
+          if (aIsPinned && !bIsPinned) return -1;
+          if (!aIsPinned && bIsPinned) return 1;
+          return 0; // Keep original order for items with same pin status
+        });
+
         return ListView.builder(
           padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          itemCount: divisions.length,
+          itemCount: sortedDivisions.length,
           itemBuilder: (context, index) {
-            final division = divisions[index];
+            final division = sortedDivisions[index];
             return _buildDivisionCard(division);
           },
         );
@@ -356,9 +533,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           return _buildErrorState('Error loading projects');
         }
 
-        final projects = snapshot.data ?? [];
+        final allProjects = snapshot.data ?? [];
 
-        if (projects.isEmpty) {
+        if (allProjects.isEmpty) {
           return _buildEmptyState(
             'No Projects Yet',
             'Add projects to organize dig locations within this division',
@@ -366,11 +543,22 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           );
         }
 
+        // Sort projects: pinned items first, then unpinned
+        final sortedProjects = List<Project>.from(allProjects);
+        sortedProjects.sort((a, b) {
+          final aIsPinned = _pinnedProjects.contains(a.id);
+          final bIsPinned = _pinnedProjects.contains(b.id);
+          
+          if (aIsPinned && !bIsPinned) return -1;
+          if (!aIsPinned && bIsPinned) return 1;
+          return 0; // Keep original order for items with same pin status
+        });
+
         return ListView.builder(
           padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          itemCount: projects.length,
+          itemCount: sortedProjects.length,
           itemBuilder: (context, index) {
-            final project = projects[index];
+            final project = sortedProjects[index];
             return _buildProjectCard(project);
           },
         );
@@ -390,9 +578,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           return _buildErrorState('Error loading digs');
         }
 
-        final digs = snapshot.data ?? [];
+        final allDigs = snapshot.data ?? [];
 
-        if (digs.isEmpty) {
+        if (allDigs.isEmpty) {
           return _buildEmptyState(
             'No Digs Yet',
             'Add dig locations with coordinates to this project',
@@ -400,12 +588,272 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           );
         }
 
+        // Sort digs: pinned items first, then unpinned
+        final sortedDigs = List<Dig>.from(allDigs);
+        sortedDigs.sort((a, b) {
+          final aIsPinned = _pinnedDigs.contains(a.id);
+          final bIsPinned = _pinnedDigs.contains(b.id);
+          
+          if (aIsPinned && !bIsPinned) return -1;
+          if (!aIsPinned && bIsPinned) return 1;
+          return 0; // Keep original order for items with same pin status
+        });
+
         return ListView.builder(
           padding: const EdgeInsets.all(AppTheme.paddingLarge),
-          itemCount: digs.length,
+          itemCount: sortedDigs.length,
           itemBuilder: (context, index) {
-            final dig = digs[index];
+            final dig = sortedDigs[index];
             return _buildDigCard(dig);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildMainLocationsList() {
+    return StreamBuilder<List<Division>>(
+      stream: _locationsService.getAllDivisions(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return _buildErrorState('Error loading divisions');
+        }
+
+        final allDivisions = snapshot.data ?? [];
+
+        // Sort divisions: pinned items first, then unpinned
+        final sortedDivisions = List<Division>.from(allDivisions);
+        sortedDivisions.sort((a, b) {
+          final aIsPinned = _pinnedDivisions.contains(a.id);
+          final bIsPinned = _pinnedDivisions.contains(b.id);
+          
+          if (aIsPinned && !bIsPinned) return -1;
+          if (!aIsPinned && bIsPinned) return 1;
+          return 0; // Keep original order for items with same pin status
+        });
+
+        return CustomScrollView(
+          slivers: [
+            // Personal Locations Section
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.all(AppTheme.paddingLarge),
+                child: Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  elevation: 0,
+                  child: InkWell(
+                    onTap: _showPersonalLocations,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                    child: Container(
+                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: _personalPrimary.withOpacity(0.3), width: 1),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                        gradient: LinearGradient(
+                          colors: [
+                            _personalLight,
+                            Colors.white,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: _personalPrimary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.folder_special,
+                              color: _personalPrimary,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'My Saved Locations',
+                                  style: AppTheme.titleMedium.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: _personalPrimary,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Personal folders and locations visible only to you',
+                                  style: AppTheme.bodySmall.copyWith(
+                                    color: _personalPrimary.withOpacity(0.8),
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: _personalPrimary,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Company Locations Header
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(AppTheme.paddingLarge, 0, AppTheme.paddingLarge, AppTheme.paddingSmall),
+                child: Text(
+                  'Company Locations',
+                  style: AppTheme.titleLarge.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+              ),
+            ),
+
+            // Company Divisions List
+            if (allDivisions.isEmpty)
+              SliverToBoxAdapter(
+                child: Container(
+                  margin: const EdgeInsets.all(AppTheme.paddingLarge),
+                  child: _buildEmptyState(
+                    'No Company Divisions Yet',
+                    _isAdmin 
+                        ? 'Create your first division to organize job locations'
+                        : 'No company locations have been created yet',
+                    Icons.location_city,
+                  ),
+                ),
+              )
+            else
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final division = sortedDivisions[index];
+                    return Container(
+                      margin: EdgeInsets.fromLTRB(
+                        AppTheme.paddingLarge, 
+                        0, 
+                        AppTheme.paddingLarge, 
+                        index == sortedDivisions.length - 1 ? AppTheme.paddingLarge : 16
+                      ),
+                      child: _buildDivisionCard(division),
+                    );
+                  },
+                  childCount: sortedDivisions.length,
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPersonalFoldersList() {
+    final userId = _authService.userId ?? '';
+    
+    return StreamBuilder<List<PersonalFolder>>(
+      stream: _personalLocationsService.getUserFolders(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return _buildErrorState('Error loading personal folders');
+        }
+
+        final allFolders = snapshot.data ?? [];
+
+        if (allFolders.isEmpty) {
+          return _buildEmptyState(
+            'No Personal Folders Yet',
+            'Create your first folder to organize your saved locations',
+            Icons.folder_special,
+          );
+        }
+
+        // Sort folders: pinned items first, then unpinned
+        final sortedFolders = List<PersonalFolder>.from(allFolders);
+        sortedFolders.sort((a, b) {
+          final aIsPinned = _pinnedPersonalFolders.contains(a.id);
+          final bIsPinned = _pinnedPersonalFolders.contains(b.id);
+          
+          if (aIsPinned && !bIsPinned) return -1;
+          if (!aIsPinned && bIsPinned) return 1;
+          return 0; // Keep original order for items with same pin status
+        });
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(AppTheme.paddingLarge),
+          itemCount: sortedFolders.length,
+          itemBuilder: (context, index) {
+            final folder = sortedFolders[index];
+            return _buildPersonalFolderCard(folder);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildPersonalLocationsList(String folderId) {
+    final userId = _authService.userId ?? '';
+    
+    return StreamBuilder<List<PersonalLocation>>(
+      stream: _personalLocationsService.getLocationsByFolder(folderId, userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return _buildErrorState('Error loading personal locations');
+        }
+
+        final allLocations = snapshot.data ?? [];
+
+        if (allLocations.isEmpty) {
+          return _buildEmptyState(
+            'No Locations Yet',
+            'Add locations with coordinates to this folder',
+            Icons.room,
+          );
+        }
+
+        // Sort locations: pinned items first, then unpinned
+        final sortedLocations = List<PersonalLocation>.from(allLocations);
+        sortedLocations.sort((a, b) {
+          final aIsPinned = _pinnedPersonalLocations.contains(a.id);
+          final bIsPinned = _pinnedPersonalLocations.contains(b.id);
+          
+          if (aIsPinned && !bIsPinned) return -1;
+          if (!aIsPinned && bIsPinned) return 1;
+          return 0; // Keep original order for items with same pin status
+        });
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(AppTheme.paddingLarge),
+          itemCount: sortedLocations.length,
+          itemBuilder: (context, index) {
+            final location = sortedLocations[index];
+            return _buildPersonalLocationCard(location);
           },
         );
       },
@@ -471,6 +919,22 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Show pin indicator if item is pinned
+                    if (_pinnedDivisions.contains(division.id)) ...[
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryBlue.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Icon(
+                          Icons.push_pin,
+                          color: AppTheme.primaryBlue,
+                          size: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     const Icon(
                       Icons.chevron_right,
                       color: AppTheme.textSecondary,
@@ -481,6 +945,21 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                       PopupMenuButton<String>(
                         onSelected: (value) => _handleDivisionAction(value, division),
                         itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: _pinnedDivisions.contains(division.id) ? 'unpin' : 'pin',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  _pinnedDivisions.contains(division.id) 
+                                      ? Icons.push_pin 
+                                      : Icons.push_pin_outlined, 
+                                  size: 16
+                                ),
+                                const SizedBox(width: 8),
+                                Text(_pinnedDivisions.contains(division.id) ? 'Unpin' : 'Pin to top'),
+                              ],
+                            ),
+                          ),
                           const PopupMenuItem(
                             value: 'edit',
                             child: Row(
@@ -581,6 +1060,22 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Show pin indicator if item is pinned
+                    if (_pinnedProjects.contains(project.id)) ...[
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.accent1.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Icon(
+                          Icons.push_pin,
+                          color: AppTheme.accent1,
+                          size: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     const Icon(
                       Icons.chevron_right,
                       color: AppTheme.textSecondary,
@@ -591,6 +1086,21 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                       PopupMenuButton<String>(
                         onSelected: (value) => _handleProjectAction(value, project),
                         itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: _pinnedProjects.contains(project.id) ? 'unpin' : 'pin',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  _pinnedProjects.contains(project.id) 
+                                      ? Icons.push_pin 
+                                      : Icons.push_pin_outlined, 
+                                  size: 16
+                                ),
+                                const SizedBox(width: 8),
+                                Text(_pinnedProjects.contains(project.id) ? 'Unpin' : 'Pin to top'),
+                              ],
+                            ),
+                          ),
                           const PopupMenuItem(
                             value: 'edit',
                             child: Row(
@@ -665,27 +1175,60 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Dig #${dig.digNumber}',
+                        dig.digNumber,
                         style: AppTheme.titleMedium.copyWith(
                           fontWeight: FontWeight.w600,
                           color: AppTheme.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'RGW #${dig.rgwNumber}',
-                        style: AppTheme.bodySmall.copyWith(
-                          color: AppTheme.textSecondary,
-                          fontWeight: FontWeight.w500,
+                      if (dig.rgwNumber.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'RGW #${dig.rgwNumber}',
+                          style: AppTheme.bodySmall.copyWith(
+                            color: AppTheme.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
+                // Show pin indicator if item is pinned
+                if (_pinnedDigs.contains(dig.id)) ...[
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.accent3.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Icon(
+                      Icons.push_pin,
+                      color: AppTheme.accent3,
+                      size: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
                 if (_isAdmin) ...[
                   PopupMenuButton<String>(
                     onSelected: (value) => _handleDigAction(value, dig),
                     itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: _pinnedDigs.contains(dig.id) ? 'unpin' : 'pin',
+                        child: Row(
+                          children: [
+                            Icon(
+                              _pinnedDigs.contains(dig.id) 
+                                  ? Icons.push_pin 
+                                  : Icons.push_pin_outlined, 
+                              size: 16
+                            ),
+                            const SizedBox(width: 8),
+                            Text(_pinnedDigs.contains(dig.id) ? 'Unpin' : 'Pin to top'),
+                          ],
+                        ),
+                      ),
                       const PopupMenuItem(
                         value: 'edit',
                         child: Row(
@@ -780,6 +1323,255 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 label: const Text('Open in Maps'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryBlue,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey.shade300,
+                  disabledForegroundColor: Colors.grey.shade600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPersonalFolderCard(PersonalFolder folder) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        elevation: 0,
+        child: InkWell(
+          onTap: () => _navigateToPersonalFolder(folder),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          child: Container(
+            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            decoration: BoxDecoration(
+              border: Border.all(color: _personalPrimary.withOpacity(0.3), width: 1),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              gradient: LinearGradient(
+                colors: [
+                  _personalLight,
+                  Colors.white,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _personalPrimary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.folder,
+                    color: _personalPrimary,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        folder.name,
+                        style: AppTheme.titleMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: _personalPrimary,
+                        ),
+                      ),
+                      if (folder.description != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          folder.description!,
+                          style: AppTheme.bodySmall.copyWith(
+                            color: _personalPrimary.withOpacity(0.8),
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Show pin indicator if item is pinned
+                    if (_pinnedPersonalFolders.contains(folder.id)) ...[
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: _personalPrimary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Icon(
+                          Icons.push_pin,
+                          color: _personalPrimary,
+                          size: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Icon(
+                      Icons.chevron_right,
+                      color: _personalPrimary,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPersonalLocationCard(PersonalLocation location) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: _personalPrimary.withOpacity(0.3), width: 1),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          gradient: LinearGradient(
+            colors: [
+              _personalLight.withOpacity(0.5),
+              Colors.white,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: _personalPrimary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.room,
+                    color: _personalPrimary,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        location.title,
+                        style: AppTheme.titleMedium.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: _personalPrimary,
+                        ),
+                      ),
+                      if (location.subtitle != null && location.subtitle!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          location.subtitle!,
+                          style: AppTheme.bodySmall.copyWith(
+                            color: _personalPrimary.withOpacity(0.8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                // Show pin indicator if item is pinned
+                if (_pinnedPersonalLocations.contains(location.id)) ...[
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: _personalPrimary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Icon(
+                      Icons.push_pin,
+                      color: _personalPrimary,
+                      size: 14,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ],
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: _personalLight.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.my_location,
+                        size: 16,
+                        color: _personalPrimary.withOpacity(0.8),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Coordinates: ${location.coordinates}',
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: _personalPrimary,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (location.notes != null && location.notes!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.note,
+                          size: 16,
+                          color: _personalPrimary.withOpacity(0.8),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            location.notes!,
+                            style: AppTheme.bodySmall.copyWith(
+                              color: _personalPrimary.withOpacity(0.8),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: location.hasValidCoordinates ? () => _openPersonalLocationInMaps(location) : null,
+                icon: const Icon(Icons.map, size: 18),
+                label: const Text('Open in Maps'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _personalPrimary,
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.grey.shade300,
                   disabledForegroundColor: Colors.grey.shade600,
@@ -897,7 +1689,13 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
   }
 
   void _showAddDialog() {
-    if (_selectedProject != null && _selectedDivision != null) {
+    if (_showingPersonalLocations) {
+      if (_selectedPersonalFolder != null) {
+        _showAddPersonalLocationDialog();
+      } else {
+        _showAddPersonalFolderDialog();
+      }
+    } else if (_selectedProject != null && _selectedDivision != null) {
       _showAddDigDialog();
     } else if (_selectedDivision != null) {
       _showAddProjectDialog();
@@ -1064,7 +1862,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Dig Location'),
+        title: const Text('Add Location'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1072,7 +1870,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
               TextField(
                 controller: digNumberController,
                 decoration: const InputDecoration(
-                  labelText: 'Dig Number',
+                  labelText: 'Title',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -1113,10 +1911,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           ElevatedButton(
             onPressed: () async {
               if (digNumberController.text.trim().isEmpty ||
-                  rgwNumberController.text.trim().isEmpty ||
                   coordinatesController.text.trim().isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please fill in all required fields')),
+                  const SnackBar(content: Text('Please fill in title and coordinates')),
                 );
                 return;
               }
@@ -1163,8 +1960,194 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     );
   }
 
+  void _showAddPersonalFolderDialog() {
+    final nameController = TextEditingController();
+    final descriptionController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Personal Folder'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Folder Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description (Optional)',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a folder name')),
+                );
+                return;
+              }
+
+              try {
+                final folder = PersonalFolder(
+                  userId: _authService.userId ?? 'unknown',
+                  name: nameController.text.trim(),
+                  description: descriptionController.text.trim().isNotEmpty 
+                      ? descriptionController.text.trim() 
+                      : null,
+                );
+
+                await _personalLocationsService.createFolder(folder);
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Personal folder created successfully')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error creating folder: $e')),
+                  );
+                }
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddPersonalLocationDialog() {
+    final titleController = TextEditingController();
+    final subtitleController = TextEditingController();
+    final coordinatesController = TextEditingController();
+    final notesController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Personal Location'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: subtitleController,
+                decoration: const InputDecoration(
+                  labelText: 'Subtitle (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: coordinatesController,
+                decoration: const InputDecoration(
+                  labelText: 'Coordinates (lat, lng)',
+                  hintText: 'e.g., 31.12345, -88.54321',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: notesController,
+                decoration: const InputDecoration(
+                  labelText: 'Notes (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (titleController.text.trim().isEmpty ||
+                  coordinatesController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill in title and coordinates')),
+                );
+                return;
+              }
+
+              if (!_personalLocationsService.isValidCoordinateFormat(coordinatesController.text.trim())) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid coordinate format. Use: lat, lng')),
+                );
+                return;
+              }
+
+              try {
+                final location = PersonalLocation(
+                  userId: _authService.userId ?? 'unknown',
+                  folderId: _selectedPersonalFolder!.id!,
+                  title: titleController.text.trim(),
+                  subtitle: subtitleController.text.trim().isNotEmpty 
+                      ? subtitleController.text.trim() 
+                      : null,
+                  coordinates: coordinatesController.text.trim(),
+                  notes: notesController.text.trim().isNotEmpty 
+                      ? notesController.text.trim() 
+                      : null,
+                );
+
+                await _personalLocationsService.createLocation(location);
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Personal location created successfully')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error creating location: $e')),
+                  );
+                }
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handleDivisionAction(String action, Division division) {
     switch (action) {
+      case 'pin':
+      case 'unpin':
+        _togglePinDivision(division.id!);
+        break;
       case 'edit':
         _showEditDivisionDialog(division);
         break;
@@ -1180,6 +2163,10 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
 
   void _handleProjectAction(String action, Project project) {
     switch (action) {
+      case 'pin':
+      case 'unpin':
+        _togglePinProject(project.id!);
+        break;
       case 'edit':
         _showEditProjectDialog(project);
         break;
@@ -1195,13 +2182,17 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
 
   void _handleDigAction(String action, Dig dig) {
     switch (action) {
+      case 'pin':
+      case 'unpin':
+        _togglePinDig(dig.id!);
+        break;
       case 'edit':
         _showEditDigDialog(dig);
         break;
       case 'delete':
         _showDeleteConfirmation(
-          'Delete Dig',
-          'Are you sure you want to delete "Dig #${dig.digNumber}"?',
+          'Delete Location',
+          'Are you sure you want to delete "${dig.digNumber}"?',
           () => _locationsService.deleteDig(dig.divisionId, dig.projectId, dig.id!),
         );
         break;
@@ -1371,7 +2362,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
               TextField(
                 controller: digNumberController,
                 decoration: const InputDecoration(
-                  labelText: 'Dig Number',
+                  labelText: 'Title',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -1412,10 +2403,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           ElevatedButton(
             onPressed: () async {
               if (digNumberController.text.trim().isEmpty ||
-                  rgwNumberController.text.trim().isEmpty ||
                   coordinatesController.text.trim().isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please fill in all required fields')),
+                  const SnackBar(content: Text('Please fill in title and coordinates')),
                 );
                 return;
               }
@@ -1552,5 +2542,35 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
         );
       }
     }
+  }
+
+  void _openPersonalLocationInMaps(PersonalLocation location) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Open in Maps'),
+        content: const Text('Choose which maps app to use:'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _launchUrl(location.googleMapsUrl);
+            },
+            child: const Text('Google Maps'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _launchUrl(location.appleMapsUrl);
+            },
+            child: const Text('Apple Maps'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 }
