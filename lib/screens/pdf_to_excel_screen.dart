@@ -36,57 +36,92 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        title: const Text('PDF to Excel Converter'),
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppTheme.paddingLarge),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header Card
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                child: Column(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppTheme.paddingLarge),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Title section - matches tools and maps pattern
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.paddingLarge,
+                  vertical: AppTheme.paddingMedium,
+                ),
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Row(
                   children: [
-                    Icon(
-                      Icons.picture_as_pdf,
-                      size: 64,
-                      color: AppTheme.primaryBlue,
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () => Navigator.pop(context),
+                      color: AppTheme.textPrimary,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Hardness PDF to Excel Converter',
-                      style: AppTheme.titleLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
+                    Container(
+                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.primaryBlue,
+                            AppTheme.primaryBlue.withOpacity(0.8),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryBlue.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
+                      child: const Icon(
+                        Icons.picture_as_pdf_rounded,
+                        size: 32,
+                        color: Colors.white,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Extract hardness values from PDF files and convert them to Excel format',
-                      style: AppTheme.bodyMedium.copyWith(
-                        color: AppTheme.textSecondary,
+                    const SizedBox(width: AppTheme.paddingLarge),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'PDF to Excel Converter',
+                            style: AppTheme.titleLarge.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Extract hardness values from PDF files and convert them to Excel format',
+                            style: AppTheme.bodyMedium.copyWith(
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
-            ),
+              
+              const SizedBox(height: 24),
             
-            const SizedBox(height: 24),
-            
-            // Step 1: Select PDF File
+              // Step 1: Select PDF File
             _buildStepCard(
               stepNumber: 1,
               title: 'Select PDF File',
@@ -419,7 +454,8 @@ class _PdfToExcelScreenState extends State<PdfToExcelScreen> {
                   ],
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -15,18 +15,35 @@ class EmployeeManagementScreen extends StatefulWidget {
 class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
   final EmployeeService _employeeService = EmployeeService();
   String _searchQuery = '';
-  String? _selectedDepartment;
-  String? _selectedStatus;
+  String? _selectedGroup;
+  String? _selectedDivision;
 
-  final List<String> _departments = [
+  final List<String> _groups = [
     'All',
-    'Management',
-    'Field Operations',
-    'Office',
-    'Engineering',
-    'Quality Control'
+    'Directors',
+    'Project Managers',
+    'Advanced NDE Technicians',
+    'Senior Technicians',
+    'Junior Technicians',
+    'Assistants',
+    'Account Managers',
+    'Business Development',
+    'Admin / HR',
   ];
-  final List<String> _statuses = ['All', 'Active', 'Inactive', 'On Leave'];
+
+  final List<String> _divisions = [
+    'All',
+    'NWP',
+    'MountainWest Pipe',
+    'Cypress',
+    'Atlanta',
+    'Charlottesville',
+    'Princeton',
+    'Southern Star',
+    'Stations',
+    'Boardwalk',
+    'Not Working',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -232,12 +249,16 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
             builder: (context, snapshot) {
               final employees = snapshot.data ?? [];
               final totalEmployees = employees.length;
-              final activeEmployees =
-                  employees.where((e) => e.status == 'active').length;
-              final inactiveEmployees =
-                  employees.where((e) => e.status == 'inactive').length;
-              final onLeaveEmployees =
-                  employees.where((e) => e.status == 'on_leave').length;
+              
+              // Count employees by group
+              final Map<String, int> groupCounts = {};
+              for (final employee in employees) {
+                groupCounts[employee.group] = (groupCounts[employee.group] ?? 0) + 1;
+              }
+              
+              // Count employees with divisions
+              final employeesWithDivision = employees.where((e) => e.division != null).length;
+              final employeesWithoutDivision = employees.where((e) => e.division == null).length;
 
               return GridView.count(
                 shrinkWrap: true,
@@ -254,22 +275,22 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                     Colors.orange,
                   ),
                   _buildStatCard(
-                    'Active',
-                    '$activeEmployees',
-                    Icons.check_circle,
+                    'With Division',
+                    '$employeesWithDivision',
+                    Icons.business,
+                    Colors.blue,
+                  ),
+                  _buildStatCard(
+                    'No Division',
+                    '$employeesWithoutDivision',
+                    Icons.person,
+                    Colors.purple,
+                  ),
+                  _buildStatCard(
+                    'Groups',
+                    '${groupCounts.keys.length}',
+                    Icons.group,
                     Colors.green,
-                  ),
-                  _buildStatCard(
-                    'Inactive',
-                    '$inactiveEmployees',
-                    Icons.cancel,
-                    Colors.red,
-                  ),
-                  _buildStatCard(
-                    'On Leave',
-                    '$onLeaveEmployees',
-                    Icons.schedule,
-                    Colors.amber,
                   ),
                 ],
               );
@@ -343,19 +364,19 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                     border: Border.all(color: AppTheme.divider),
                   ),
                   child: DropdownButton<String>(
-                    value: _selectedDepartment,
-                    hint: const Text('Department'),
+                    value: _selectedGroup,
+                    hint: const Text('Group'),
                     isExpanded: true,
                     underline: const SizedBox(),
-                    items: _departments.map((dept) {
+                    items: _groups.map((group) {
                       return DropdownMenuItem(
-                        value: dept == 'All' ? null : dept,
-                        child: Text(dept),
+                        value: group == 'All' ? null : group,
+                        child: Text(group),
                       );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        _selectedDepartment = value;
+                        _selectedGroup = value;
                       });
                     },
                   ),
@@ -371,21 +392,19 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                     border: Border.all(color: AppTheme.divider),
                   ),
                   child: DropdownButton<String>(
-                    value: _selectedStatus,
-                    hint: const Text('Status'),
+                    value: _selectedDivision,
+                    hint: const Text('Division'),
                     isExpanded: true,
                     underline: const SizedBox(),
-                    items: _statuses.map((status) {
+                    items: _divisions.map((division) {
                       return DropdownMenuItem(
-                        value: status == 'All'
-                            ? null
-                            : status.toLowerCase().replaceAll(' ', '_'),
-                        child: Text(status),
+                        value: division == 'All' ? null : division,
+                        child: Text(division),
                       );
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        _selectedStatus = value;
+                        _selectedDivision = value;
                       });
                     },
                   ),
@@ -462,15 +481,15 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
               .toLowerCase()
               .contains(_searchQuery.toLowerCase()) ||
           employee.email.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          employee.position.toLowerCase().contains(_searchQuery.toLowerCase());
+          employee.title.toLowerCase().contains(_searchQuery.toLowerCase());
 
-      final matchesDepartment = _selectedDepartment == null ||
-          employee.department == _selectedDepartment;
+      final matchesGroup = _selectedGroup == null ||
+          employee.group == _selectedGroup;
 
-      final matchesStatus =
-          _selectedStatus == null || employee.status == _selectedStatus;
+      final matchesDivision = _selectedDivision == null ||
+          employee.division == _selectedDivision;
 
-      return matchesSearch && matchesDepartment && matchesStatus;
+      return matchesSearch && matchesGroup && matchesDivision;
     }).toList();
   }
 
@@ -502,22 +521,31 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      employee.position,
+                      employee.title,
                       style: AppTheme.bodyMedium.copyWith(
                         color: AppTheme.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      employee.department,
+                      'Group: ${employee.group}',
                       style: AppTheme.bodySmall.copyWith(
                         color: AppTheme.textSecondary,
                       ),
                     ),
+                    if (employee.division != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'Division: ${employee.division}',
+                        style: AppTheme.bodySmall.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
-              _buildStatusChip(employee.status),
+              _buildGroupChip(employee.group),
               const SizedBox(width: 8),
               PopupMenuButton<String>(
                 onSelected: (value) => _handleEmployeeAction(value, employee),
@@ -567,7 +595,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                   color: Colors.blue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.email,
                   size: 16,
                   color: Colors.blue,
@@ -589,7 +617,7 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
                   color: Colors.green.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.phone,
                   size: 16,
                   color: Colors.green,
@@ -604,33 +632,6 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
               ),
             ],
           ),
-
-          // Certifications
-          if (employee.certifications.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: employee.certifications.map((cert) {
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
-                  ),
-                  child: Text(
-                    cert,
-                    style: AppTheme.bodySmall.copyWith(
-                      color: Colors.orange,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
         ],
       ),
     );
@@ -671,53 +672,20 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
     );
   }
 
-  Widget _buildStatusChip(String status) {
-    Color color;
-    String label;
-    IconData icon;
-
-    switch (status) {
-      case 'active':
-        color = Colors.green;
-        label = 'Active';
-        icon = Icons.check_circle;
-        break;
-      case 'inactive':
-        color = Colors.red;
-        label = 'Inactive';
-        icon = Icons.cancel;
-        break;
-      case 'on_leave':
-        color = Colors.amber;
-        label = 'On Leave';
-        icon = Icons.schedule;
-        break;
-      default:
-        color = Colors.grey;
-        label = 'Unknown';
-        icon = Icons.help;
-    }
-
+  Widget _buildGroupChip(String group) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: Colors.orange.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: Colors.orange.withOpacity(0.3)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: AppTheme.bodySmall.copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+      child: Text(
+        group,
+        style: AppTheme.bodySmall.copyWith(
+          color: Colors.orange,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -869,26 +837,12 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailRow('Position', employee.position),
-            _buildDetailRow('Department', employee.department),
+            _buildDetailRow('Title', employee.title),
+            _buildDetailRow('Group', employee.group),
+            if (employee.division != null)
+              _buildDetailRow('Division', employee.division!),
             _buildDetailRow('Email', employee.email),
             _buildDetailRow('Phone', employee.phone),
-            _buildDetailRow('Status', _getStatusLabel(employee.status)),
-            if (employee.certifications.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              const Text('Certifications:',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Wrap(
-                spacing: 4,
-                children: employee.certifications.map((cert) {
-                  return Chip(
-                    label: Text(cert),
-                    backgroundColor: Colors.orange.withOpacity(0.1),
-                  );
-                }).toList(),
-              ),
-            ],
           ],
         ),
         actions: [
@@ -918,19 +872,6 @@ class _EmployeeManagementScreenState extends State<EmployeeManagementScreen> {
         ],
       ),
     );
-  }
-
-  String _getStatusLabel(String status) {
-    switch (status) {
-      case 'active':
-        return 'Active';
-      case 'inactive':
-        return 'Inactive';
-      case 'on_leave':
-        return 'On Leave';
-      default:
-        return 'Unknown';
-    }
   }
 
   void _showDeleteConfirmation(CompanyEmployee employee) {

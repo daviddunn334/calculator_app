@@ -24,13 +24,17 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-  final List<String> _departments = [
+  final List<String> _employeeGroups = [
     'All',
-    'Management',
-    'Field Operations',
-    'Office',
-    'Engineering',
-    'Quality Control'
+    'Directors',
+    'Project Managers',
+    'Advanced NDE Technicians',
+    'Senior Technicians',
+    'Junior Technicians',
+    'Assistants',
+    'Account Managers',
+    'Business Development',
+    'Admin / HR',
   ];
 
   @override
@@ -343,7 +347,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
                                 SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
-                                    children: _departments.map((department) {
+                                    children: _employeeGroups.map((department) {
                                       final isSelected =
                                           _selectedDepartment == department ||
                                               (department == 'All' &&
@@ -495,12 +499,12 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
                                             _searchQuery.toLowerCase())) ||
                                     (employee.email.toLowerCase().contains(
                                         _searchQuery.toLowerCase())) ||
-                                    (employee.position
+                                    (employee.title
                                         .toLowerCase()
                                         .contains(_searchQuery.toLowerCase()));
                                 final matchesDepartment = _selectedDepartment ==
                                         null ||
-                                    employee.department == _selectedDepartment;
+                                    employee.group == _selectedDepartment;
                                 return matchesSearch && matchesDepartment;
                               }).toList();
 
@@ -534,14 +538,14 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
                                 );
                               }
 
-                              // Group employees by department
+                              // Group employees by job group
                               final Map<String, List<CompanyEmployee>>
                                   groupedEmployees = {};
                               for (var employee in filteredEmployees) {
-                                final department = employee.department;
+                                final group = employee.group;
                                 groupedEmployees.putIfAbsent(
-                                    department, () => []);
-                                groupedEmployees[department]!.add(employee);
+                                    group, () => []);
+                                groupedEmployees[group]!.add(employee);
                               }
 
                               return Column(
@@ -683,11 +687,21 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          employee.position,
+                          employee.title,
                           style: AppTheme.bodyMedium.copyWith(
                             color: AppTheme.textSecondary,
                           ),
                         ),
+                        if (employee.division != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            employee.division!,
+                            style: AppTheme.bodySmall.copyWith(
+                              color: AppTheme.textSecondary.withOpacity(0.7),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -697,13 +711,13 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(employee.status).withOpacity(0.1),
+                      color: AppTheme.primaryBlue.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _getStatusLabel(employee.status),
+                      employee.group,
                       style: TextStyle(
-                        color: _getStatusColor(employee.status),
+                        color: AppTheme.primaryBlue,
                         fontWeight: FontWeight.w500,
                         fontSize: 12,
                       ),
@@ -801,33 +815,6 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
                     ),
                 ],
               ),
-              if (employee.certifications.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: employee.certifications.map((cert) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryBlue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        cert,
-                        style: TextStyle(
-                          color: AppTheme.primaryBlue,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
             ],
           ),
         ),
@@ -874,7 +861,7 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
               ),
               const SizedBox(height: 4),
               Text(
-                employee.position,
+                employee.title,
                 style: AppTheme.bodyMedium.copyWith(
                   color: AppTheme.textSecondary,
                 ),
@@ -882,22 +869,35 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (employee.division != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  employee.division!,
+                  style: AppTheme.bodySmall.copyWith(
+                    color: AppTheme.textSecondary.withOpacity(0.7),
+                    fontSize: 11,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
+                  horizontal: 8,
+                  vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(employee.status).withOpacity(0.1),
+                  color: AppTheme.primaryBlue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  _getStatusLabel(employee.status),
+                  employee.group,
                   style: TextStyle(
-                    color: _getStatusColor(employee.status),
+                    color: AppTheme.primaryBlue,
                     fontWeight: FontWeight.w500,
-                    fontSize: 12,
+                    fontSize: 11,
                   ),
                 ),
               ),
@@ -1017,31 +1017,6 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'active':
-        return Colors.green;
-      case 'inactive':
-        return Colors.red;
-      case 'on_leave':
-        return Colors.orange;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _getStatusLabel(String status) {
-    switch (status) {
-      case 'active':
-        return 'Active';
-      case 'inactive':
-        return 'Inactive';
-      case 'on_leave':
-        return 'On Leave';
-      default:
-        return 'Unknown';
-    }
-  }
 
   void _showDeleteConfirmation(CompanyEmployee employee) {
     showDialog(

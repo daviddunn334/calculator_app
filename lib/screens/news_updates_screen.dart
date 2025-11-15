@@ -3,6 +3,8 @@ import '../theme/app_theme.dart';
 import '../models/news_update.dart';
 import '../services/news_service.dart';
 import '../services/user_service.dart';
+import '../widgets/app_header.dart';
+import '../widgets/offline_indicator.dart';
 
 class NewsUpdatesScreen extends StatefulWidget {
   const NewsUpdatesScreen({super.key});
@@ -12,8 +14,12 @@ class NewsUpdatesScreen extends StatefulWidget {
 }
 
 class _NewsUpdatesScreenState extends State<NewsUpdatesScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  
   final NewsService _newsService = NewsService();
   final UserService _userService = UserService();
 
@@ -25,11 +31,32 @@ class _NewsUpdatesScreenState extends State<NewsUpdatesScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    );
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOutCubic,
+    ));
+    
+    _animationController.forward();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -37,130 +64,215 @@ class _NewsUpdatesScreenState extends State<NewsUpdatesScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: Column(
+      body: Stack(
         children: [
-          // Modern Header
-          _buildModernHeader(),
-
-          // Content
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Statistics Overview
-                  _buildStatisticsSection(),
-
-                  // Search and Filters
-                  _buildSearchAndFilters(),
-
-                  // Content Area
-                  _buildContentArea(),
-                ],
+          // Background design elements
+          Positioned(
+            top: -120,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppTheme.primaryBlue.withOpacity(0.03),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildModernHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.blue,
-            Colors.blue.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+          Positioned(
+            bottom: -80,
+            left: -80,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppTheme.accent2.withOpacity(0.05),
+              ),
+            ),
           ),
-        ],
-      ),
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          
+          // Main content 
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.newspaper,
-                    color: Colors.white,
-                    size: 28,
-                  ),
+                // Offline indicator
+                const OfflineIndicator(
+                  message: 'News updates require internet connection.',
                 ),
-                const SizedBox(width: 16),
+                if (MediaQuery.of(context).size.width >= 1200)
+                  const AppHeader(
+                    title: 'News & Updates',
+                    subtitle: 'Stay informed with latest company news and industry updates',
+                    icon: Icons.newspaper,
+                  ),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'News & Updates',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppTheme.paddingLarge),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Title section for mobile - matches consistent header pattern
+                            if (MediaQuery.of(context).size.width < 1200)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppTheme.paddingLarge,
+                                  vertical: AppTheme.paddingMedium,
+                                ),
+                                margin: const EdgeInsets.only(bottom: 24),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            AppTheme.primaryBlue,
+                                            AppTheme.primaryBlue.withOpacity(0.8),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: AppTheme.primaryBlue.withOpacity(0.3),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.newspaper_rounded,
+                                        size: 32,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(width: AppTheme.paddingLarge),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'News & Updates',
+                                            style: AppTheme.titleLarge.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: AppTheme.textPrimary,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Stay informed with latest company news and industry updates',
+                                            style: AppTheme.bodyMedium.copyWith(
+                                              color: AppTheme.textSecondary,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                            // Category tabs section
+                            Container(
+                              padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                              margin: const EdgeInsets.only(bottom: 24),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Categories',
+                                    style: AppTheme.titleMedium.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    height: 40,
+                                    child: TabBar(
+                                      controller: _tabController,
+                                      indicatorColor: AppTheme.primaryBlue,
+                                      labelColor: AppTheme.primaryBlue,
+                                      unselectedLabelColor: AppTheme.textSecondary,
+                                      indicatorSize: TabBarIndicatorSize.tab,
+                                      indicator: BoxDecoration(
+                                        color: AppTheme.primaryBlue.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      dividerColor: Colors.transparent,
+                                      tabs: [
+                                        const Tab(text: 'All'),
+                                        Tab(text: NewsCategory.company.displayName),
+                                        Tab(text: NewsCategory.industry.displayName),
+                                        Tab(text: NewsCategory.protocol.displayName),
+                                        Tab(text: NewsCategory.training.displayName),
+                                      ],
+                                      onTap: (index) {
+                                        setState(() {
+                                          _selectedCategory =
+                                              index == 0 ? null : NewsCategory.values[index - 1];
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            
+                            // Content area  
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    // Search/filters section
+                                    _buildSearchAndFilters(),
+                                    const SizedBox(height: 16),
+                                    
+                                    // News content
+                                    _buildContentArea(),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Stay informed with latest company news and industry updates',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-
-            // Category Tabs
-            Container(
-              height: 40,
-              child: TabBar(
-                controller: _tabController,
-                indicatorColor: Colors.white,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.white.withOpacity(0.7),
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicator: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                dividerColor: Colors.transparent,
-                tabs: [
-                  const Tab(text: 'All'),
-                  Tab(text: NewsCategory.company.displayName),
-                  Tab(text: NewsCategory.industry.displayName),
-                  Tab(text: NewsCategory.protocol.displayName),
-                  Tab(text: NewsCategory.training.displayName),
-                ],
-                onTap: (index) {
-                  setState(() {
-                    _selectedCategory =
-                        index == 0 ? null : NewsCategory.values[index - 1];
-                  });
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -228,24 +340,29 @@ class _NewsUpdatesScreenState extends State<NewsUpdatesScreen>
 
   Widget _buildStatisticsSection() {
     return Container(
-      margin: const EdgeInsets.all(24),
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
+      padding: const EdgeInsets.all(AppTheme.paddingLarge),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('News Overview', Icons.analytics),
-          const SizedBox(height: 20),
+          Text(
+            'Overview Statistics',
+            style: AppTheme.titleMedium.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
           StreamBuilder<List<NewsUpdate>>(
             stream: _newsService.getPublishedUpdates(),
             builder: (context, snapshot) {
@@ -269,33 +386,33 @@ class _NewsUpdatesScreenState extends State<NewsUpdatesScreen>
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: MediaQuery.of(context).size.width > 800 ? 4 : 2,
-                childAspectRatio: 1.2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                childAspectRatio: 1.5,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
                 children: [
                   _buildStatCard(
                     'Total Updates',
                     '$totalUpdates',
                     Icons.article,
-                    Colors.blue,
+                    AppTheme.primaryBlue,
                   ),
                   _buildStatCard(
                     'Company News',
                     '$companyNews',
                     Icons.business,
-                    Colors.green,
+                    AppTheme.accent1,
                   ),
                   _buildStatCard(
                     'Industry News',
                     '$industryNews',
                     Icons.trending_up,
-                    Colors.orange,
+                    AppTheme.accent2,
                   ),
                   _buildStatCard(
                     'This Week',
                     '$recentUpdates',
                     Icons.schedule,
-                    Colors.purple,
+                    AppTheme.accent3,
                   ),
                 ],
               );
@@ -308,101 +425,235 @@ class _NewsUpdatesScreenState extends State<NewsUpdatesScreen>
 
   Widget _buildSearchAndFilters() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
+      padding: const EdgeInsets.all(AppTheme.paddingLarge),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Search & Filters', Icons.search),
-          const SizedBox(height: 20),
-
-          // Search Bar
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Search news and updates...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchQuery.isNotEmpty
-                  ? IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _searchQuery = '';
-                        });
-                      },
-                      icon: const Icon(Icons.clear),
-                    )
-                  : null,
-              filled: true,
-              fillColor: AppTheme.background,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 12),
+          Text(
+            'Search & Filters',
+            style: AppTheme.titleMedium.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimary,
             ),
-            onChanged: (value) {
-              setState(() {
-                _searchQuery = value;
-              });
-            },
           ),
           const SizedBox(height: 16),
 
-          // Priority Filter
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: AppTheme.background,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.divider),
-            ),
-            child: DropdownButton<NewsPriority>(
-              value: _selectedPriority,
-              hint: const Text('Filter by priority'),
-              isExpanded: true,
-              underline: const SizedBox(),
-              items: [
-                const DropdownMenuItem(
-                  value: null,
-                  child: Text('All Priorities'),
-                ),
-                ...NewsPriority.values.map((priority) {
-                  return DropdownMenuItem(
-                    value: priority,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: priority.color,
-                            shape: BoxShape.circle,
-                          ),
+          // Search Bar and Priority Filter in a row for desktop
+          if (MediaQuery.of(context).size.width > 800)
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
                         ),
-                        const SizedBox(width: 8),
-                        Text(priority.displayName),
                       ],
                     ),
-                  );
-                }),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search news and updates...',
+                        hintStyle: TextStyle(color: AppTheme.textSecondary),
+                        prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    _searchQuery = '';
+                                  });
+                                },
+                                icon: const Icon(Icons.clear),
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                      border: Border.all(color: AppTheme.divider),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: DropdownButton<NewsPriority>(
+                      value: _selectedPriority,
+                      hint: const Text('Filter by priority'),
+                      isExpanded: true,
+                      underline: const SizedBox(),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('All Priorities'),
+                        ),
+                        ...NewsPriority.values.map((priority) {
+                          return DropdownMenuItem(
+                            value: priority,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: priority.color,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(priority.displayName),
+                              ],
+                            ),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedPriority = value;
+                        });
+                      },
+                    ),
+                  ),
+                ),
               ],
-              onChanged: (value) {
-                setState(() {
-                  _selectedPriority = value;
-                });
-              },
+            )
+          else
+            // Column layout for mobile
+            Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search news and updates...',
+                      hintStyle: TextStyle(color: AppTheme.textSecondary),
+                      prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
+                      suffixIcon: _searchQuery.isNotEmpty
+                          ? IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  _searchQuery = '';
+                                });
+                              },
+                              icon: const Icon(Icons.clear),
+                            )
+                          : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                    border: Border.all(color: AppTheme.divider),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: DropdownButton<NewsPriority>(
+                    value: _selectedPriority,
+                    hint: const Text('Filter by priority'),
+                    isExpanded: true,
+                    underline: const SizedBox(),
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('All Priorities'),
+                      ),
+                      ...NewsPriority.values.map((priority) {
+                        return DropdownMenuItem(
+                          value: priority,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: priority.color,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(priority.displayName),
+                            ],
+                          ),
+                        );
+                      }),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPriority = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
-          ),
         ],
       ),
     );
@@ -410,26 +661,35 @@ class _NewsUpdatesScreenState extends State<NewsUpdatesScreen>
 
   Widget _buildContentArea() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
+      padding: const EdgeInsets.all(AppTheme.paddingLarge),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          _buildSectionHeader('Latest Updates', Icons.feed),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 600,
+          Text(
+            'Latest Updates',
+            style: AppTheme.titleMedium.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            constraints: const BoxConstraints(
+              minHeight: 300,
+              maxHeight: 600,
+            ),
             child: TabBarView(
               controller: _tabController,
               children: [

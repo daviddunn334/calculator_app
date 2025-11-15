@@ -45,10 +45,6 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
   Set<String> _pinnedPersonalLocations = {};
   static const int maxPinnedItems = 3;
 
-  // Personal location colors (light pink theme)
-  static const Color _personalPrimary = Color(0xFFE91E63);
-  static const Color _personalLight = Color(0xFFFCE4EC);
-  static const Color _personalAccent = Color(0xFFF8BBD9);
 
   @override
   void initState() {
@@ -223,16 +219,22 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
 
     return Scaffold(
       backgroundColor: AppTheme.background,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildBreadcrumbs(),
-            Expanded(
-              child: _buildContent(),
+      body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                _buildBreadcrumbs(),
+                Expanded(
+                  child: _buildContent(),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -288,79 +290,88 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildHeader() {
+    // Title section for mobile - matches tools and field log pattern
     return Container(
-      padding: const EdgeInsets.all(AppTheme.paddingLarge),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.paddingLarge,
+        vertical: AppTheme.paddingMedium,
+      ),
+      margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppTheme.accent2,
-            AppTheme.accent2.withOpacity(0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.accent2.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
-      child: SafeArea(
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.location_on,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Job Locations',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Manage divisions, projects, and dig locations',
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 16,
-                    ),
-                  ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppTheme.primaryBlue,
+                  AppTheme.primaryBlue.withOpacity(0.8),
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              boxShadow: [
+                BoxShadow(
+                  color: AppTheme.primaryBlue.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.location_on_rounded,
+              size: 32,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(width: AppTheme.paddingLarge),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Job Locations',
+                  style: AppTheme.titleLarge.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Manage divisions, projects, and dig locations',
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (_isAdmin) ...[
+            ElevatedButton.icon(
+              onPressed: _showAddDialog,
+              icon: const Icon(Icons.add, size: 18),
+              label: Text(_getAddButtonText()),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryBlue,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             ),
-            if (_isAdmin) ...[
-              ElevatedButton.icon(
-                onPressed: _showAddDialog,
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(_getAddButtonText()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: AppTheme.accent2,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                ),
-              ),
-            ],
           ],
-        ),
+        ],
       ),
     );
   }
@@ -391,7 +402,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           icon: const Icon(Icons.folder_special, size: 16),
           label: const Text('My Saved Locations'),
           style: TextButton.styleFrom(
-            foregroundColor: _selectedPersonalFolder == null ? _personalPrimary : AppTheme.textSecondary,
+            foregroundColor: _selectedPersonalFolder == null ? AppTheme.primaryBlue : AppTheme.textSecondary,
           ),
         ),
       ]);
@@ -402,7 +413,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           Text(
             _selectedPersonalFolder!.name,
             style: AppTheme.bodyMedium.copyWith(
-              color: _personalPrimary,
+              color: AppTheme.primaryBlue,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -652,28 +663,20 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                     child: Container(
                       padding: const EdgeInsets.all(AppTheme.paddingMedium),
                       decoration: BoxDecoration(
-                        border: Border.all(color: _personalPrimary.withOpacity(0.3), width: 1),
+                        border: Border.all(color: AppTheme.divider, width: 1),
                         borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                        gradient: LinearGradient(
-                          colors: [
-                            _personalLight,
-                            Colors.white,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
                       ),
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: _personalPrimary.withOpacity(0.1),
+                              color: AppTheme.primaryBlue.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.folder_special,
-                              color: _personalPrimary,
+                              color: AppTheme.primaryBlue,
                               size: 24,
                             ),
                           ),
@@ -686,14 +689,14 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                                   'My Saved Locations',
                                   style: AppTheme.titleMedium.copyWith(
                                     fontWeight: FontWeight.w600,
-                                    color: _personalPrimary,
+                                    color: AppTheme.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Personal folders and locations visible only to you',
                                   style: AppTheme.bodySmall.copyWith(
-                                    color: _personalPrimary.withOpacity(0.8),
+                                    color: AppTheme.textSecondary,
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -701,9 +704,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                               ],
                             ),
                           ),
-                          Icon(
+                          const Icon(
                             Icons.chevron_right,
-                            color: _personalPrimary,
+                            color: AppTheme.textSecondary,
                             size: 20,
                           ),
                         ],
@@ -1348,28 +1351,20 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           child: Container(
             padding: const EdgeInsets.all(AppTheme.paddingMedium),
             decoration: BoxDecoration(
-              border: Border.all(color: _personalPrimary.withOpacity(0.3), width: 1),
+              border: Border.all(color: AppTheme.divider, width: 1),
               borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              gradient: LinearGradient(
-                colors: [
-                  _personalLight,
-                  Colors.white,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: _personalPrimary.withOpacity(0.1),
+                    color: AppTheme.accent1.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.folder,
-                    color: _personalPrimary,
+                    color: AppTheme.accent1,
                     size: 24,
                   ),
                 ),
@@ -1382,7 +1377,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                         folder.name,
                         style: AppTheme.titleMedium.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: _personalPrimary,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                       if (folder.description != null) ...[
@@ -1390,7 +1385,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                         Text(
                           folder.description!,
                           style: AppTheme.bodySmall.copyWith(
-                            color: _personalPrimary.withOpacity(0.8),
+                            color: AppTheme.textSecondary,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -1407,21 +1402,70 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                       Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: _personalPrimary.withOpacity(0.1),
+                          color: AppTheme.accent1.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.push_pin,
-                          color: _personalPrimary,
+                          color: AppTheme.accent1,
                           size: 14,
                         ),
                       ),
                       const SizedBox(width: 8),
                     ],
-                    Icon(
+                    const Icon(
                       Icons.chevron_right,
-                      color: _personalPrimary,
+                      color: AppTheme.textSecondary,
                       size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    PopupMenuButton<String>(
+                      onSelected: (value) => _handlePersonalFolderAction(value, folder),
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: _pinnedPersonalFolders.contains(folder.id) ? 'unpin' : 'pin',
+                          child: Row(
+                            children: [
+                              Icon(
+                                _pinnedPersonalFolders.contains(folder.id) 
+                                    ? Icons.push_pin 
+                                    : Icons.push_pin_outlined, 
+                                size: 16
+                              ),
+                              const SizedBox(width: 8),
+                              Text(_pinnedPersonalFolders.contains(folder.id) ? 'Unpin' : 'Pin to top'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, size: 16),
+                              SizedBox(width: 8),
+                              Text('Edit'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 16, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Delete', style: TextStyle(color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                      ],
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        child: const Icon(
+                          Icons.more_vert,
+                          size: 16,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -1440,16 +1484,8 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
         padding: const EdgeInsets.all(AppTheme.paddingMedium),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: _personalPrimary.withOpacity(0.3), width: 1),
+          border: Border.all(color: AppTheme.divider, width: 1),
           borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-          gradient: LinearGradient(
-            colors: [
-              _personalLight.withOpacity(0.5),
-              Colors.white,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1459,12 +1495,12 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: _personalPrimary.withOpacity(0.1),
+                    color: AppTheme.accent3.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.room,
-                    color: _personalPrimary,
+                    color: AppTheme.accent3,
                     size: 24,
                   ),
                 ),
@@ -1477,7 +1513,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                         location.title,
                         style: AppTheme.titleMedium.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: _personalPrimary,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                       if (location.subtitle != null && location.subtitle!.isNotEmpty) ...[
@@ -1485,7 +1521,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                         Text(
                           location.subtitle!,
                           style: AppTheme.bodySmall.copyWith(
-                            color: _personalPrimary.withOpacity(0.8),
+                            color: AppTheme.textSecondary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -1498,24 +1534,72 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: _personalPrimary.withOpacity(0.1),
+                      color: AppTheme.accent3.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.push_pin,
-                      color: _personalPrimary,
+                      color: AppTheme.accent3,
                       size: 14,
                     ),
                   ),
                   const SizedBox(width: 8),
                 ],
+                PopupMenuButton<String>(
+                  onSelected: (value) => _handlePersonalLocationAction(value, location),
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: _pinnedPersonalLocations.contains(location.id) ? 'unpin' : 'pin',
+                      child: Row(
+                        children: [
+                          Icon(
+                            _pinnedPersonalLocations.contains(location.id) 
+                                ? Icons.push_pin 
+                                : Icons.push_pin_outlined, 
+                            size: 16
+                          ),
+                          const SizedBox(width: 8),
+                          Text(_pinnedPersonalLocations.contains(location.id) ? 'Unpin' : 'Pin to top'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, size: 16),
+                          SizedBox(width: 8),
+                          Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, size: 16, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Delete', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    child: const Icon(
+                      Icons.more_vert,
+                      size: 16,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: _personalLight.withOpacity(0.3),
+                color: AppTheme.background,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -1523,16 +1607,16 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 children: [
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.my_location,
                         size: 16,
-                        color: _personalPrimary.withOpacity(0.8),
+                        color: AppTheme.textSecondary,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         'Coordinates: ${location.coordinates}',
                         style: AppTheme.bodyMedium.copyWith(
-                          color: _personalPrimary,
+                          color: AppTheme.textPrimary,
                           fontFamily: 'monospace',
                         ),
                       ),
@@ -1543,17 +1627,17 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.note,
                           size: 16,
-                          color: _personalPrimary.withOpacity(0.8),
+                          color: AppTheme.textSecondary,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             location.notes!,
                             style: AppTheme.bodySmall.copyWith(
-                              color: _personalPrimary.withOpacity(0.8),
+                              color: AppTheme.textSecondary,
                             ),
                           ),
                         ),
@@ -1571,7 +1655,7 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 icon: const Icon(Icons.map, size: 18),
                 label: const Text('Open in Maps'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _personalPrimary,
+                  backgroundColor: AppTheme.primaryBlue,
                   foregroundColor: Colors.white,
                   disabledBackgroundColor: Colors.grey.shade300,
                   disabledForegroundColor: Colors.grey.shade600,
@@ -2199,6 +2283,88 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     }
   }
 
+  void _handlePersonalFolderAction(String action, PersonalFolder folder) {
+    switch (action) {
+      case 'pin':
+      case 'unpin':
+        _togglePinPersonalFolder(folder.id!);
+        break;
+      case 'edit':
+        _showEditPersonalFolderDialog(folder);
+        break;
+      case 'delete':
+        _showDeleteConfirmation(
+          'Delete Folder',
+          'Are you sure you want to delete "${folder.name}" and all its locations?',
+          () => _personalLocationsService.deleteFolder(folder.id!, folder.userId),
+        );
+        break;
+    }
+  }
+
+  void _handlePersonalLocationAction(String action, PersonalLocation location) {
+    switch (action) {
+      case 'pin':
+      case 'unpin':
+        _togglePinPersonalLocation(location.id!);
+        break;
+      case 'edit':
+        _showEditPersonalLocationDialog(location);
+        break;
+      case 'delete':
+        _showDeleteConfirmation(
+          'Delete Location',
+          'Are you sure you want to delete "${location.title}"?',
+          () => _personalLocationsService.deleteLocation(location.id!, location.userId),
+        );
+        break;
+    }
+  }
+
+  void _togglePinPersonalFolder(String folderId) {
+    setState(() {
+      if (_pinnedPersonalFolders.contains(folderId)) {
+        _pinnedPersonalFolders.remove(folderId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Folder unpinned')),
+        );
+      } else {
+        if (_pinnedPersonalFolders.length >= maxPinnedItems) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Maximum $maxPinnedItems items can be pinned')),
+          );
+          return;
+        }
+        _pinnedPersonalFolders.add(folderId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Folder pinned to top')),
+        );
+      }
+    });
+  }
+
+  void _togglePinPersonalLocation(String locationId) {
+    setState(() {
+      if (_pinnedPersonalLocations.contains(locationId)) {
+        _pinnedPersonalLocations.remove(locationId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location unpinned')),
+        );
+      } else {
+        if (_pinnedPersonalLocations.length >= maxPinnedItems) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Maximum $maxPinnedItems items can be pinned')),
+          );
+          return;
+        }
+        _pinnedPersonalLocations.add(locationId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location pinned to top')),
+        );
+      }
+    });
+  }
+
   void _showEditDivisionDialog(Division division) {
     final nameController = TextEditingController(text: division.name);
     final descriptionController = TextEditingController(text: division.description);
@@ -2438,6 +2604,185 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error updating dig location: $e')),
+                  );
+                }
+              }
+            },
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditPersonalFolderDialog(PersonalFolder folder) {
+    final nameController = TextEditingController(text: folder.name);
+    final descriptionController = TextEditingController(text: folder.description);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Personal Folder'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Folder Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(
+                labelText: 'Description (Optional)',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (nameController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please enter a folder name')),
+                );
+                return;
+              }
+
+              try {
+                final updatedFolder = folder.copyWith(
+                  name: nameController.text.trim(),
+                  description: descriptionController.text.trim().isNotEmpty 
+                      ? descriptionController.text.trim() 
+                      : null,
+                );
+
+                await _personalLocationsService.updateFolder(updatedFolder);
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Folder updated successfully')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error updating folder: $e')),
+                  );
+                }
+              }
+            },
+            child: const Text('Update'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditPersonalLocationDialog(PersonalLocation location) {
+    final titleController = TextEditingController(text: location.title);
+    final subtitleController = TextEditingController(text: location.subtitle);
+    final coordinatesController = TextEditingController(text: location.coordinates);
+    final notesController = TextEditingController(text: location.notes);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Personal Location'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: subtitleController,
+                decoration: const InputDecoration(
+                  labelText: 'Subtitle (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: coordinatesController,
+                decoration: const InputDecoration(
+                  labelText: 'Coordinates (lat, lng)',
+                  hintText: 'e.g., 31.12345, -88.54321',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: notesController,
+                decoration: const InputDecoration(
+                  labelText: 'Notes (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (titleController.text.trim().isEmpty ||
+                  coordinatesController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill in title and coordinates')),
+                );
+                return;
+              }
+
+              if (!_personalLocationsService.isValidCoordinateFormat(coordinatesController.text.trim())) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid coordinate format. Use: lat, lng')),
+                );
+                return;
+              }
+
+              try {
+                final updatedLocation = location.copyWith(
+                  title: titleController.text.trim(),
+                  subtitle: subtitleController.text.trim().isNotEmpty 
+                      ? subtitleController.text.trim() 
+                      : null,
+                  coordinates: coordinatesController.text.trim(),
+                  notes: notesController.text.trim().isNotEmpty 
+                      ? notesController.text.trim() 
+                      : null,
+                );
+
+                await _personalLocationsService.updateLocation(updatedLocation);
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Location updated successfully')),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error updating location: $e')),
                   );
                 }
               }

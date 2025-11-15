@@ -17,6 +17,7 @@ class _B31GCalculatorState extends State<B31GCalculator> {
   
   List<B31GCalculationRow> _calculationResults = [];
   String? _errorMessage;
+  bool _hasCalculated = false;
 
   @override
   void dispose() {
@@ -204,9 +205,12 @@ class _B31GCalculatorState extends State<B31GCalculator> {
                                   return null;
                                 },
                                 onChanged: (_) {
-                                  if (_diameterController.text.isNotEmpty && _wallThicknessController.text.isNotEmpty) {
-                                    _calculate();
-                                  }
+                                  // Clear results when input changes
+                                  setState(() {
+                                    _hasCalculated = false;
+                                    _calculationResults = [];
+                                    _errorMessage = null;
+                                  });
                                 },
                               ),
                             ),
@@ -234,9 +238,12 @@ class _B31GCalculatorState extends State<B31GCalculator> {
                                   return null;
                                 },
                                 onChanged: (_) {
-                                  if (_diameterController.text.isNotEmpty && _wallThicknessController.text.isNotEmpty) {
-                                    _calculate();
-                                  }
+                                  // Clear results when input changes
+                                  setState(() {
+                                    _hasCalculated = false;
+                                    _calculationResults = [];
+                                    _errorMessage = null;
+                                  });
                                 },
                               ),
                             ),
@@ -268,6 +275,31 @@ class _B31GCalculatorState extends State<B31GCalculator> {
                               fontStyle: FontStyle.italic,
                             ),
                             textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: AppTheme.paddingLarge),
+                        ElevatedButton.icon(
+                          onPressed: (_diameterController.text.isNotEmpty && _wallThicknessController.text.isNotEmpty) 
+                            ? _calculate 
+                            : null,
+                          icon: const Icon(Icons.calculate),
+                          label: const Text(
+                            'Calculate',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryBlue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppTheme.paddingMedium,
+                              horizontal: AppTheme.paddingLarge,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                            ),
                           ),
                         ),
                       ],

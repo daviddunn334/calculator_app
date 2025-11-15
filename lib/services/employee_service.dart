@@ -28,7 +28,7 @@ class EmployeeService {
   Stream<List<CompanyEmployee>> getEmployees() {
     try {
       return _employeesCollection
-          .orderBy('department')
+          .orderBy('group')
           .snapshots()
           .map((snapshot) {
             return snapshot.docs.map((doc) {
@@ -70,11 +70,11 @@ class EmployeeService {
     }
   }
 
-  // Get employees by department
-  Stream<List<CompanyEmployee>> getEmployeesByDepartment(String department) {
+  // Get employees by group
+  Stream<List<CompanyEmployee>> getEmployeesByGroup(String group) {
     try {
       return _employeesCollection
-          .where('department', isEqualTo: department)
+          .where('group', isEqualTo: group)
           .snapshots()
           .map((snapshot) {
             return snapshot.docs.map((doc) {
@@ -84,8 +84,27 @@ class EmployeeService {
             }).toList();
           });
     } catch (e) {
-      print('Error getting employees by department: $e');
-      throw Exception('Failed to get employees by department: $e');
+      print('Error getting employees by group: $e');
+      throw Exception('Failed to get employees by group: $e');
     }
   }
-} 
+
+  // Get employees by division (optional field)
+  Stream<List<CompanyEmployee>> getEmployeesByDivision(String division) {
+    try {
+      return _employeesCollection
+          .where('division', isEqualTo: division)
+          .snapshots()
+          .map((snapshot) {
+            return snapshot.docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              data['id'] = doc.id;
+              return CompanyEmployee.fromMap(data);
+            }).toList();
+          });
+    } catch (e) {
+      print('Error getting employees by division: $e');
+      throw Exception('Failed to get employees by division: $e');
+    }
+  }
+}

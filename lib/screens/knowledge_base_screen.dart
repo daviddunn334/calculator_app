@@ -50,30 +50,6 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> with SingleTi
       'tags': ['Defects', 'Identification', 'Classification'],
       'route': '/defect_types',
     },
-    {
-      'title': 'Equipment Guides',
-      'summary': 'Calibration steps and usage tips for UT, MT, PAUT, and other NDT equipment...',
-      'icon': Icons.build,
-      'color': AppTheme.primaryBlue,
-      'tags': ['Equipment', 'Calibration', 'Usage'],
-      'route': '/equipment_guides',
-    },
-    {
-      'title': 'Terminology/Definitions',
-      'summary': 'Common terms and definitions used in pipeline integrity',
-      'icon': Icons.menu_book,
-      'color': AppTheme.accent2, // Teal
-      'tags': ['Terminology', 'Definitions', 'Reference'],
-      'route': '/terminology',
-    },
-    {
-      'title': 'Reporting & Documentation',
-      'summary': 'Best practices for writing reports and understanding common codes and field shorthand...',
-      'icon': Icons.description,
-      'color': AppTheme.primaryBlue,
-      'tags': ['Reporting', 'Documentation', 'Best Practices'],
-      'route': '/reporting',
-    },
   ];
 
   @override

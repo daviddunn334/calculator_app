@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/company_employee.dart';
-import '../services/company_directory_service.dart';
+import '../services/employee_service.dart';
+import '../services/user_service.dart';
 
 class CompanyDirectory extends StatefulWidget {
   const CompanyDirectory({super.key});
@@ -13,64 +14,65 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _positionController = TextEditingController();
-  final _departmentController = TextEditingController();
+  final _titleController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _companyDirectoryService = CompanyDirectoryService();
+  final _employeeService = EmployeeService();
+  final _userService = UserService();
   List<CompanyEmployee> _employees = [];
   bool _isLoading = true;
-  String _selectedStatus = 'active';
-  final List<String> _selectedCertifications = [];
+  bool _isAdmin = false;
+  String _selectedGroup = 'Directors';
+  String? _selectedDivision;
 
-  final List<String> _availableCertifications = [
-    'API 510',
-    'API 570',
-    'API 653',
-    'CWI',
-    'NACE',
-    'ASNT Level II',
-    'ASNT Level III',
+  final List<String> _availableGroups = [
+    'Directors',
+    'Project Managers',
+    'Advanced NDE Technicians',
+    'Senior Technicians',
+    'Junior Technicians',
+    'Assistants',
+    'Account Managers',
+    'Business Development',
+    'Admin / HR',
   ];
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'active':
-        return Colors.green;
-      case 'inactive':
-        return Colors.red;
-      case 'on_leave':
-        return Colors.orange;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _getStatusLabel(String status) {
-    switch (status) {
-      case 'active':
-        return 'Active';
-      case 'inactive':
-        return 'Inactive';
-      case 'on_leave':
-        return 'On Leave';
-      default:
-        return 'Unknown';
-    }
-  }
+  final List<String> _availableDivisions = [
+    'NWP',
+    'MountainWest Pipe',
+    'Cypress',
+    'Atlanta',
+    'Charlottesville',
+    'Princeton',
+    'Southern Star',
+    'Stations',
+    'Boardwalk',
+    'Not Working',
+  ];
 
   @override
   void initState() {
     super.initState();
     _loadEmployees();
+    _checkAdminStatus();
+  }
+
+  void _checkAdminStatus() async {
+    final isAdmin = await _userService.isCurrentUserAdmin();
+    if (mounted) {
+      setState(() {
+        _isAdmin = isAdmin;
+      });
+    }
   }
 
   Future<void> _loadEmployees() async {
     try {
-      final employees = await _companyDirectoryService.getEmployees();
-      setState(() {
-        _employees = employees;
-        _isLoading = false;
+      _employeeService.getEmployees().listen((employees) {
+        setState(() {
+          _employees = employees;
+          _isLoading = false;
+        });
       });
     } catch (e) {
       setState(() => _isLoading = false);
@@ -88,17 +90,15 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
         final employee = CompanyEmployee(
           firstName: _firstNameController.text,
           lastName: _lastNameController.text,
-          position: _positionController.text,
-          department: _departmentController.text,
+          title: _titleController.text,
           email: _emailController.text,
           phone: _phoneController.text,
-          status: _selectedStatus,
-          certifications: _selectedCertifications,
+          group: _selectedGroup,
+          division: _selectedDivision,
         );
 
-        await _companyDirectoryService.addEmployee(employee);
+        await _employeeService.addEmployee(employee);
         _clearForm();
-        _loadEmployees();
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -111,8 +111,7 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
 
   Future<void> _updateEmployee(CompanyEmployee employee) async {
     try {
-      await _companyDirectoryService.updateEmployee(employee);
-      _loadEmployees();
+      await _employeeService.updateEmployee(employee.id!, employee);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -124,8 +123,7 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
 
   Future<void> _deleteEmployee(String id) async {
     try {
-      await _companyDirectoryService.deleteEmployee(id);
-      _loadEmployees();
+      await _employeeService.deleteEmployee(id);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -138,13 +136,12 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
   void _clearForm() {
     _firstNameController.clear();
     _lastNameController.clear();
-    _positionController.clear();
-    _departmentController.clear();
+    _titleController.clear();
     _emailController.clear();
     _phoneController.clear();
     setState(() {
-      _selectedStatus = 'active';
-      _selectedCertifications.clear();
+      _selectedGroup = 'Directors';
+      _selectedDivision = null;
     });
   }
 
@@ -158,92 +155,89 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          controller: _firstNameController,
-                          decoration: const InputDecoration(labelText: 'First Name'),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Please enter first name' : null,
-                        ),
-                        TextFormField(
-                          controller: _lastNameController,
-                          decoration: const InputDecoration(labelText: 'Last Name'),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Please enter last name' : null,
-                        ),
-                        TextFormField(
-                          controller: _positionController,
-                          decoration: const InputDecoration(labelText: 'Position'),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Please enter position' : null,
-                        ),
-                        TextFormField(
-                          controller: _departmentController,
-                          decoration: const InputDecoration(labelText: 'Department'),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Please enter department' : null,
-                        ),
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(labelText: 'Email'),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Please enter email' : null,
-                        ),
-                        TextFormField(
-                          controller: _phoneController,
-                          decoration: const InputDecoration(labelText: 'Phone'),
-                          validator: (value) =>
-                              value?.isEmpty ?? true ? 'Please enter phone' : null,
-                        ),
-                        const SizedBox(height: 16),
-                        DropdownButtonFormField<String>(
-                          value: _selectedStatus,
-                          decoration: const InputDecoration(labelText: 'Status'),
-                          items: const [
-                            DropdownMenuItem(value: 'active', child: Text('Active')),
-                            DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
-                            DropdownMenuItem(value: 'on_leave', child: Text('On Leave')),
-                          ],
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() => _selectedStatus = value);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        Wrap(
-                          spacing: 8,
-                          children: _availableCertifications.map((cert) {
-                            final isSelected = _selectedCertifications.contains(cert);
-                            return FilterChip(
-                              label: Text(cert),
-                              selected: isSelected,
-                              onSelected: (selected) {
-                                setState(() {
-                                  if (selected) {
-                                    _selectedCertifications.add(cert);
-                                  } else {
-                                    _selectedCertifications.remove(cert);
-                                  }
-                                });
-                              },
-                            );
-                          }).toList(),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _addEmployee,
-                          child: const Text('Add Employee'),
-                        ),
-                      ],
+                // Only show add employee form for admins
+                if (_isAdmin) 
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _firstNameController,
+                            decoration: const InputDecoration(labelText: 'First Name'),
+                            validator: (value) =>
+                                value?.isEmpty ?? true ? 'Please enter first name' : null,
+                          ),
+                          TextFormField(
+                            controller: _lastNameController,
+                            decoration: const InputDecoration(labelText: 'Last Name'),
+                            validator: (value) =>
+                                value?.isEmpty ?? true ? 'Please enter last name' : null,
+                          ),
+                          TextFormField(
+                            controller: _titleController,
+                            decoration: const InputDecoration(labelText: 'Title'),
+                            validator: (value) =>
+                                value?.isEmpty ?? true ? 'Please enter title' : null,
+                          ),
+                          TextFormField(
+                            controller: _emailController,
+                            decoration: const InputDecoration(labelText: 'Email'),
+                            validator: (value) =>
+                                value?.isEmpty ?? true ? 'Please enter email' : null,
+                          ),
+                          TextFormField(
+                            controller: _phoneController,
+                            decoration: const InputDecoration(labelText: 'Phone'),
+                            validator: (value) =>
+                                value?.isEmpty ?? true ? 'Please enter phone' : null,
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: _selectedGroup,
+                            decoration: const InputDecoration(labelText: 'Group'),
+                            items: _availableGroups.map((group) {
+                              return DropdownMenuItem(
+                                value: group,
+                                child: Text(group),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() => _selectedGroup = value);
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String?>(
+                            value: _selectedDivision,
+                            decoration: const InputDecoration(labelText: 'Division (Optional)'),
+                            items: [
+                              const DropdownMenuItem<String?>(
+                                value: null,
+                                child: Text('No Division'),
+                              ),
+                              ..._availableDivisions.map((division) {
+                                return DropdownMenuItem<String?>(
+                                  value: division,
+                                  child: Text(division),
+                                );
+                              }),
+                            ],
+                            onChanged: (value) {
+                              setState(() => _selectedDivision = value);
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _addEmployee,
+                            child: const Text('Add Employee'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
                 Expanded(
                   child: ListView.builder(
                     itemCount: _employees.length,
@@ -256,41 +250,15 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(employee.position),
-                              Text(employee.department),
-                              if (employee.certifications.isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Wrap(
-                                  spacing: 4,
-                                  children: employee.certifications.map((cert) {
-                                    return Chip(
-                                      label: Text(cert),
-                                      backgroundColor: _getStatusColor(employee.status).withOpacity(0.1),
-                                      labelStyle: TextStyle(
-                                        color: _getStatusColor(employee.status),
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ],
+                              Text(employee.title),
+                              Text('Group: ${employee.group}'),
+                              if (employee.division != null)
+                                Text('Division: ${employee.division}'),
                             ],
                           ),
-                          trailing: Row(
+                          trailing: _isAdmin ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: _getStatusColor(employee.status).withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  _getStatusLabel(employee.status),
-                                  style: TextStyle(
-                                    color: _getStatusColor(employee.status),
-                                  ),
-                                ),
-                              ),
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 onPressed: () => _showEditDialog(employee),
@@ -300,7 +268,7 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
                                 onPressed: () => _showDeleteDialog(employee),
                               ),
                             ],
-                          ),
+                          ) : null,
                         ),
                       );
                     },
@@ -314,14 +282,12 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
   Future<void> _showEditDialog(CompanyEmployee employee) async {
     _firstNameController.text = employee.firstName;
     _lastNameController.text = employee.lastName;
-    _positionController.text = employee.position;
-    _departmentController.text = employee.department;
+    _titleController.text = employee.title;
     _emailController.text = employee.email;
     _phoneController.text = employee.phone;
     setState(() {
-      _selectedStatus = employee.status;
-      _selectedCertifications.clear();
-      _selectedCertifications.addAll(employee.certifications);
+      _selectedGroup = employee.group;
+      _selectedDivision = employee.division;
     });
 
     final result = await showDialog<bool>(
@@ -346,16 +312,10 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
                     value?.isEmpty ?? true ? 'Please enter last name' : null,
               ),
               TextFormField(
-                controller: _positionController,
-                decoration: const InputDecoration(labelText: 'Position'),
+                controller: _titleController,
+                decoration: const InputDecoration(labelText: 'Title'),
                 validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter position' : null,
-              ),
-              TextFormField(
-                controller: _departmentController,
-                decoration: const InputDecoration(labelText: 'Department'),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter department' : null,
+                    value?.isEmpty ?? true ? 'Please enter title' : null,
               ),
               TextFormField(
                 controller: _emailController,
@@ -371,38 +331,39 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedStatus,
-                decoration: const InputDecoration(labelText: 'Status'),
-                items: const [
-                  DropdownMenuItem(value: 'active', child: Text('Active')),
-                  DropdownMenuItem(value: 'inactive', child: Text('Inactive')),
-                  DropdownMenuItem(value: 'on_leave', child: Text('On Leave')),
-                ],
+                value: _selectedGroup,
+                decoration: const InputDecoration(labelText: 'Group'),
+                items: _availableGroups.map((group) {
+                  return DropdownMenuItem(
+                    value: group,
+                    child: Text(group),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() => _selectedStatus = value);
+                    setState(() => _selectedGroup = value);
                   }
                 },
               ),
               const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                children: _availableCertifications.map((cert) {
-                  final isSelected = _selectedCertifications.contains(cert);
-                  return FilterChip(
-                    label: Text(cert),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) {
-                          _selectedCertifications.add(cert);
-                        } else {
-                          _selectedCertifications.remove(cert);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
+              DropdownButtonFormField<String?>(
+                value: _selectedDivision,
+                decoration: const InputDecoration(labelText: 'Division (Optional)'),
+                items: [
+                  const DropdownMenuItem<String?>(
+                    value: null,
+                    child: Text('No Division'),
+                  ),
+                  ..._availableDivisions.map((division) {
+                    return DropdownMenuItem<String?>(
+                      value: division,
+                      child: Text(division),
+                    );
+                  }),
+                ],
+                onChanged: (value) {
+                  setState(() => _selectedDivision = value);
+                },
               ),
             ],
           ),
@@ -421,15 +382,15 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
     );
 
     if (result == true && _formKey.currentState!.validate()) {
-      final updatedEmployee = employee.copyWith(
+      final updatedEmployee = CompanyEmployee(
+        id: employee.id,
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
-        position: _positionController.text,
-        department: _departmentController.text,
+        title: _titleController.text,
         email: _emailController.text,
         phone: _phoneController.text,
-        status: _selectedStatus,
-        certifications: _selectedCertifications,
+        group: _selectedGroup,
+        division: _selectedDivision,
       );
       await _updateEmployee(updatedEmployee);
     }
@@ -465,10 +426,9 @@ class _CompanyDirectoryState extends State<CompanyDirectory> {
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _positionController.dispose();
-    _departmentController.dispose();
+    _titleController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
-} 
+}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../calculators/abs_es_calculator.dart';
 import '../calculators/pit_depth_calculator.dart';
 import '../calculators/time_clock_calculator.dart';
+import '../calculators/b31g_calculator.dart';
 import '../screens/company_directory.dart';
 import '../theme/app_theme.dart';
 import '../calculators/soc_eoc_calculator.dart';
@@ -212,31 +213,33 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                     children: [
                                       _buildQuickActionItem(
                                         context,
-                                        'Tools',
-                                        Icons.build_rounded,
-                                        AppTheme.primaryBlue,
-                                        () => Navigator.pushNamed(context, '/tools'),
+                                        'Time Clock',
+                                        Icons.access_time_outlined,
+                                        const Color(0xFF673AB7), // Deep Purple
+                                        () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const TimeClockCalculator()),
+                                        ),
                                       ),
                                       _buildQuickActionItem(
                                         context,
-                                        'Reports',
-                                        Icons.bar_chart_rounded,
-                                        AppTheme.accent1,
-                                        () => Navigator.pushNamed(context, '/reports'),
+                                        'Pit Depth',
+                                        Icons.height_outlined,
+                                        const Color(0xFF009688), // Teal
+                                        () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const PitDepthCalculator()),
+                                        ),
                                       ),
                                       _buildQuickActionItem(
                                         context,
-                                        'Field Log',
-                                        Icons.note_alt_rounded,
-                                        AppTheme.accent2,
-                                        () => Navigator.pushNamed(context, '/field_log'),
-                                      ),
-                                      _buildQuickActionItem(
-                                        context,
-                                        'KB',
-                                        Icons.psychology_outlined,
-                                        AppTheme.accent3,
-                                        () => Navigator.pushNamed(context, '/knowledge_base'),
+                                        'B31G',
+                                        Icons.engineering_outlined,
+                                        const Color(0xFF2196F3), // Blue
+                                        () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (context) => const B31GCalculator()),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -253,17 +256,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             const WeatherWidget(),
                             const SizedBox(height: 24),
 
-                            // Daily Stats Card
-                            const DailyStatsCard(),
-                            const SizedBox(height: 24),
-
-                            // News & Updates Section
-                            const NewsUpdatesSection(),
-                            const SizedBox(height: 24),
-
                             // Core Buttons Section
                             Text(
-                              'Essential Tools',
+                              'Essential Resources',
                               style: AppTheme.titleMedium.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.textPrimary,
@@ -272,10 +267,19 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             const SizedBox(height: 16),
                             _buildButton(
                               context,
-                              'New Dig Checklist',
-                              Icons.checklist_rounded,
-                              () => Navigator.pushNamed(context, '/inspection_checklist'),
-                              description: 'Complete pre-dig inspection requirements',
+                              'NDT Procedures & Standards',
+                              Icons.science_rounded,
+                              () => Navigator.pushNamed(context, '/ndt_procedures'),
+                              description: 'Field-ready guidance for NDT inspections and code compliance',
+                            ),
+                            const SizedBox(height: 12),
+                            _buildButton(
+                              context,
+                              'Defect Types & Identification',
+                              Icons.warning_rounded,
+                              () => Navigator.pushNamed(context, '/defect_types'),
+                              backgroundColor: AppTheme.accent3,
+                              description: 'Comprehensive guide to corrosion, dents, hard spots, cracks, and classification',
                             ),
                             const SizedBox(height: 12),
                             _buildButton(
@@ -284,16 +288,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               Icons.calculate_rounded,
                               () => Navigator.pushNamed(context, '/common_formulas'),
                               backgroundColor: AppTheme.accent1,
-                              description: 'Access frequently used NDT calculations',
-                            ),
-                            const SizedBox(height: 12),
-                            _buildButton(
-                              context,
-                              'Company Directory',
-                              Icons.people_alt_rounded,
-                              () => Navigator.pushNamed(context, '/company_directory'),
-                              backgroundColor: AppTheme.accent2,
-                              description: 'Find contact information for team members',
+                              description: 'Quick access to frequently used NDT and pipeline integrity calculations',
                             ),
                           ],
                         ),

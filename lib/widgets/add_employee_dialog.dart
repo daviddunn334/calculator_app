@@ -15,29 +15,38 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _positionController = TextEditingController();
-  final _departmentController = TextEditingController();
+  final _titleController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  String _selectedStatus = 'active';
-  final List<String> _selectedCertifications = [];
+  String? _selectedGroup;
+  String? _selectedDivision;
+  bool _useCustomTitle = false;
 
-  final List<String> _availableCertifications = [
-    'API 510',
-    'API 570',
-    'API 653',
-    'CWI',
-    'NACE',
-    'ASNT Level II',
-    'ASNT Level III',
+  // Employee groups as per requirements
+  final List<String> _employeeGroups = [
+    'Directors',
+    'Project Managers', 
+    'Advanced NDE Technicians',
+    'Senior Technicians',
+    'Junior Technicians',
+    'Assistants',
+    'Account Managers',
+    'Business Development',
+    'Admin / HR',
   ];
 
-  final List<String> _departments = [
-    'Management',
-    'Field Operations',
-    'Office',
-    'Engineering',
-    'Quality Control',
+  // Division options as per requirements  
+  final List<String> _divisions = [
+    'NWP',
+    'MountainWest Pipe',
+    'Cypress', 
+    'Atlanta',
+    'Charlottesville',
+    'Princeton',
+    'Southern Star',
+    'Stations',
+    'Boardwalk',
+    'Not Working',
   ];
 
   @override
@@ -46,12 +55,14 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     if (widget.employee != null) {
       _firstNameController.text = widget.employee!.firstName;
       _lastNameController.text = widget.employee!.lastName;
-      _positionController.text = widget.employee!.position;
-      _departmentController.text = widget.employee!.department;
+      _titleController.text = widget.employee!.title;
       _emailController.text = widget.employee!.email;
       _phoneController.text = widget.employee!.phone;
-      _selectedStatus = widget.employee!.status;
-      _selectedCertifications.addAll(widget.employee!.certifications);
+      _selectedGroup = widget.employee!.group;
+      _selectedDivision = widget.employee!.division;
+      
+      // Check if title matches group name exactly
+      _useCustomTitle = _titleController.text != _selectedGroup;
     }
   }
 
@@ -59,8 +70,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _positionController.dispose();
-    _departmentController.dispose();
+    _titleController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
@@ -129,7 +139,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                         const SizedBox(height: 4),
                         Text(
                           widget.employee == null
-                              ? 'Create a new team member profile'
+                              ? 'Create a new employee profile'
                               : 'Update employee information',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.9),
@@ -190,50 +200,88 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                       _buildSectionHeader('Job Information', Icons.work),
                       const SizedBox(height: 16),
 
-                      _buildTextField(
-                        controller: _positionController,
-                        label: 'Position',
-                        icon: Icons.work_outline,
-                        validator: (value) =>
-                            value?.isEmpty ?? true ? 'Required' : null,
-                      ),
-
-                      const SizedBox(height: 20),
-
+                      // Group Selection
                       _buildDropdownField(
-                        value: _departmentController.text.isEmpty
-                            ? null
-                            : _departmentController.text,
-                        label: 'Department',
-                        icon: Icons.business,
-                        items: _departments,
+                        value: _selectedGroup,
+                        label: 'Employee Group',
+                        icon: Icons.groups,
+                        items: _employeeGroups,
                         onChanged: (value) {
-                          if (value != null) {
-                            _departmentController.text = value;
-                          }
+                          setState(() {
+                            _selectedGroup = value;
+                            if (!_useCustomTitle && value != null) {
+                              _titleController.text = value;
+                            }
+                          });
                         },
+                        validator: (value) => value == null ? 'Please select a group' : null,
                       ),
 
                       const SizedBox(height: 20),
 
-                      _buildDropdownField(
-                        value: _selectedStatus,
-                        label: 'Status',
-                        icon: Icons.work_history,
-                        items: const ['active', 'inactive', 'on_leave'],
-                        itemLabels: const ['Active', 'Inactive', 'On Leave'],
+                      // Title Section
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _useCustomTitle 
+                              ? _buildTextField(
+                                  controller: _titleController,
+                                  label: 'Custom Title',
+                                  icon: Icons.work_outline,
+                                  validator: (value) =>
+                                      value?.isEmpty ?? true ? 'Required' : null,
+                                )
+                              : _buildTextField(
+                                  controller: _titleController,
+                                  label: 'Title',
+                                  icon: Icons.work_outline,
+                                  enabled: false,
+                                ),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 12),
+
+                      CheckboxListTile(
+                        title: const Text('Use custom title'),
+                        subtitle: Text(_useCustomTitle 
+                          ? 'Enter your own title above'
+                          : 'Use selected group as title'),
+                        value: _useCustomTitle,
                         onChanged: (value) {
-                          if (value != null) {
-                            setState(() => _selectedStatus = value);
-                          }
+                          setState(() {
+                            _useCustomTitle = value ?? false;
+                            if (!_useCustomTitle && _selectedGroup != null) {
+                              _titleController.text = _selectedGroup!;
+                            } else if (_useCustomTitle) {
+                              _titleController.clear();
+                            }
+                          });
+                        },
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Division Selection (Optional)
+                      _buildDropdownField(
+                        value: _selectedDivision,
+                        label: 'Division (Optional)', 
+                        icon: Icons.business,
+                        items: _divisions,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedDivision = value;
+                          });
                         },
                       ),
 
                       const SizedBox(height: 32),
 
                       // Contact Information Section
-                      _buildSectionHeader(
-                          'Contact Information', Icons.contact_phone),
+                      _buildSectionHeader('Contact Information', Icons.contact_phone),
                       const SizedBox(height: 16),
 
                       _buildTextField(
@@ -258,84 +306,6 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                         validator: (value) =>
                             value?.isEmpty ?? true ? 'Required' : null,
                       ),
-
-                      const SizedBox(height: 32),
-
-                      // Certifications Section
-                      _buildSectionHeader('Certifications', Icons.verified),
-                      const SizedBox(height: 16),
-
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppTheme.background,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppTheme.divider),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Select applicable certifications:',
-                              style: AppTheme.bodyMedium.copyWith(
-                                color: AppTheme.textSecondary,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: _availableCertifications.map((cert) {
-                                final isSelected =
-                                    _selectedCertifications.contains(cert);
-                                return FilterChip(
-                                  label: Text(cert),
-                                  selected: isSelected,
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      if (selected) {
-                                        _selectedCertifications.add(cert);
-                                      } else {
-                                        _selectedCertifications.remove(cert);
-                                      }
-                                    });
-                                  },
-                                  backgroundColor: Colors.white,
-                                  selectedColor:
-                                      AppTheme.primaryBlue.withOpacity(0.1),
-                                  checkmarkColor: AppTheme.primaryBlue,
-                                  labelStyle: TextStyle(
-                                    color: isSelected
-                                        ? AppTheme.primaryBlue
-                                        : AppTheme.textSecondary,
-                                    fontWeight: isSelected
-                                        ? FontWeight.w600
-                                        : FontWeight.normal,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: BorderSide(
-                                      color: isSelected
-                                          ? AppTheme.primaryBlue
-                                          : AppTheme.divider,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                            if (_selectedCertifications.isEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text(
-                                  'No certifications selected',
-                                  style: AppTheme.bodySmall.copyWith(
-                                    color: AppTheme.textSecondary,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -347,6 +317,9 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: AppTheme.background,
+                border: Border(
+                  top: BorderSide(color: AppTheme.divider, width: 1),
+                ),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
@@ -359,8 +332,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
                       foregroundColor: AppTheme.textSecondary,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
                     child: const Text('Cancel'),
                   ),
@@ -370,8 +342,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryBlue,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -384,9 +355,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                           size: 18,
                         ),
                         const SizedBox(width: 8),
-                        Text(widget.employee == null
-                            ? 'Add Employee'
-                            : 'Save Changes'),
+                        Text(widget.employee == null ? 'Add Employee' : 'Save Changes'),
                       ],
                     ),
                   ),
@@ -432,10 +401,57 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     required IconData icon,
     String? Function(String?)? validator,
     TextInputType? keyboardType,
+    bool enabled = true,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
+      validator: validator,
+      enabled: enabled,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: enabled ? AppTheme.textSecondary : Colors.grey),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.divider),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.divider),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+        filled: true,
+        fillColor: enabled ? Colors.white : Colors.grey.shade50,
+        labelStyle: TextStyle(color: enabled ? AppTheme.textSecondary : Colors.grey),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      style: AppTheme.bodyMedium.copyWith(
+        color: enabled ? AppTheme.textPrimary : Colors.grey,
+      ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String? value,
+    required String label,
+    required IconData icon,
+    required List<String> items,
+    required void Function(String?) onChanged,
+    String? Function(String?)? validator,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
@@ -452,57 +468,15 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red),
-        ),
         filled: true,
         fillColor: Colors.white,
         labelStyle: TextStyle(color: AppTheme.textSecondary),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-      style: AppTheme.bodyMedium,
-    );
-  }
-
-  Widget _buildDropdownField({
-    required String? value,
-    required String label,
-    required IconData icon,
-    required List<String> items,
-    List<String>? itemLabels,
-    required void Function(String?) onChanged,
-  }) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: AppTheme.textSecondary),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.divider),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.divider),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-        labelStyle: TextStyle(color: AppTheme.textSecondary),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       items: items.map((item) {
-        final label =
-            itemLabels != null ? itemLabels[items.indexOf(item)] : item;
         return DropdownMenuItem(
           value: item,
-          child: Text(label),
+          child: Text(item),
         );
       }).toList(),
       onChanged: onChanged,
@@ -516,12 +490,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         id: widget.employee?.id,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        position: _positionController.text.trim(),
-        department: _departmentController.text.trim(),
+        title: _titleController.text.trim(),
+        group: _selectedGroup!,
+        division: _selectedDivision,
         email: _emailController.text.trim(),
         phone: _phoneController.text.trim(),
-        status: _selectedStatus,
-        certifications: _selectedCertifications,
       );
       Navigator.pop(context, employee);
     }
