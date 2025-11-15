@@ -8,6 +8,7 @@ class PersonalLocation {
   final String? subtitle;
   final String coordinates; // Store as "lat,lng" string for easy maps integration
   final String? notes;
+  final String colorHex;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -19,6 +20,7 @@ class PersonalLocation {
     this.subtitle,
     required this.coordinates,
     this.notes,
+    this.colorHex = 'FFB703', // Default to yellow
     DateTime? createdAt,
     this.updatedAt,
   }) : createdAt = createdAt ?? DateTime.now();
@@ -33,6 +35,7 @@ class PersonalLocation {
       subtitle: data['subtitle'],
       coordinates: data['coordinates'] ?? '',
       notes: data['notes'],
+      colorHex: data['colorHex'] ?? 'FFB703',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
     );
@@ -46,6 +49,7 @@ class PersonalLocation {
       'subtitle': subtitle,
       'coordinates': coordinates,
       'notes': notes,
+      'colorHex': colorHex,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -104,6 +108,7 @@ class PersonalLocation {
     String? subtitle,
     String? coordinates,
     String? notes,
+    String? colorHex,
   }) {
     return PersonalLocation(
       id: id,
@@ -113,6 +118,7 @@ class PersonalLocation {
       subtitle: subtitle ?? this.subtitle,
       coordinates: coordinates ?? this.coordinates,
       notes: notes ?? this.notes,
+      colorHex: colorHex ?? this.colorHex,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );

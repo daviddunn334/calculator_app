@@ -11,6 +11,8 @@ import '../models/project.dart';
 import '../models/dig.dart';
 import '../models/personal_folder.dart';
 import '../models/personal_location.dart';
+import '../utils/location_colors.dart';
+import '../widgets/color_picker_widget.dart';
 
 class MapsScreen extends StatefulWidget {
   const MapsScreen({super.key});
@@ -1359,12 +1361,12 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.accent1.withOpacity(0.1),
+                    color: LocationColors.getLightColor(folder.colorHex),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.folder,
-                    color: AppTheme.accent1,
+                    color: LocationColors.getColor(folder.colorHex),
                     size: 24,
                   ),
                 ),
@@ -1495,12 +1497,12 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.accent3.withOpacity(0.1),
+                    color: LocationColors.getLightColor(location.colorHex),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.room,
-                    color: AppTheme.accent3,
+                    color: LocationColors.getColor(location.colorHex),
                     size: 24,
                   ),
                 ),
@@ -2047,73 +2049,86 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
   void _showAddPersonalFolderDialog() {
     final nameController = TextEditingController();
     final descriptionController = TextEditingController();
+    String selectedColor = LocationColors.availableColors.keys.first; // Default to first color
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Personal Folder'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Folder Name',
-                border: OutlineInputBorder(),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Add Personal Folder'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Folder Name',
+                  border: OutlineInputBorder(),
+                ),
               ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              ColorPickerWidget(
+                selectedColorHex: selectedColor,
+                onColorSelected: (color) {
+                  setState(() {
+                    selectedColor = color;
+                  });
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description (Optional)',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
+            ElevatedButton(
+              onPressed: () async {
+                if (nameController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a folder name')),
+                  );
+                  return;
+                }
+
+                try {
+                  final folder = PersonalFolder(
+                    userId: _authService.userId ?? 'unknown',
+                    name: nameController.text.trim(),
+                    description: descriptionController.text.trim().isNotEmpty
+                        ? descriptionController.text.trim()
+                        : null,
+                    colorHex: selectedColor,
+                  );
+
+                  await _personalLocationsService.createFolder(folder);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Personal folder created successfully')),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error creating folder: $e')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Create'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (nameController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a folder name')),
-                );
-                return;
-              }
-
-              try {
-                final folder = PersonalFolder(
-                  userId: _authService.userId ?? 'unknown',
-                  name: nameController.text.trim(),
-                  description: descriptionController.text.trim().isNotEmpty 
-                      ? descriptionController.text.trim() 
-                      : null,
-                );
-
-                await _personalLocationsService.createFolder(folder);
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Personal folder created successfully')),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error creating folder: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('Create'),
-          ),
-        ],
       ),
     );
   }
@@ -2123,105 +2138,118 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     final subtitleController = TextEditingController();
     final coordinatesController = TextEditingController();
     final notesController = TextEditingController();
+    String selectedColor = LocationColors.availableColors.keys.first; // Default to first color
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Personal Location'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Add Personal Location'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: subtitleController,
-                decoration: const InputDecoration(
-                  labelText: 'Subtitle (Optional)',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: subtitleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Subtitle (Optional)',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: coordinatesController,
-                decoration: const InputDecoration(
-                  labelText: 'Coordinates (lat, lng)',
-                  hintText: 'e.g., 31.12345, -88.54321',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: coordinatesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Coordinates (lat, lng)',
+                    hintText: 'e.g., 31.12345, -88.54321',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: notesController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes (Optional)',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: notesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Notes (Optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
                 ),
-                maxLines: 3,
-              ),
-            ],
+                const SizedBox(height: 16),
+                ColorPickerWidget(
+                  selectedColorHex: selectedColor,
+                  onColorSelected: (color) {
+                    setState(() {
+                      selectedColor = color;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (titleController.text.trim().isEmpty ||
+                    coordinatesController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please fill in title and coordinates')),
+                  );
+                  return;
+                }
+
+                if (!_personalLocationsService.isValidCoordinateFormat(coordinatesController.text.trim())) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Invalid coordinate format. Use: lat, lng')),
+                  );
+                  return;
+                }
+
+                try {
+                  final location = PersonalLocation(
+                    userId: _authService.userId ?? 'unknown',
+                    folderId: _selectedPersonalFolder!.id!,
+                    title: titleController.text.trim(),
+                    subtitle: subtitleController.text.trim().isNotEmpty 
+                        ? subtitleController.text.trim() 
+                        : null,
+                    coordinates: coordinatesController.text.trim(),
+                    notes: notesController.text.trim().isNotEmpty 
+                        ? notesController.text.trim() 
+                        : null,
+                    colorHex: selectedColor,
+                  );
+
+                  await _personalLocationsService.createLocation(location);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Personal location created successfully')),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error creating location: $e')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Create'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (titleController.text.trim().isEmpty ||
-                  coordinatesController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please fill in title and coordinates')),
-                );
-                return;
-              }
-
-              if (!_personalLocationsService.isValidCoordinateFormat(coordinatesController.text.trim())) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invalid coordinate format. Use: lat, lng')),
-                );
-                return;
-              }
-
-              try {
-                final location = PersonalLocation(
-                  userId: _authService.userId ?? 'unknown',
-                  folderId: _selectedPersonalFolder!.id!,
-                  title: titleController.text.trim(),
-                  subtitle: subtitleController.text.trim().isNotEmpty 
-                      ? subtitleController.text.trim() 
-                      : null,
-                  coordinates: coordinatesController.text.trim(),
-                  notes: notesController.text.trim().isNotEmpty 
-                      ? notesController.text.trim() 
-                      : null,
-                );
-
-                await _personalLocationsService.createLocation(location);
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Personal location created successfully')),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error creating location: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('Create'),
-          ),
-        ],
       ),
     );
   }
@@ -2618,72 +2646,85 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
   void _showEditPersonalFolderDialog(PersonalFolder folder) {
     final nameController = TextEditingController(text: folder.name);
     final descriptionController = TextEditingController(text: folder.description);
+    String selectedColor = folder.colorHex;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Personal Folder'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Folder Name',
-                border: OutlineInputBorder(),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Personal Folder'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Folder Name',
+                  border: OutlineInputBorder(),
+                ),
               ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              ColorPickerWidget(
+                selectedColorHex: selectedColor,
+                onColorSelected: (color) {
+                  setState(() {
+                    selectedColor = color;
+                  });
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Description (Optional)',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
+            ElevatedButton(
+              onPressed: () async {
+                if (nameController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a folder name')),
+                  );
+                  return;
+                }
+
+                try {
+                  final updatedFolder = folder.copyWith(
+                    name: nameController.text.trim(),
+                    description: descriptionController.text.trim().isNotEmpty 
+                        ? descriptionController.text.trim() 
+                        : null,
+                    colorHex: selectedColor,
+                  );
+
+                  await _personalLocationsService.updateFolder(updatedFolder);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Folder updated successfully')),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error updating folder: $e')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Update'),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (nameController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a folder name')),
-                );
-                return;
-              }
-
-              try {
-                final updatedFolder = folder.copyWith(
-                  name: nameController.text.trim(),
-                  description: descriptionController.text.trim().isNotEmpty 
-                      ? descriptionController.text.trim() 
-                      : null,
-                );
-
-                await _personalLocationsService.updateFolder(updatedFolder);
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Folder updated successfully')),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error updating folder: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('Update'),
-          ),
-        ],
       ),
     );
   }
@@ -2693,103 +2734,117 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     final subtitleController = TextEditingController(text: location.subtitle);
     final coordinatesController = TextEditingController(text: location.coordinates);
     final notesController = TextEditingController(text: location.notes);
+    String selectedColor = location.colorHex;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Personal Location'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Edit Personal Location'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: subtitleController,
-                decoration: const InputDecoration(
-                  labelText: 'Subtitle (Optional)',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: subtitleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Subtitle (Optional)',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: coordinatesController,
-                decoration: const InputDecoration(
-                  labelText: 'Coordinates (lat, lng)',
-                  hintText: 'e.g., 31.12345, -88.54321',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: coordinatesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Coordinates (lat, lng)',
+                    hintText: 'e.g., 31.12345, -88.54321',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: notesController,
-                decoration: const InputDecoration(
-                  labelText: 'Notes (Optional)',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: notesController,
+                  decoration: const InputDecoration(
+                    labelText: 'Notes (Optional)',
+                    border: OutlineInputBorder(),
+                  ),
+                  maxLines: 3,
                 ),
-                maxLines: 3,
-              ),
-            ],
+                const SizedBox(height: 16),
+                ColorPickerWidget(
+                  selectedColorHex: selectedColor,
+                  onColorSelected: (color) {
+                    setState(() {
+                      selectedColor = color;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (titleController.text.trim().isEmpty ||
+                    coordinatesController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please fill in title and coordinates')),
+                  );
+                  return;
+                }
+
+                if (!_personalLocationsService.isValidCoordinateFormat(
+                    coordinatesController.text.trim())) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Invalid coordinate format. Use: lat, lng')),
+                  );
+                  return;
+                }
+
+                try {
+                  final updatedLocation = location.copyWith(
+                    title: titleController.text.trim(),
+                    subtitle: subtitleController.text.trim().isNotEmpty
+                        ? subtitleController.text.trim()
+                        : null,
+                    coordinates: coordinatesController.text.trim(),
+                    notes: notesController.text.trim().isNotEmpty
+                        ? notesController.text.trim()
+                        : null,
+                    colorHex: selectedColor,
+                  );
+
+                  await _personalLocationsService.updateLocation(updatedLocation);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Location updated successfully')),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error updating location: $e')),
+                    );
+                  }
+                }
+              },
+              child: const Text('Update'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (titleController.text.trim().isEmpty ||
-                  coordinatesController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please fill in title and coordinates')),
-                );
-                return;
-              }
-
-              if (!_personalLocationsService.isValidCoordinateFormat(coordinatesController.text.trim())) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invalid coordinate format. Use: lat, lng')),
-                );
-                return;
-              }
-
-              try {
-                final updatedLocation = location.copyWith(
-                  title: titleController.text.trim(),
-                  subtitle: subtitleController.text.trim().isNotEmpty 
-                      ? subtitleController.text.trim() 
-                      : null,
-                  coordinates: coordinatesController.text.trim(),
-                  notes: notesController.text.trim().isNotEmpty 
-                      ? notesController.text.trim() 
-                      : null,
-                );
-
-                await _personalLocationsService.updateLocation(updatedLocation);
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Location updated successfully')),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error updating location: $e')),
-                  );
-                }
-              }
-            },
-            child: const Text('Update'),
-          ),
-        ],
       ),
     );
   }

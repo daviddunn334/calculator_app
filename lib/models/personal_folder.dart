@@ -5,6 +5,7 @@ class PersonalFolder {
   final String userId;
   final String name;
   final String? description;
+  final String colorHex;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -13,6 +14,7 @@ class PersonalFolder {
     required this.userId,
     required this.name,
     this.description,
+    this.colorHex = '3366FF', // Default to primary blue
     DateTime? createdAt,
     this.updatedAt,
   }) : createdAt = createdAt ?? DateTime.now();
@@ -24,6 +26,7 @@ class PersonalFolder {
       userId: data['userId'] ?? '',
       name: data['name'] ?? '',
       description: data['description'],
+      colorHex: data['colorHex'] ?? '3366FF',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
     );
@@ -34,6 +37,7 @@ class PersonalFolder {
       'userId': userId,
       'name': name,
       'description': description,
+      'colorHex': colorHex,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -42,12 +46,14 @@ class PersonalFolder {
   PersonalFolder copyWith({
     String? name,
     String? description,
+    String? colorHex,
   }) {
     return PersonalFolder(
       id: id,
       userId: userId,
       name: name ?? this.name,
       description: description ?? this.description,
+      colorHex: colorHex ?? this.colorHex,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
