@@ -28,6 +28,6 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_INTEGRITY_TOOLS }}'
           projectId: integrity-tools
-          channelId: ${{ github.ref == 'refs/heads/main' && 'live' || 'preview' }}  # Use 'preview' channel for non-main branches 
+          channelId: ${{ github.ref == 'refs/heads/main' && 'live' || 'preview' }}  # Use 'preview' channel for non-main branches
