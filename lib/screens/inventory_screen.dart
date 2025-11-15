@@ -11,14 +11,19 @@ class InventoryScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(AppTheme.paddingLarge),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppTheme.paddingLarge,
+              vertical: AppTheme.paddingMedium,
+            ),
+            margin: const EdgeInsets.all(AppTheme.paddingLarge),
             decoration: BoxDecoration(
               color: Colors.white,
+              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -27,28 +32,47 @@ class InventoryScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(AppTheme.paddingMedium),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    gradient: LinearGradient(
+                      colors: [
+                        AppTheme.primaryBlue,
+                        AppTheme.primaryBlue.withOpacity(0.8),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
                   child: const Icon(
-                    Icons.inventory_2,
-                    size: 40,
-                    color: AppTheme.primaryBlue,
+                    Icons.inventory_2_rounded,
+                    size: 32,
+                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: AppTheme.paddingLarge),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Inventory Tracker',
-                        style: AppTheme.headlineMedium,
+                        style: AppTheme.titleLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Manage NDT equipment and supplies',
-                        style: AppTheme.bodyMedium,
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -281,4 +305,4 @@ enum InventoryStatus {
   final String label;
 
   const InventoryStatus(this.color, this.label);
-} 
+}

@@ -201,20 +201,6 @@ class AdminDrawer extends StatelessWidget {
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
                 ),
-                _buildMenuItem(
-                  context,
-                  'Settings',
-                  Icons.settings_outlined,
-                  Icons.settings,
-                  -1,
-                  isLargeScreen,
-                  onTap: () {
-                    if (!isLargeScreen) {
-                      Navigator.pop(context);
-                    }
-                    // TODO: Navigate to Admin Settings screen
-                  },
-                ),
               ],
             ),
           ),

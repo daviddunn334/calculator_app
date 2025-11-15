@@ -195,40 +195,6 @@ class AppDrawer extends StatelessWidget {
                   isLargeScreen,
                 ),
                 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Divider(height: 1),
-                ),
-                
-                _buildMenuItem(
-                  context,
-                  'Settings',
-                  Icons.settings_outlined,
-                  Icons.settings,
-                  -1,
-                  isLargeScreen,
-                  onTap: () {
-                    if (!isLargeScreen) {
-                      Navigator.pop(context);
-                    }
-                    // TODO: Navigate to Settings screen
-                  },
-                ),
-                _buildMenuItem(
-                  context,
-                  'Help & Support',
-                  Icons.help_outline,
-                  Icons.help,
-                  -1,
-                  isLargeScreen,
-                  onTap: () {
-                    if (!isLargeScreen) {
-                      Navigator.pop(context);
-                    }
-                    // TODO: Navigate to Help & Support screen
-                  },
-                ),
-                
                 // Admin Dashboard - Only show for admin users
                 StreamBuilder<bool>(
                   stream: UserService().isCurrentUserAdminStream(),

@@ -263,64 +263,6 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                                 ),
                               ),
                             
-                            // Search bar with offline indicator
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Container(
-                                    margin: const EdgeInsets.only(bottom: 24),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.05),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: TextField(
-                                      decoration: InputDecoration(
-                                        hintText: 'Search tools...',
-                                        hintStyle: TextStyle(color: AppTheme.textSecondary),
-                                        prefixIcon: Icon(Icons.search, color: AppTheme.textSecondary),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                          borderSide: BorderSide.none,
-                                        ),
-                                        contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                                        filled: true,
-                                        fillColor: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                if (!_isOnline)
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8, bottom: 24),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withOpacity(0.05),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 2),
-                                          ),
-                                        ],
-                                      ),
-                                      child: const OfflineIndicator(
-                                        compact: true,
-                                        backgroundColor: Colors.orange,
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            
                             // Tools grid
                             Expanded(
                               child: GridView.builder(
