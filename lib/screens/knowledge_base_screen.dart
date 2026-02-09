@@ -17,12 +17,15 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> with SingleTi
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   
+  // Bluer navy for knowledge base cards
+  static const Color _bluerNavy = Color(0xFF2a4a8c);
+  
   final List<Map<String, dynamic>> _knowledgeArticles = [
     {
       'title': 'Common Formulas',
       'summary': 'Quick access to frequently used NDT and pipeline integrity calculations...',
       'icon': Icons.calculate,
-      'color': AppTheme.primaryBlue,
+      'color': _bluerNavy,
       'tags': ['Calculations', 'Reference', 'Formulas'],
       'route': '/common_formulas',
     },
@@ -30,7 +33,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> with SingleTi
       'title': 'Field Safety and Compliance',
       'summary': 'Safety guidelines and compliance requirements for field operations',
       'icon': Icons.safety_check,
-      'color': AppTheme.accent1, // Yellow
+      'color': _bluerNavy,
       'tags': ['Safety', 'Compliance', 'Guidelines'],
       'route': '/field_safety',
     },
@@ -38,7 +41,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> with SingleTi
       'title': 'NDT Procedures & Standards',
       'summary': 'Field-ready guidance for NDT inspections and code compliance',
       'icon': Icons.science,
-      'color': AppTheme.accent4, // Pink
+      'color': _bluerNavy,
       'tags': ['Procedures', 'Standards', 'Inspections'],
       'route': '/ndt_procedures',
     },
@@ -46,7 +49,7 @@ class _KnowledgeBaseScreenState extends State<KnowledgeBaseScreen> with SingleTi
       'title': 'Defect Types & Identification',
       'summary': 'Comprehensive guide to corrosion, dents, hard spots, cracks, and their classification...',
       'icon': Icons.warning,
-      'color': AppTheme.accent3, // Salmon
+      'color': _bluerNavy,
       'tags': ['Defects', 'Identification', 'Classification'],
       'route': '/defect_types',
     },

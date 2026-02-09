@@ -18,22 +18,18 @@ class FieldLogEntryDialog extends StatefulWidget {
 
 class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _projectNameController;
-  late TextEditingController _milesController;
-  late TextEditingController _hoursController;
-  final List<MethodHours> _methodHours = [];
+  late TextEditingController _locationController;
+  late TextEditingController _supervisingTechnicianController;
   final List<TextEditingController> _methodHoursControllers = [];
   final List<InspectionMethod> _selectedMethods = [];
 
   @override
   void initState() {
     super.initState();
-    _projectNameController = TextEditingController(text: widget.existingEntry?.projectName ?? '');
-    _milesController = TextEditingController(text: widget.existingEntry?.miles.toString() ?? '');
-    _hoursController = TextEditingController(text: widget.existingEntry?.hours.toString() ?? '');
+    _locationController = TextEditingController(text: widget.existingEntry?.location ?? '');
+    _supervisingTechnicianController = TextEditingController(text: widget.existingEntry?.supervisingTechnician ?? '');
     
     if (widget.existingEntry != null) {
-      _methodHours.addAll(widget.existingEntry!.methodHours);
       for (var mh in widget.existingEntry!.methodHours) {
         _methodHoursControllers.add(TextEditingController(text: mh.hours.toString()));
         _selectedMethods.add(mh.method);
@@ -43,9 +39,8 @@ class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
 
   @override
   void dispose() {
-    _projectNameController.dispose();
-    _milesController.dispose();
-    _hoursController.dispose();
+    _locationController.dispose();
+    _supervisingTechnicianController.dispose();
     for (var controller in _methodHoursControllers) {
       controller.dispose();
     }
@@ -53,6 +48,13 @@ class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
   }
 
   void _addMethodHours() {
+    if (_methodHoursControllers.length >= 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Maximum 4 methods allowed')),
+      );
+      return;
+    }
+    
     setState(() {
       _methodHoursControllers.add(TextEditingController());
       _selectedMethods.add(InspectionMethod.mt);
@@ -67,11 +69,22 @@ class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
     });
   }
 
+  double _calculateTotalHours() {
+    double total = 0;
+    for (var controller in _methodHoursControllers) {
+      final value = double.tryParse(controller.text);
+      if (value != null) {
+        total += value;
+      }
+    }
+    return total;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        widget.existingEntry != null ? 'Edit Entry' : 'Add Entry',
+        'Add Entry',
         style: AppTheme.titleLarge,
       ),
       content: SingleChildScrollView(
@@ -79,60 +92,53 @@ class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
-                controller: _projectNameController,
+                controller: _locationController,
                 decoration: const InputDecoration(
-                  labelText: 'Project Name',
+                  labelText: 'Location',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a project name';
+                    return 'Please enter a location';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               TextFormField(
-                controller: _milesController,
+                controller: _supervisingTechnicianController,
                 decoration: const InputDecoration(
-                  labelText: 'Miles',
+                  labelText: 'Supervising Technician',
                 ),
-                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter miles';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
+                    return 'Please enter supervising technician';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _hoursController,
-                decoration: const InputDecoration(
-                  labelText: 'Hours Worked',
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter hours';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Method Hours',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Method Hours',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Total: ${_calculateTotalHours().toStringAsFixed(1)} hrs',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: _calculateTotalHours() > 10 ? Colors.red : AppTheme.textSecondary,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               ...List.generate(_methodHoursControllers.length, (index) {
@@ -141,27 +147,13 @@ class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: TextFormField(
-                          controller: _methodHoursControllers[index],
-                          decoration: const InputDecoration(
-                            labelText: 'Hours',
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Required';
-                            }
-                            if (double.tryParse(value) == null) {
-                              return 'Invalid';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
+                        flex: 2,
                         child: DropdownButtonFormField<InspectionMethod>(
                           value: _selectedMethods[index],
+                          decoration: const InputDecoration(
+                            labelText: 'Method',
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
                           items: InspectionMethod.values.map((method) {
                             return DropdownMenuItem(
                               value: method,
@@ -177,19 +169,52 @@ class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
                           },
                         ),
                       ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _methodHoursControllers[index],
+                          decoration: const InputDecoration(
+                            labelText: 'Hours',
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (_) => setState(() {}), // Update total
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Required';
+                            }
+                            if (double.tryParse(value) == null) {
+                              return 'Invalid';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
                       IconButton(
-                        icon: const Icon(Icons.remove_circle),
+                        icon: const Icon(Icons.remove_circle, color: Colors.red),
                         onPressed: () => _removeMethodHours(index),
                       ),
                     ],
                   ),
                 );
               }),
-              TextButton.icon(
-                onPressed: _addMethodHours,
-                icon: const Icon(Icons.add),
-                label: const Text('Add Method Hours'),
-              ),
+              if (_methodHoursControllers.length < 4)
+                TextButton.icon(
+                  onPressed: _addMethodHours,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Method Hours'),
+                ),
+              if (_methodHoursControllers.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    'Add at least one method hour entry',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -202,6 +227,21 @@ class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState!.validate()) {
+              if (_methodHoursControllers.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please add at least one method hour entry')),
+                );
+                return;
+              }
+
+              final totalHours = _calculateTotalHours();
+              if (totalHours > 10) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Total hours cannot exceed 10')),
+                );
+                return;
+              }
+
               final methodHours = List.generate(
                 _methodHoursControllers.length,
                 (index) => MethodHours(
@@ -214,9 +254,8 @@ class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
                 id: widget.existingEntry?.id ?? '',
                 userId: widget.existingEntry?.userId ?? '',
                 date: widget.date,
-                projectName: _projectNameController.text,
-                miles: double.parse(_milesController.text),
-                hours: double.parse(_hoursController.text),
+                location: _locationController.text,
+                supervisingTechnician: _supervisingTechnicianController.text,
                 methodHours: methodHours,
                 createdAt: widget.existingEntry?.createdAt ?? DateTime.now(),
                 updatedAt: DateTime.now(),
@@ -225,9 +264,9 @@ class _FieldLogEntryDialogState extends State<FieldLogEntryDialog> {
               Navigator.of(context).pop(entry);
             }
           },
-          child: Text(widget.existingEntry != null ? 'Update' : 'Add'),
+          child: const Text('Save'),
         ),
       ],
     );
   }
-} 
+}

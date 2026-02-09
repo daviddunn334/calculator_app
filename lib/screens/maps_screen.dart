@@ -349,6 +349,8 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -1285,11 +1287,15 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                         color: AppTheme.textSecondary,
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        'Coordinates: ${dig.coordinates}',
-                        style: AppTheme.bodyMedium.copyWith(
-                          color: AppTheme.textPrimary,
-                          fontFamily: 'monospace',
+                      Expanded(
+                        child: Text(
+                          'Coordinates: ${dig.coordinates}',
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: AppTheme.textPrimary,
+                            fontFamily: 'monospace',
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -1615,11 +1621,15 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                         color: AppTheme.textSecondary,
                       ),
                       const SizedBox(width: 8),
-                      Text(
-                        'Coordinates: ${location.coordinates}',
-                        style: AppTheme.bodyMedium.copyWith(
-                          color: AppTheme.textPrimary,
-                          fontFamily: 'monospace',
+                      Expanded(
+                        child: Text(
+                          'Coordinates: ${location.coordinates}',
+                          style: AppTheme.bodyMedium.copyWith(
+                            color: AppTheme.textPrimary,
+                            fontFamily: 'monospace',
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],

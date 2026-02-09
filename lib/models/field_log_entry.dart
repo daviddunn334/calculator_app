@@ -3,9 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 enum InspectionMethod {
   mt,
   pt,
-  rt,
+  et,
   ut,
   vt,
+  lm,
+  paut,
 }
 
 class MethodHours {
@@ -39,9 +41,8 @@ class FieldLogEntry {
   final String id;
   final String userId;
   final DateTime date;
-  final String projectName;
-  final double miles;
-  final double hours;
+  final String location;
+  final String supervisingTechnician;
   final List<MethodHours> methodHours;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -50,9 +51,8 @@ class FieldLogEntry {
     required this.id,
     required this.userId,
     required this.date,
-    required this.projectName,
-    required this.miles,
-    required this.hours,
+    required this.location,
+    required this.supervisingTechnician,
     required this.methodHours,
     required this.createdAt,
     required this.updatedAt,
@@ -67,9 +67,8 @@ class FieldLogEntry {
       id: doc.id,
       userId: data['userId'] ?? '',
       date: utcDate,
-      projectName: data['projectName'] ?? '',
-      miles: (data['miles'] ?? 0).toDouble(),
-      hours: (data['hours'] ?? 0).toDouble(),
+      location: data['location'] ?? '',
+      supervisingTechnician: data['supervisingTechnician'] ?? '',
       methodHours: (data['methodHours'] as List<dynamic>?)
               ?.map((e) => MethodHours.fromFirestore(e as Map<String, dynamic>))
               .toList() ??
@@ -83,9 +82,8 @@ class FieldLogEntry {
     return {
       'userId': userId,
       'date': Timestamp.fromDate(date),
-      'projectName': projectName,
-      'miles': miles,
-      'hours': hours,
+      'location': location,
+      'supervisingTechnician': supervisingTechnician,
       'methodHours': methodHours.map((mh) => mh.toFirestore()).toList(),
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
