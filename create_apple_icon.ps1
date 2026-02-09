@@ -6,9 +6,8 @@ $graphics = [System.Drawing.Graphics]::FromImage($canvas)
 $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
 $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
 
-# Background color
-$brush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(27, 50, 91))
-$graphics.FillRectangle($brush, 0, 0, 180, 180)
+# Keep transparent background
+$graphics.Clear([System.Drawing.Color]::Transparent)
 
 # Logo at 85%
 $logoSize = [int](180 * 0.85)
@@ -18,7 +17,6 @@ $graphics.DrawImage($source, $offset, $offset, $logoSize, $logoSize)
 $canvas.Save("web\icons\apple-touch-icon.png", [System.Drawing.Imaging.ImageFormat]::Png)
 $graphics.Dispose()
 $canvas.Dispose()
-$brush.Dispose()
 $source.Dispose()
 
 Write-Output "Created apple-touch-icon.png (180x180 with 85% logo for iOS)"

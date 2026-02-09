@@ -17,9 +17,8 @@ function Create-RegularIcon {
     $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
     $graphics.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
     
-    # Fill with background color
-    $brush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(27, 50, 91))
-    $graphics.FillRectangle($brush, 0, 0, $size, $size)
+    # Keep transparent background - no fill
+    $graphics.Clear([System.Drawing.Color]::Transparent)
     
     # Logo fills 100% - no padding
     $graphics.DrawImage($source, 0, 0, $size, $size)
@@ -27,9 +26,8 @@ function Create-RegularIcon {
     $canvas.Save($outputPath, [System.Drawing.Imaging.ImageFormat]::Png)
     $graphics.Dispose()
     $canvas.Dispose()
-    $brush.Dispose()
     
-    Write-Output "Created $outputPath (100% logo size)"
+    Write-Output "Created $outputPath (100% logo size, transparent background)"
 }
 
 # Function to create MASKABLE icons with LARGER logo (85% instead of typical 60%)
@@ -42,9 +40,8 @@ function Create-MaskableIcon {
     $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
     $graphics.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
     
-    # Fill with background color (navy blue)
-    $brush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(27, 50, 91))
-    $graphics.FillRectangle($brush, 0, 0, $size, $size)
+    # Keep transparent background
+    $graphics.Clear([System.Drawing.Color]::Transparent)
     
     # Logo takes up 85% of canvas (minimal safe zone padding)
     # Standard safe zone is 80% max, but 85% is still safe for most platforms
@@ -56,9 +53,8 @@ function Create-MaskableIcon {
     $canvas.Save($outputPath, [System.Drawing.Imaging.ImageFormat]::Png)
     $graphics.Dispose()
     $canvas.Dispose()
-    $brush.Dispose()
     
-    Write-Output "Created $outputPath (85% logo size with safe zone)"
+    Write-Output "Created $outputPath (85% logo size with safe zone, transparent background)"
 }
 
 # Create regular icons (100% logo fill)
