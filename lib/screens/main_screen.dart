@@ -97,19 +97,16 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: AppTheme.textSecondary),
-            onPressed: () {
-              // TODO: Implement search functionality
-            },
+          // Company Logo
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Image.asset(
+              'assets/logos/logo_main.png',
+              width: 40,
+              height: 40,
+              fit: BoxFit.contain,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: AppTheme.textSecondary),
-            onPressed: () {
-              // TODO: Implement notifications
-            },
-          ),
-          const SizedBox(width: 8),
         ],
       ),
       drawer: !isLargeScreen
