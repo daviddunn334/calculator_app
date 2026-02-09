@@ -102,7 +102,10 @@ class AuthGate extends StatelessWidget {
             // Show loading indicator while checking auth state
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
+                backgroundColor: AppTheme.background,
+                body: Center(
+                  child: LoadingLogo(),
+                ),
               );
             }
 
@@ -165,6 +168,59 @@ class OfflineMainScreen extends StatelessWidget {
             child: ToolsScreen(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Loading screen with pulsing company logo
+class LoadingLogo extends StatefulWidget {
+  const LoadingLogo({super.key});
+
+  @override
+  State<LoadingLogo> createState() => _LoadingLogoState();
+}
+
+class _LoadingLogoState extends State<LoadingLogo> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+    
+    _animation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _animation.value,
+          child: child,
+        );
+      },
+      child: SizedBox(
+        width: 250,
+        height: 250,
+        child: Image.asset(
+          'assets/logos/logo_main.png',
+          fit: BoxFit.contain,
+        ),
       ),
     );
   }

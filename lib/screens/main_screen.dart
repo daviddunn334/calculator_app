@@ -97,14 +97,19 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           ),
         ),
         actions: [
-          // Company Logo
+          // Company Text Logo
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Image.asset(
-              'assets/logos/logo_main.png',
-              width: 40,
-              height: 40,
-              fit: BoxFit.contain,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                AppTheme.primaryNavy,
+                BlendMode.srcIn,
+              ),
+              child: Image.asset(
+                'assets/logos/logo_text_final.png',
+                height: 24,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
         ],
