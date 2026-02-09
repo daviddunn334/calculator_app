@@ -197,19 +197,9 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                             Column(
                               children: [
                                 // Company Logo
-                                Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppTheme.primaryNavy.withOpacity(0.15),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
+                                SizedBox(
+                                  width: 250,
+                                  height: 250,
                                   child: Image.asset(
                                     'assets/logos/logo_main.png',
                                     fit: BoxFit.contain,
