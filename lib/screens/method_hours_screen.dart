@@ -68,15 +68,18 @@ class _MethodHoursScreenState extends State<MethodHoursScreen> with SingleTicker
 
     try {
       DateTime startDate;
+      DateTime endDate;
+      
       if (_showAllTime) {
-        // Load all entries (from beginning of time)
+        // Load all entries (from beginning of time to end of next year)
         startDate = DateTime(2020, 1, 1);
+        endDate = DateTime(DateTime.now().year + 1, 12, 31);
       } else {
-        // Load current year only
+        // Load current year only (whole year including future dates)
         startDate = DateTime(DateTime.now().year, 1, 1);
+        endDate = DateTime(DateTime.now().year, 12, 31);
       }
       
-      final endDate = DateTime.now();
       final entries = await _service.getEntriesForDateRange(startDate, endDate, forceServerFetch: forceServerFetch);
       
       setState(() {
