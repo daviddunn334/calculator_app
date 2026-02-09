@@ -8,7 +8,7 @@ import 'knowledge_base_screen.dart';
 import 'maps_screen.dart';
 import 'inventory_screen.dart';
 import 'company_directory_screen.dart';
-import 'field_log_screen.dart';
+import 'method_hours_screen.dart';
 import 'news_updates_screen.dart';
 import '../widgets/app_drawer.dart';
 import 'pdf_to_excel_screen.dart';
@@ -30,7 +30,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     const HomeScreen(),
     const ToolsScreen(),
     const MapsScreen(),
-    const FieldLogScreen(),
+    const MethodHoursScreen(),
     const KnowledgeBaseScreen(),
     const ProfileScreen(),
     const InventoryScreen(),
