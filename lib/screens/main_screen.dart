@@ -236,7 +236,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       case 2:
         return 'Maps';
       case 3:
-        return 'Field Log';
+        return 'Method Hours';
       case 4:
         return 'KB';
       case 5:

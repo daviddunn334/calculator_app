@@ -96,7 +96,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 _buildMenuItem(
                   context,
-                  'Field Log',
+                  'Method Hours',
                   Icons.note_alt_outlined,
                   Icons.note_alt,
                   3,

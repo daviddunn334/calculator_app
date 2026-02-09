@@ -19,10 +19,10 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  List<FieldLogEntry> _entries = [];
-  List<FieldLogEntry> _recentEntries = [];
+  List<FieldLogEntry> _allEntries = [];
   bool _isLoading = false;
   Set<DateTime> _daysWithEntries = {};
+  bool _showAllTime = true; // Toggle between All Time and Current Year
   
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -32,8 +32,7 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
   void initState() {
     super.initState();
     _selectedDay = DateTime.now();
-    _loadEntries();
-    _loadRecentEntries();
+    _loadAllEntries();
     
     _animationController = AnimationController(
       vsync: this,
@@ -62,37 +61,32 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
     super.dispose();
   }
 
-  Future<void> _loadRecentEntries() async {
+  Future<void> _loadAllEntries() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final endDate = DateTime.now();
-      final startDate = endDate.subtract(const Duration(days: 14));
+      DateTime startDate;
+      if (_showAllTime) {
+        // Load all entries (from beginning of time)
+        startDate = DateTime(2020, 1, 1);
+      } else {
+        // Load current year only
+        startDate = DateTime(DateTime.now().year, 1, 1);
+      }
       
+      final endDate = DateTime.now();
       final entries = await _service.getEntriesForDateRange(startDate, endDate);
+      
       setState(() {
-        _recentEntries = entries;
+        _allEntries = entries;
         // Update days with entries for calendar highlighting
         _daysWithEntries = entries.map((e) => DateTime(
           e.localDate.year,
           e.localDate.month,
           e.localDate.day,
         )).toSet();
-      });
-    } catch (e) {
-      print('Error loading recent entries: $e');
-    }
-  }
-
-  Future<void> _loadEntries() async {
-    if (_selectedDay == null) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final entries = await _service.getEntriesForDate(_selectedDay!);
-      setState(() {
-        _entries = entries;
         _isLoading = false;
       });
     } catch (e) {
@@ -100,12 +94,25 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
       setState(() {
         _isLoading = false;
       });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading entries: $e')),
-        );
+    }
+  }
+
+  Map<InspectionMethod, double> _calculateMethodTotals() {
+    final totals = <InspectionMethod, double>{};
+    
+    // Initialize all methods with 0
+    for (var method in InspectionMethod.values) {
+      totals[method] = 0;
+    }
+    
+    // Sum up hours per method
+    for (var entry in _allEntries) {
+      for (var mh in entry.methodHours) {
+        totals[mh.method] = (totals[mh.method] ?? 0) + mh.hours;
       }
     }
+    
+    return totals;
   }
 
   Future<void> _addOrUpdateEntry(DateTime date) async {
@@ -137,29 +144,105 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
           id: result.id,
           userId: user.uid,
           date: result.date,
-          projectName: result.projectName,
-          miles: result.miles,
-          hours: result.hours,
+          location: result.location,
+          supervisingTechnician: result.supervisingTechnician,
           methodHours: result.methodHours,
           createdAt: result.createdAt,
           updatedAt: result.updatedAt,
         );
 
-        await _service.addEntry(entry);
-        await _loadEntries();
-        await _loadRecentEntries(); // Reload recent entries to update calendar
+        if (existingEntry != null) {
+          await _service.updateEntry(entry);
+        } else {
+          await _service.addEntry(entry);
+        }
+        
+        await _loadAllEntries(); // Reload all entries
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error adding entry: $e')),
+            SnackBar(content: Text('Error saving entry: $e')),
           );
         }
       }
     }
   }
 
+  Future<void> _deleteEntry(FieldLogEntry entry) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Entry'),
+        content: const Text('Are you sure you want to delete this entry?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirm == true) {
+      await _service.deleteEntry(entry.id);
+      await _loadAllEntries();
+    }
+  }
+
+  Future<void> _exportToExcel() async {
+    try {
+      // Show year picker dialog
+      final year = await showDialog<int>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Select Year'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Current Year'),
+                onTap: () => Navigator.pop(context, DateTime.now().year),
+              ),
+              ListTile(
+                title: const Text('Last Year'),
+                onTap: () => Navigator.pop(context, DateTime.now().year - 1),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (year != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Generating Excel file...')),
+        );
+        
+        await _service.exportToExcel(year);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Excel file generated successfully!')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error exporting: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final methodTotals = _calculateMethodTotals();
+    
     return Scaffold(
       backgroundColor: AppTheme.background,
       body: Stack(
@@ -197,9 +280,9 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
               children: [
                 if (MediaQuery.of(context).size.width >= 1200)
                   const AppHeader(
-                    title: 'Field Log',
-                    subtitle: 'Track your daily work hours and mileage',
-                    icon: Icons.note_alt,
+                    title: 'Method Hours',
+                    subtitle: 'Track your daily inspection method hours',
+                    icon: Icons.engineering,
                   ),
                 Expanded(
                   child: FadeTransition(
@@ -254,7 +337,7 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
                                           ],
                                         ),
                                         child: const Icon(
-                                          Icons.note_alt_rounded,
+                                          Icons.engineering_rounded,
                                           size: 32,
                                           color: Colors.white,
                                         ),
@@ -265,7 +348,7 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Field Log',
+                                              'Method Hours',
                                               style: AppTheme.titleLarge.copyWith(
                                                 fontWeight: FontWeight.bold,
                                                 color: AppTheme.textPrimary,
@@ -273,7 +356,7 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              'Track your daily work hours and mileage',
+                                              'Track your daily inspection method hours',
                                               style: AppTheme.bodyMedium.copyWith(
                                                 color: AppTheme.textSecondary,
                                               ),
@@ -427,48 +510,9 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
                               ),
                               const SizedBox(height: 24),
                               
-                              // Recent entries section
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Recent Entries',
-                                    style: AppTheme.titleMedium.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.textPrimary,
-                                    ),
-                                  ),
-                                  TextButton.icon(
-                                    onPressed: () {
-                                      // TODO: Navigate to all entries view
-                                    },
-                                    icon: const Icon(Icons.visibility_outlined, size: 18),
-                                    label: const Text('View All'),
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: AppTheme.primaryBlue,
-                                      padding: EdgeInsets.zero,
-                                      visualDensity: VisualDensity.compact,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
+                              // Stats Card
+                              _buildStatsCard(methodTotals),
                               
-                              // Entries list
-                              _isLoading
-                                  ? _buildLoadingState()
-                                  : _recentEntries.isEmpty
-                                      ? _buildEmptyState()
-                                      : ListView.builder(
-                                          shrinkWrap: true,
-                                          physics: const NeverScrollableScrollPhysics(),
-                                          itemCount: _recentEntries.length,
-                                          itemBuilder: (context, index) {
-                                            final entry = _recentEntries[index];
-                                            return _buildEntryCard(entry, index);
-                                          },
-                                        ),
-                              // Add some bottom padding for better spacing with FAB
                               const SizedBox(height: 80),
                             ],
                           ),
@@ -525,320 +569,159 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
     );
   }
 
-  Widget _buildEntryCard(FieldLogEntry entry, int index) {
-    final date = entry.localDate;
-    final formattedDate = '${date.month}/${date.day}/${date.year}';
-    
-    // Calculate total method hours
-    double totalMethodHours = 0;
-    for (var mh in entry.methodHours) {
-      totalMethodHours += mh.hours;
-    }
-    
+  Widget _buildStatsCard(Map<InspectionMethod, double> methodTotals) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        ),
-        child: InkWell(
-          onTap: () {
-            _addOrUpdateEntry(entry.localDate);
-          },
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          child: Padding(
-            padding: const EdgeInsets.all(AppTheme.paddingLarge),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            entry.projectName,
-                            style: AppTheme.titleMedium.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.calendar_today_outlined,
-                                size: 14,
-                                color: AppTheme.textSecondary,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                formattedDate,
-                                style: AppTheme.bodyMedium.copyWith(
-                                  color: AppTheme.textSecondary,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.edit_outlined,
-                            color: AppTheme.textSecondary,
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            _addOrUpdateEntry(entry.localDate);
-                          },
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.delete_outline,
-                            color: Colors.red.shade400,
-                            size: 20,
-                          ),
-                          onPressed: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Delete Entry'),
-                                content: const Text('Are you sure you want to delete this entry?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context, false),
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context, true),
-                                    child: const Text('Delete'),
-                                  ),
-                                ],
-                              ),
-                            );
-                            
-                            if (confirm == true) {
-                              await _service.deleteEntry(entry.id);
-                              await _loadEntries();
-                              await _loadRecentEntries();
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
+      padding: const EdgeInsets.all(AppTheme.paddingLarge),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Method Hours Summary',
+                style: AppTheme.titleMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildMetricCard(
-                        'Miles',
-                        entry.miles.toString(),
-                        Icons.directions_car_outlined,
-                        AppTheme.primaryBlue,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildMetricCard(
-                        'Hours',
-                        entry.hours.toString(),
-                        Icons.access_time_outlined,
-                        AppTheme.accent1,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildMetricCard(
-                        'Method Hours',
-                        totalMethodHours.toString(),
-                        Icons.engineering_outlined,
-                        AppTheme.accent2,
-                      ),
-                    ),
-                  ],
-                ),
-                if (entry.methodHours.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Method Hours Breakdown',
-                    style: AppTheme.bodyMedium.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: entry.methodHours.map((mh) => _buildMethodTag(
-                      mh.method.name.toUpperCase(),
-                      mh.hours.toString(),
-                    )).toList(),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  _buildTimeRangeButton('All Time', _showAllTime),
+                  _buildTimeRangeButton('Current Year', !_showAllTime),
+                  IconButton(
+                    icon: const Icon(Icons.file_download_outlined),
+                    onPressed: _exportToExcel,
+                    tooltip: 'Export to Excel',
+                    color: AppTheme.primaryBlue,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                   ),
                 ],
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          if (_isLoading)
+            const Center(child: CircularProgressIndicator())
+          else if (_allEntries.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text(
+                  'No entries yet',
+                  style: AppTheme.bodyMedium.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+            )
+          else
+            Column(
+              children: InspectionMethod.values.map((method) {
+                final hours = methodTotals[method] ?? 0;
+                return _buildMethodStatRow(method, hours);
+              }).toList(),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeRangeButton(String label, bool isSelected) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _showAllTime = label == 'All Time';
+        });
+        _loadAllEntries();
+      },
+      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primaryBlue : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          border: Border.all(
+            color: isSelected ? AppTheme.primaryBlue : AppTheme.divider,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : AppTheme.textSecondary,
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildMetricCard(String label, String value, IconData icon, Color color) {
+  Widget _buildMethodStatRow(InspectionMethod method, double hours) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            color: color,
-            size: 20,
+        border: Border(
+          bottom: BorderSide(
+            color: AppTheme.divider.withOpacity(0.3),
+            width: 1,
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: AppTheme.titleMedium.copyWith(
-              fontWeight: FontWeight.bold,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: AppTheme.bodySmall.copyWith(
-              color: AppTheme.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMethodTag(String method, String hours) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 6,
-      ),
-      decoration: BoxDecoration(
-        color: AppTheme.accent2.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        border: Border.all(
-          color: AppTheme.accent2.withOpacity(0.3),
-          width: 1,
         ),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            method,
-            style: TextStyle(
-              color: AppTheme.accent2,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            '$hours hrs',
-            style: TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+          // Method name with light blue gradient bubble
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBlue.withOpacity(0.1),
-              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  AppTheme.primaryBlue.withOpacity(0.15),
+                  AppTheme.primaryBlue.withOpacity(0.08),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(
-              Icons.note_alt_outlined,
-              size: 48,
-              color: AppTheme.primaryBlue,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No entries yet',
-            style: AppTheme.titleMedium.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Create your first field log entry',
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () {
-              _addOrUpdateEntry(DateTime.now());
-            },
-            icon: const Icon(Icons.add),
-            label: const Text('New Entry'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBlue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+            child: Text(
+              method.name.toUpperCase(),
+              style: TextStyle(
+                color: AppTheme.primaryBlue,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                letterSpacing: 0.5,
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoadingState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
+          const Spacer(),
+          // Hours value
           Text(
-            'Loading entries...',
-            style: AppTheme.bodyMedium,
+            '${hours.toStringAsFixed(1)} hrs',
+            style: AppTheme.titleMedium.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppTheme.textPrimary,
+              fontSize: 18,
+            ),
           ),
         ],
       ),

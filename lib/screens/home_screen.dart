@@ -278,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               'Defect Types & Identification',
                               Icons.warning_rounded,
                               () => Navigator.pushNamed(context, '/defect_types'),
-                              backgroundColor: AppTheme.accent3,
+                              backgroundColor: AppTheme.accent1,
                               description: 'Comprehensive guide to corrosion, dents, hard spots, cracks, and classification',
                             ),
                             const SizedBox(height: 12),
@@ -287,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                               'Common Formulas',
                               Icons.calculate_rounded,
                               () => Navigator.pushNamed(context, '/common_formulas'),
-                              backgroundColor: AppTheme.accent1,
+                              backgroundColor: AppTheme.primaryBlue,
                               description: 'Quick access to frequently used NDT and pipeline integrity calculations',
                             ),
                           ],
@@ -354,15 +354,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     Color? backgroundColor,
     String? description,
   }) {
+    final buttonColor = backgroundColor ?? AppTheme.primaryBlue;
+    
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
         boxShadow: [
           BoxShadow(
-            color: (backgroundColor ?? AppTheme.primaryBlue).withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: buttonColor.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -373,57 +375,71 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
           ),
-          backgroundColor: backgroundColor ?? AppTheme.primaryBlue,
+          backgroundColor: Colors.transparent,
           elevation: 0,
+          shadowColor: Colors.transparent,
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(AppTheme.paddingMedium),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                buttonColor,
+                buttonColor.withOpacity(0.85),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    if (description != null) ...[
-                      const SizedBox(height: 4),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        description,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white.withOpacity(0.8),
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
+                      if (description != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          description,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white,
-                size: 16,
-              ),
-            ],
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white,
+                  size: 16,
+                ),
+              ],
+            ),
           ),
         ),
       ),

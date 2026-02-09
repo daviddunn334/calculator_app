@@ -16,7 +16,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
-  bool _rememberMe = false;
   bool _obscurePassword = true;
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -82,11 +81,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         password: password,
       );
       print('Sign in successful: ${userCredential.user?.email}');
-
-      if (_rememberMe) {
-        // Set persistence to LOCAL if remember me is checked
-        await _authService.initialize();
-      }
     } catch (e) {
       print('Sign in error: $e');
       String errorMessage = 'An error occurred during sign in';
@@ -325,56 +319,6 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               validator: (value) => value == null || value.length < 6 
                                   ? 'Password must be at least 6 characters' 
                                   : null,
-                            ),
-                            const SizedBox(height: 16),
-                            
-                            // Remember me and forgot password
-                            Row(
-                              children: [
-                                SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: Checkbox(
-                                    value: _rememberMe,
-                                    activeColor: AppTheme.primaryBlue,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    onChanged: (val) {
-                                      setState(() {
-                                        _rememberMe = val ?? false;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Remember for 30 days',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppTheme.textSecondary,
-                                  ),
-                                ),
-                                const Spacer(),
-                                TextButton(
-                                  onPressed: () {
-                                    // TODO: Implement forgot password
-                                  },
-                                  style: TextButton.styleFrom(
-                                    padding: EdgeInsets.zero,
-                                    minimumSize: const Size(0, 0),
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  ),
-                                  child: Text(
-                                    'Forgot password?',
-                                    style: TextStyle(
-                                      color: AppTheme.primaryBlue,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ),
                             
                             // Error message

@@ -34,7 +34,7 @@ class BottomNavBar extends StatelessWidget {
         NavigationDestination(
           icon: Icon(Icons.note_alt_outlined),
           selectedIcon: Icon(Icons.note_alt),
-          label: 'Field Log',
+          label: 'Method Hours',
         ),
         NavigationDestination(
           icon: Icon(Icons.checklist_outlined),
