@@ -25,58 +25,55 @@ class AdminDrawer extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.primaryBlue,
-                  AppTheme.primaryBlue.withOpacity(0.85),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: AppTheme.primaryGradient,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryNavy.withOpacity(0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
+                // Company Logo
+                Container(
+                  width: 70,
+                  height: 70,
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Image.asset(
+                    'assets/logos/logo_main_white.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Admin Panel Title
+                Column(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(16),
+                    const Text(
+                      'Admin Panel',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
                       ),
-                      child: const Icon(Icons.admin_panel_settings,
-                          color: Colors.white, size: 32),
+                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Admin Panel',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        Text(
-                          'Content Management',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 12,
-                            letterSpacing: 0.2,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 4),
+                    Text(
+                      'Integrity Specialists',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.85),
+                        fontSize: 12,
+                        letterSpacing: 0.2,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),

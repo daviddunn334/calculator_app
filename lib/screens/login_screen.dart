@@ -185,55 +185,40 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             // Logo and App Name
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Column(
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppTheme.primaryBlue,
-                                        AppTheme.primaryBlue.withOpacity(0.8),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppTheme.primaryBlue.withOpacity(0.3),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    Icons.shield_outlined,
-                                    color: Colors.white,
-                                    size: 32,
+                                // Company Logo
+                                SizedBox(
+                                  width: 138,
+                                  height: 138,
+                                  child: Image.asset(
+                                    'assets/logos/logo_main.png',
+                                    fit: BoxFit.contain,
                                   ),
                                 ),
-                                const SizedBox(width: 16),
+                                const SizedBox(height: 16),
+                                // Company Name and Tagline
                                 Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Integrity Tools',
+                                      'Integrity Specialists',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 24,
-                                        color: AppTheme.textPrimary,
+                                        fontSize: 26,
+                                        color: AppTheme.primaryNavy,
                                         letterSpacing: 0.5,
                                       ),
                                     ),
+                                    const SizedBox(height: 4),
                                     Text(
-                                      'NDT Professional Suite',
+                                      'Our people are trained to be the difference.',
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         color: AppTheme.textSecondary,
                                         letterSpacing: 0.2,
+                                        fontStyle: FontStyle.italic,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ],
                                 ),
@@ -245,25 +230,27 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 4),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
                                     'Welcome back',
                                     style: TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
-                                      color: AppTheme.textPrimary,
+                                      color: AppTheme.primaryNavy,
                                       letterSpacing: 0.2,
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Sign in to access your NDT tools and resources',
+                                    'Sign in to access your tools and resources',
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: AppTheme.textSecondary,
                                       fontWeight: FontWeight.w400,
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ],
                               ),

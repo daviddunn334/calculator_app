@@ -194,57 +194,37 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             // Logo and App Name
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Column(
                               children: [
+                                // Company Logo
                                 Container(
-                                  padding: const EdgeInsets.all(12),
+                                  width: 100,
+                                  height: 100,
                                   decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppTheme.primaryBlue,
-                                        AppTheme.primaryBlue.withOpacity(0.8),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppTheme.primaryBlue.withOpacity(0.3),
-                                        blurRadius: 12,
+                                        color: AppTheme.primaryNavy.withOpacity(0.15),
+                                        blurRadius: 20,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
-                                  child: const Icon(
-                                    Icons.shield_outlined,
-                                    color: Colors.white,
-                                    size: 32,
+                                  child: Image.asset(
+                                    'assets/logos/logo_main.png',
+                                    fit: BoxFit.contain,
                                   ),
                                 ),
-                                const SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Integrity Tools',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 24,
-                                        color: AppTheme.textPrimary,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                    Text(
-                                      'NDT Professional Suite',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: AppTheme.textSecondary,
-                                        letterSpacing: 0.2,
-                                      ),
-                                    ),
-                                  ],
+                                const SizedBox(height: 12),
+                                // Company Name
+                                Text(
+                                  'Integrity Specialists',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 24,
+                                    color: AppTheme.primaryNavy,
+                                    letterSpacing: 0.5,
+                                  ),
                                 ),
                               ],
                             ),
@@ -254,25 +234,27 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 4),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
                                     'Create an account',
                                     style: TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
-                                      color: AppTheme.textPrimary,
+                                      color: AppTheme.primaryNavy,
                                       letterSpacing: 0.2,
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Join our NDT professional community',
+                                    'Join our professional community',
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: AppTheme.textSecondary,
                                       fontWeight: FontWeight.w400,
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ],
                               ),

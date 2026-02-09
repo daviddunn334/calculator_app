@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Colors
-  static const Color primaryBlue = Color(0xFF3366FF);
-  static const Color accent1 = Color(0xFFFFB703);
+  // Company Brand Colors - Integrity Specialists
+  static const Color primaryNavy = Color(0xFF1b325b); // Navy Blue
+  static const Color accentGold = Color(0xFFfbcd0f); // Gold/Yellow
+  
+  // Legacy color references maintained for compatibility
+  static const Color primaryBlue = primaryNavy;
+  static const Color accent1 = accentGold;
   static const Color accent2 = Color(0xFF2A9D8F);
   static const Color accent3 = Color(0xFFF28482);
   static const Color accent4 = Color(0xFFF72585);
-  static const Color accent5= Color(0xFF032B43);
+  static const Color accent5 = Color(0xFF032B43);
 
   static const Color background = Color(0xFFF8FAFC);
   static const Color backgroundAlternative = Color(0xFFFEF9EF);
@@ -138,11 +142,17 @@ class AppTheme {
     ),
   );
 
-  // Gradients
+  // Gradients - Navy to Navy-Gold blend
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [primaryBlue, Color(0xFF5C85FF)],
+    colors: [primaryNavy, Color(0xFF2a4a7c)],
+  );
+  
+  static const LinearGradient accentGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [accentGold, Color(0xFFffd740)],
   );
 
   // Shadows

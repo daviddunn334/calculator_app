@@ -27,63 +27,38 @@ class AppDrawer extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.primaryBlue,
-                  AppTheme.primaryBlue.withOpacity(0.85),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              gradient: AppTheme.primaryGradient,
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.2),
+                  color: AppTheme.primaryNavy.withOpacity(0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: const Icon(
-                        Icons.shield_outlined, 
-                        color: Colors.white, 
-                        size: 32
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Integrity Tools',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        Text(
-                          'NDT Professional Suite',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 12,
-                            letterSpacing: 0.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                // Company Text Logo
+                Container(
+                  width: 200,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Image.asset(
+                    'assets/logos/logo_text_final.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Tagline
+                Text(
+                  'Our people are trained to be the difference.',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.85),
+                    fontSize: 11,
+                    letterSpacing: 0.2,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),

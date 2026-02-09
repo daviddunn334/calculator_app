@@ -1,21 +1,21 @@
 {
-    "name": "Integrity Tools",
-    "short_name": "Integrity Tools",
+    "name": "Integrity Specialists",
+    "short_name": "Integrity Specialists",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "Pipeline Integrity Tools - Your comprehensive pipeline integrity toolkit",
+    "background_color": "#1b325b",
+    "theme_color": "#1b325b",
+    "description": "Integrity Specialists - Our people are trained to be the difference. Professional NDT tools and resources.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "scope": "/",
-    "categories": ["utilities", "productivity", "tools"],
+    "categories": ["utilities", "productivity", "tools", "business"],
     "lang": "en-US",
     "dir": "ltr",
     "iarc_rating_id": "",
     "shortcuts": [
         {
-            "name": "Calculator Tools",
+            "name": "Tools",
             "url": "/tools",
             "description": "Open calculator tools"
         }
