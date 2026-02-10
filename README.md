@@ -63,7 +63,4 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
 
-- Flutter team for the amazing framework
-- NDT community for their valuable feedback and suggestions
