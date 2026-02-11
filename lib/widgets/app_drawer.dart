@@ -150,14 +150,8 @@ class AppDrawer extends StatelessWidget {
                   'Send Feedback',
                   Icons.feedback_outlined,
                   Icons.feedback,
-                  -2,
+                  10,
                   isLargeScreen,
-                  onTap: () {
-                    if (!isLargeScreen) {
-                      Navigator.pop(context);
-                    }
-                    Navigator.pushNamed(context, '/feedback');
-                  },
                 ),
                 _buildMenuItem(
                   context,
