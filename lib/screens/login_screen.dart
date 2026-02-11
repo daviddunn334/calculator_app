@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
+import '../widgets/mobile_install_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -46,6 +47,11 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       if (user != null && mounted) {
         Navigator.of(context).pushReplacementNamed('/');
       }
+    });
+
+    // Show mobile install dialog if needed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      MobileInstallDialog.showIfNeeded(context);
     });
   }
 

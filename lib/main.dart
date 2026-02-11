@@ -4,7 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import 'firebase_options.dart';
 import 'services/offline_service.dart';
 import 'services/update_service.dart';
-import 'widgets/update_banner.dart';
+import 'widgets/auto_update_notification.dart';
 import 'screens/main_screen.dart';
 import 'screens/corrosion_grid_logger_screen.dart';
 import 'screens/inspection_checklist_screen.dart';
@@ -61,11 +61,8 @@ class MyApp extends StatelessWidget {
       title: 'Integrity Tools',
       theme: AppTheme.theme,
       debugShowCheckedModeBanner: false,
-      home: const Stack(
-        children: [
-          AuthGate(),
-          UpdateBanner(), // PWA update notification banner
-        ],
+      home: const AggressiveUpdateWrapper(
+        child: AuthGate(),
       ),
       routes: {
         '/login': (context) => const LoginScreen(),
@@ -85,6 +82,47 @@ class MyApp extends StatelessWidget {
         '/reports': (context) => const ReportsScreen(),
         '/method_hours': (context) => const MethodHoursScreen(),
       }
+    );
+  }
+}
+
+/// Wrapper that shows aggressive auto-update notification
+class AggressiveUpdateWrapper extends StatefulWidget {
+  final Widget child;
+
+  const AggressiveUpdateWrapper({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  State<AggressiveUpdateWrapper> createState() => _AggressiveUpdateWrapperState();
+}
+
+class _AggressiveUpdateWrapperState extends State<AggressiveUpdateWrapper> {
+  final UpdateService _updateService = UpdateService();
+  String? _updateVersion;
+
+  @override
+  void initState() {
+    super.initState();
+    // Listen for updates
+    _updateService.updateAvailableStream.listen((version) {
+      setState(() {
+        _updateVersion = version;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        widget.child,
+        // Show aggressive auto-update notification if update available
+        if (_updateVersion != null)
+          AutoUpdateOverlay(version: _updateVersion!),
+      ],
     );
   }
 }

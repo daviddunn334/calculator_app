@@ -86,8 +86,8 @@ class UpdateService {
     }
   }
 
-  /// Apply the update by reloading the page
-  Future<void> applyUpdate() async {
+  /// Apply the update by reloading the page (with aggressive auto-reload)
+  Future<void> applyUpdate({bool immediate = false}) async {
     if (!kIsWeb) {
       return;
     }
@@ -98,11 +98,14 @@ class UpdateService {
       // Tell service worker to skip waiting
       _registration?.active?.postMessage({'type': 'SKIP_WAITING'});
       
-      // Wait a moment for service worker to activate
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      // Reload the page to get new version
-      html.window.location.reload();
+      if (immediate) {
+        // Immediate reload
+        html.window.location.reload();
+      } else {
+        // Wait 3 seconds then reload (aggressive auto-update)
+        await Future.delayed(const Duration(seconds: 3));
+        html.window.location.reload();
+      }
     } catch (e) {
       print('[UpdateService] Apply update error: $e');
       // Fallback: just reload
