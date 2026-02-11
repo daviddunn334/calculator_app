@@ -21,6 +21,7 @@ import 'screens/signup_screen.dart';
 import 'screens/news_updates_screen.dart';
 import 'screens/tools_screen.dart';
 import 'screens/method_hours_screen.dart';
+import 'screens/feedback_screen.dart';
 import 'services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'theme/app_theme.dart';
@@ -81,6 +82,7 @@ class MyApp extends StatelessWidget {
         '/tools': (context) => const ToolsScreen(),
         '/reports': (context) => const ReportsScreen(),
         '/method_hours': (context) => const MethodHoursScreen(),
+        '/feedback': (context) => const FeedbackScreen(),
       }
     );
   }

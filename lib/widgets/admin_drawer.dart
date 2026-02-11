@@ -121,9 +121,9 @@ class AdminDrawer extends StatelessWidget {
                 ),
                 _buildMenuItem(
                   context,
-                  'Report Management',
-                  Icons.assignment_outlined,
-                  Icons.assignment,
+                  'Feedback Management',
+                  Icons.feedback_outlined,
+                  Icons.feedback,
                   7,
                   isLargeScreen,
                 ),

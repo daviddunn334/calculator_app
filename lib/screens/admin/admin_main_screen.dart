@@ -3,7 +3,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/admin_drawer.dart';
 import 'user_management_screen.dart';
 import 'news_editor_screen.dart';
-import 'admin_reports_screen.dart';
+import 'feedback_management_screen.dart';
 import 'pdf_management_screen.dart';
 import 'employee_management_screen.dart';
 import 'analytics_screen.dart';
@@ -82,7 +82,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
       case 6:
         return _buildPublished();
       case 7:
-        return _buildReportManagement();
+        return _buildFeedbackManagement();
       case 8:
         return _buildPdfManagement();
       case 9:
@@ -750,8 +750,8 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
     return const UserManagementScreen();
   }
 
-  Widget _buildReportManagement() {
-    return const AdminReportsScreen();
+  Widget _buildFeedbackManagement() {
+    return const FeedbackManagementScreen();
   }
 
   Widget _buildPdfManagement() {

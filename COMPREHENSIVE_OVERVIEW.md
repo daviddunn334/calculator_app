@@ -343,6 +343,81 @@ The app is functional and feature-complete, preparing for Google Play Store and 
 
 **Status:** Implemented and ready for deployment
 
+6. **Mobile Install Instructions & Aggressive Auto-Updates** 📱⚡ NEW
+   - Created platform-specific mobile install instructions dialog
+   - Implemented aggressive 3-second auto-update system
+   - Enhanced UpdateService for immediate reload capability
+   - Integrated mobile guidance into login screen
+
+**Mobile Install Features:**
+- **Platform Detection**: Automatically detects iOS Safari, iOS Chrome, and Android Chrome
+- **Specific Instructions**: 
+  - iOS: "Tap Share → Add to Home Screen" with 3 visual steps
+  - Android: "Tap menu (⋮) → Install app" with 3 visual steps
+- **Smart Triggers**: Shows on login page after 2 seconds, only on mobile devices
+- **User-Friendly**: Dismissible, remembers choice in localStorage, skips if already installed
+- **Benefits Display**: Shows 30-50% faster load times, offline mode, one-tap access features
+
+**Aggressive Auto-Update System:**
+- **Non-Dismissible**: 3-second countdown ensures 100% user adoption
+- **Visual Feedback**: Blue banner with pulsing icon, countdown timer, and "Update Now" button
+- **Automatic Reload**: Page reloads after 3 seconds (user can skip countdown)
+- **Zero Reinstalls**: PWA updates in place, never requires uninstall/reinstall
+- **Instant Deployment**: All users get updates within seconds of deployment
+
+**New Components:**
+- **MobileInstallDialog** (lib/widgets/mobile_install_dialog.dart):
+  - Platform-specific instruction builder
+  - Benefit showcase with icons
+  - localStorage tracking for dismissed state
+  - 
+  - Full customization for iOS vs Android
+
+- **AutoUpdateNotification** (lib/widgets/auto_update_notification.dart):
+  - Countdown timer widget with animation
+  - Pulsing update icon
+  - "Update Now" skip button
+  - Slide-in animation from top
+
+- **AggressiveUpdateWrapper** (in lib/main.dart):
+  - Wraps entire app
+  - Listens to update stream
+  - Shows overlay when update detected
+
+**Technical Implementation:**
+- UpdateService enhanced with `immediate` parameter for instant reload
+- Service worker version bumped to v1.0.2
+- App version bumped to 1.0.2+3
+- Platform detection using user agent strings
+- Standalone mode detection to avoid showing on installed apps
+
+**Files Added:**
+- `lib/widgets/mobile_install_dialog.dart` - Mobile install guidance
+- `lib/widgets/auto_update_notification.dart` - Aggressive update UI
+
+**Files Modified:**
+- `lib/services/update_service.dart` - Added immediate reload support
+- `lib/screens/login_screen.dart` - Integrated mobile install dialog
+- `lib/main.dart` - Added AggressiveUpdateWrapper
+- `web/service-worker.js` - Version v1.0.2
+- `pubspec.yaml` - Version 1.0.2+3
+
+**User Experience:**
+- **Desktop**: Existing install banner + 3-second auto-update
+- **Android Chrome**: Install instructions dialog + 3-second auto-update
+- **iOS Safari**: Install instructions dialog + 3-second auto-update
+- **All Platforms**: Zero reinstalls required for updates
+
+**Benefits:**
+- Crystal-clear install guidance for mobile users
+- 100% update adoption rate (non-dismissible)
+- No user action required for updates
+- Professional, branded experience
+- Minimal disruption (3-second warning)
+
+**Commit:** `da46fa8` - "Add aggressive auto-updates and mobile install instructions"
+**Status:** Pushed to develop branch, ready for testing
+
 ---
 
 This is the context you need when helping implement changes or new features for this application.

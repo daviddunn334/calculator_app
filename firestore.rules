@@ -100,6 +100,18 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
     }
 
+    // Feedback collection
+    match /feedback/{feedbackId} {
+      // Users can create their own feedback
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Users can read their own feedback
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Admins can read all feedback
+      allow read: if request.auth != null && isAdmin();
+      // Admins can update (status changes) and delete feedback
+      allow update, delete: if request.auth != null && isAdmin();
+    }
+
     // Job Locations - Divisions, Projects, and Digs
     // All authenticated users can read, only admins can write
     match /divisions/{divisionId} {
