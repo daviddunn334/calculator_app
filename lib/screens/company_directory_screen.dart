@@ -4,6 +4,7 @@ import '../models/company_employee.dart';
 import '../services/employee_service.dart';
 import '../services/user_service.dart';
 import '../widgets/add_employee_dialog.dart';
+import '../utils/contact_helper.dart';
 import 'dart:math' as math;
 
 class CompanyDirectoryScreen extends StatefulWidget {
@@ -907,16 +908,16 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
                 children: [
                   IconButton(
                     icon: const Icon(Icons.email, color: AppTheme.primaryBlue),
-                    onPressed: () {
-                      // TODO: Implement email action
-                    },
+                    onPressed: employee.email.isNotEmpty
+                        ? () => ContactHelper.launchEmail(context, employee.email)
+                        : null,
                     tooltip: 'Email',
                   ),
                   IconButton(
                     icon: const Icon(Icons.phone, color: AppTheme.primaryBlue),
-                    onPressed: () {
-                      // TODO: Implement call action
-                    },
+                    onPressed: employee.phone.isNotEmpty
+                        ? () => ContactHelper.launchPhone(context, employee.phone)
+                        : null,
                     tooltip: 'Call',
                   ),
                   if (_isAdmin)
@@ -999,21 +1000,48 @@ class _CompanyDirectoryScreenState extends State<CompanyDirectoryScreen>
   }
 
   Widget _buildContactRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: AppTheme.textSecondary),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.textSecondary,
+    final bool isEmail = icon == Icons.email;
+    final bool isPhone = icon == Icons.phone;
+
+    return InkWell(
+      onTap: () {
+        if (isEmail) {
+          ContactHelper.launchEmail(context, text);
+        } else if (isPhone) {
+          ContactHelper.launchPhone(context, text);
+        }
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: AppTheme.primaryBlue,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                text,
+                style: AppTheme.bodyMedium.copyWith(
+                  color: AppTheme.primaryBlue,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppTheme.primaryBlue.withOpacity(0.5),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 12,
+              color: AppTheme.primaryBlue.withOpacity(0.5),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

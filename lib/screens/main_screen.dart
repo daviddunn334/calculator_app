@@ -12,6 +12,7 @@ import 'method_hours_screen.dart';
 import 'news_updates_screen.dart';
 import '../widgets/app_drawer.dart';
 import 'pdf_to_excel_screen.dart';
+import '../services/analytics_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -51,6 +52,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       curve: Curves.easeIn,
     );
     _animationController.forward();
+    
+    // Log initial screen view
+    AnalyticsService().logScreenView(_getScreenNameForIndex(_selectedIndex));
   }
 
   @override
@@ -67,6 +71,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       // Animate screen transition
       _animationController.reset();
       _animationController.forward();
+      
+      // Log screen view
+      AnalyticsService().logScreenView(_getScreenNameForIndex(index));
     }
   }
 
@@ -251,6 +258,33 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return 'Equotip Data Converter';
       default:
         return '';
+    }
+  }
+
+  String _getScreenNameForIndex(int index) {
+    switch (index) {
+      case 0:
+        return 'home';
+      case 1:
+        return 'tools';
+      case 2:
+        return 'maps';
+      case 3:
+        return 'method_hours';
+      case 4:
+        return 'knowledge_base';
+      case 5:
+        return 'profile';
+      case 6:
+        return 'inventory';
+      case 7:
+        return 'company_directory';
+      case 8:
+        return 'news_updates';
+      case 9:
+        return 'equotip_converter';
+      default:
+        return 'unknown';
     }
   }
 }
