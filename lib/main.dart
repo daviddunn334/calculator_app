@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:path_provider/path_provider.dart';
 import 'firebase_options.dart';
 import 'services/offline_service.dart';
+import 'services/update_service.dart';
+import 'widgets/update_banner.dart';
 import 'screens/main_screen.dart';
 import 'screens/corrosion_grid_logger_screen.dart';
 import 'screens/inspection_checklist_screen.dart';
@@ -30,6 +32,10 @@ void main() async {
   final offlineService = OfflineService();
   await offlineService.initialize();
   
+  // Initialize PWA update service (web only)
+  final updateService = UpdateService();
+  await updateService.initialize();
+  
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -55,7 +61,12 @@ class MyApp extends StatelessWidget {
       title: 'Integrity Tools',
       theme: AppTheme.theme,
       debugShowCheckedModeBanner: false,
-      home: const AuthGate(),
+      home: const Stack(
+        children: [
+          AuthGate(),
+          UpdateBanner(), // PWA update notification banner
+        ],
+      ),
       routes: {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),

@@ -46,7 +46,7 @@ class FieldLogService {
     }
   }
 
-  Future<List<FieldLogEntry>> getEntriesForDateRange(DateTime startDate, DateTime endDate) async {
+  Future<List<FieldLogEntry>> getEntriesForDateRange(DateTime startDate, DateTime endDate, {bool forceServerFetch = false}) async {
     try {
       final utcStartDate = _toUtcStartOfDay(startDate);
       final utcEndDate = _toUtcEndOfDay(endDate);
@@ -55,12 +55,16 @@ class FieldLogService {
         throw Exception('User not authenticated');
       }
 
-      final querySnapshot = await _fieldLogsCollection
+      final query = _fieldLogsCollection
           .where('userId', isEqualTo: userId)
           .where('date', isGreaterThanOrEqualTo: utcStartDate)
           .where('date', isLessThanOrEqualTo: utcEndDate)
-          .orderBy('date', descending: true)
-          .get();
+          .orderBy('date', descending: true);
+
+      // Force fetch from server if requested (bypasses cache)
+      final querySnapshot = forceServerFetch
+          ? await query.get(const GetOptions(source: Source.server))
+          : await query.get();
 
       return querySnapshot.docs
           .map((doc) => FieldLogEntry.fromFirestore(doc))

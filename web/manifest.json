@@ -1,12 +1,12 @@
 {
     "name": "Integrity Specialists",
     "short_name": "Integrity Specialists",
-    "start_url": ".",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "#1b325b",
     "theme_color": "#1b325b",
     "description": "Integrity Specialists - Our people are trained to be the difference. Professional NDT tools and resources.",
-    "orientation": "portrait-primary",
+    "orientation": "any",
     "prefer_related_applications": false,
     "scope": "/",
     "categories": ["utilities", "productivity", "tools", "business"],
@@ -16,8 +16,47 @@
     "shortcuts": [
         {
             "name": "Tools",
-            "url": "/tools",
-            "description": "Open calculator tools"
+            "url": "/?screen=tools",
+            "description": "Open calculator tools",
+            "icons": [
+                {
+                    "src": "icons/Icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Reports",
+            "url": "/?screen=reports",
+            "description": "View inspection reports",
+            "icons": [
+                {
+                    "src": "icons/Icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Knowledge Base",
+            "url": "/?screen=knowledge",
+            "description": "Access NDT procedures and standards",
+            "icons": [
+                {
+                    "src": "icons/Icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        },
+        {
+            "name": "Company Directory",
+            "url": "/?screen=directory",
+            "description": "Contact employees",
+            "icons": [
+                {
+                    "src": "icons/Icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
         }
     ],
     "screenshots": [],

@@ -61,7 +61,7 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
     super.dispose();
   }
 
-  Future<void> _loadAllEntries() async {
+  Future<void> _loadAllEntries({bool forceServerFetch = false}) async {
     setState(() {
       _isLoading = true;
     });
@@ -77,7 +77,7 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
       }
       
       final endDate = DateTime.now();
-      final entries = await _service.getEntriesForDateRange(startDate, endDate);
+      final entries = await _service.getEntriesForDateRange(startDate, endDate, forceServerFetch: forceServerFetch);
       
       setState(() {
         _allEntries = entries;
@@ -157,7 +157,11 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
           await _service.addEntry(entry);
         }
         
-        await _loadAllEntries(); // Reload all entries
+        // Add a small delay to ensure Firestore has committed the write
+        await Future.delayed(const Duration(milliseconds: 150));
+        
+        // Force fetch from server to bypass cache
+        await _loadAllEntries(forceServerFetch: true);
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -190,7 +194,10 @@ class _FieldLogScreenState extends State<FieldLogScreen> with SingleTickerProvid
     
     if (confirm == true) {
       await _service.deleteEntry(entry.id);
-      await _loadAllEntries();
+      // Add a small delay to ensure Firestore has committed the delete
+      await Future.delayed(const Duration(milliseconds: 150));
+      // Force fetch from server to bypass cache
+      await _loadAllEntries(forceServerFetch: true);
     }
   }
 
