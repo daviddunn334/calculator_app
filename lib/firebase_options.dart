@@ -32,40 +32,38 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: "AIzaSyAi67zypYsAY4et0BZNG6HQ2N9KDcOWJ9s",
-    appId: "1:787811700889:web:3dc5902b7778191b566808",
-    messagingSenderId: "787811700889",
-    projectId: "integrity-tools",
-    storageBucket: "integrity-tools.firebasestorage.app",
-    authDomain: "integrity-tools.firebaseapp.com",
-    measurementId: "G-FL0FRBEMPC"
+    apiKey: "AIzaSyARXBBdfKELC__wx6UlZ1eSx4N1OOQ2tzg",
+    appId: "1:107937743545:web:9f730ca6984ece2b1a1168",
+    messagingSenderId: "107937743545",
+    projectId: "ndt-toolkit-template",
+    storageBucket: "ndt-toolkit-template.firebasestorage.app",
+    authDomain: "ndt-toolkit-template.firebaseapp.com",
+    measurementId: "G-KD4C7R3GCX"
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR-ANDROID-API-KEY',
-    appId: 'YOUR-ANDROID-APP-ID',
-    messagingSenderId: 'YOUR-SENDER-ID',
-    projectId: 'YOUR-PROJECT-ID',
-    storageBucket: 'YOUR-STORAGE-BUCKET',
+    apiKey: 'AIzaSyARXBBdfKELC__wx6UlZ1eSx4N1OOQ2tzg',
+    appId: '1:107937743545:android:PLACEHOLDER',
+    messagingSenderId: '107937743545',
+    projectId: 'ndt-toolkit-template',
+    storageBucket: 'ndt-toolkit-template.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR-IOS-API-KEY',
-    appId: 'YOUR-IOS-APP-ID',
-    messagingSenderId: 'YOUR-SENDER-ID',
-    projectId: 'YOUR-PROJECT-ID',
-    storageBucket: 'YOUR-STORAGE-BUCKET',
-    iosClientId: 'YOUR-IOS-CLIENT-ID',
-    iosBundleId: 'YOUR-IOS-BUNDLE-ID',
+    apiKey: 'AIzaSyARXBBdfKELC__wx6UlZ1eSx4N1OOQ2tzg',
+    appId: '1:107937743545:ios:PLACEHOLDER',
+    messagingSenderId: '107937743545',
+    projectId: 'ndt-toolkit-template',
+    storageBucket: 'ndt-toolkit-template.firebasestorage.app',
+    iosBundleId: 'com.example.calculatorApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'YOUR-MACOS-API-KEY',
-    appId: 'YOUR-MACOS-APP-ID',
-    messagingSenderId: 'YOUR-SENDER-ID',
-    projectId: 'YOUR-PROJECT-ID',
-    storageBucket: 'YOUR-STORAGE-BUCKET',
-    iosClientId: 'YOUR-MACOS-CLIENT-ID',
-    iosBundleId: 'YOUR-MACOS-BUNDLE-ID',
+    apiKey: 'AIzaSyARXBBdfKELC__wx6UlZ1eSx4N1OOQ2tzg',
+    appId: '1:107937743545:macos:PLACEHOLDER',
+    messagingSenderId: '107937743545',
+    projectId: 'ndt-toolkit-template',
+    storageBucket: 'ndt-toolkit-template.firebasestorage.app',
+    iosBundleId: 'com.example.calculatorApp',
   );
 } 

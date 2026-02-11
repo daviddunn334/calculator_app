@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "787811700889",
-    "project_id": "integrity-tools",
-    "storage_bucket": "integrity-tools.firebasestorage.app"
+    "project_number": "107937743545",
+    "project_id": "ndt-toolkit-template",
+    "storage_bucket": "ndt-toolkit-template.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:787811700889:android:e18fd0fc2f31f2e7566808",
+        "mobilesdk_app_id": "1:107937743545:android:4a74e075e8d82dcb1a1168",
         "android_client_info": {
           "package_name": "com.example.calculator_app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBL_wZTaDaIT5D1AoY3pbijyGLJumjcG1o"
+          "current_key": "AIzaSyA_m1AhF-UYh31CY31nm4LujMdTx9qAsZw"
         }
       ],
       "services": {

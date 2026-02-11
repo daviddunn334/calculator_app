@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "integrity-tools"
+    "default": "integrity-tools",
+    "template": "ndt-toolkit-template"
   }
 }

@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop  # Adding develop branch for test environment
+      - template  # Adding template branch for experimental environment
 
 jobs:
   deploy:
@@ -28,6 +29,6 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_INTEGRITY_TOOLS }}'
-          projectId: integrity-tools
+          firebaseServiceAccount: ${{ github.ref == 'refs/heads/template' && secrets.FIREBASE_SERVICE_ACCOUNT_NDT_TOOLKIT_TEMPLATE || secrets.FIREBASE_SERVICE_ACCOUNT_INTEGRITY_TOOLS }}
+          projectId: ${{ github.ref == 'refs/heads/template' && 'ndt-toolkit-template' || 'integrity-tools' }}
           channelId: ${{ github.ref == 'refs/heads/main' && 'live' || 'preview' }}  # Use 'preview' channel for non-main branches
