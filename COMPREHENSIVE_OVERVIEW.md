@@ -418,6 +418,98 @@ The app is functional and feature-complete, preparing for Google Play Store and 
 **Commit:** `da46fa8` - "Add aggressive auto-updates and mobile install instructions"
 **Status:** Pushed to develop branch, ready for testing
 
+7. **In-App Feedback & Bug Reporting System** 🐛💬 NEW
+   - Complete feedback submission system for users to report bugs and request features
+   - Admin management dashboard with filtering and status tracking
+   - Image attachment support with Firebase Storage
+   - Device information auto-capture for debugging
+   - Firestore security rules for user/admin permissions
+
+**Feedback System Features:**
+- **User Submission Form** (lib/screens/feedback_screen.dart):
+  - Three feedback types: Bug Report, Feature Request, General Feedback
+  - Required fields: Subject, Description
+  - Optional screenshot attachment (from device gallery)
+  - Auto-captures device info (platform, OS version, browser, app version)
+  - Clean, modern UI with type selection cards
+  - Analytics tracking for submissions
+
+- **Admin Management** (lib/screens/admin/feedback_management_screen.dart):
+  - Real-time feedback list with DataTable
+  - Filter by type (Bug/Feature/General) and status (New/In Review/Resolved)
+  - Search by keyword
+  - View full details in modal dialogs
+  - Status management (Mark In Review, Mark Resolved)
+  - Delete functionality
+  - Screenshot preview support
+  - Responsive design with stats cards
+
+- **FeedbackService** (lib/services/feedback_service.dart):
+  - `submitFeedback()` - Create new feedback with optional screenshot
+  - `uploadScreenshot()` - Upload images to Firebase Storage
+  - `getFeedbackList()` - Real-time stream for admin dashboard
+  - `updateStatus()` - Change feedback status
+  - `getDeviceInfo()` - Auto-capture platform, OS, browser details
+  - Search and filter capabilities
+
+- **FeedbackSubmission Model** (lib/models/feedback_submission.dart):
+  - Properties: id, userId, userName, userEmail, type, subject, description
+  - Screenshot URL (optional)
+  - Device info object (platform, osVersion, appVersion, browserInfo)
+  - Timestamp, status enum (New, In Review, Resolved)
+  - Color-coded types and statuses
+
+**Database Structure:**
+- Collection: `/feedback/{feedbackId}`
+- Security Rules:
+  - Users can create and read their own feedback
+  - Admins can read, update, and delete all feedback
+  - Status field can only be updated by admins
+
+**Navigation Integration:**
+- Added to AppDrawer under "PROFESSIONAL" section
+- Uses internal state management (index 10) for smooth transitions
+- ⚠️ **IMPORTANT NAVIGATION PATTERN:** Always add new screens to MainScreen's `_screens` list with a unique index, never use `Navigator.pushNamed()` for main app screens to maintain consistent smooth transitions without URL changes
+
+**Files Added:**
+- `lib/models/feedback_submission.dart` - Data model with enums
+- `lib/services/feedback_service.dart` - CRUD operations and device info
+- `lib/screens/feedback_screen.dart` - User submission form
+- `lib/screens/admin/feedback_management_screen.dart` - Admin dashboard
+
+**Files Modified:**
+- `lib/main.dart` - Added /feedback route (kept for direct access)
+- `lib/widgets/app_drawer.dart` - Added "Send Feedback" menu item with index 10
+- `lib/screens/main_screen.dart` - Added FeedbackScreen to _screens list at index 10
+- `lib/screens/admin/admin_main_screen.dart` - Replaced Report Management with Feedback Management
+- `lib/widgets/admin_drawer.dart` - Updated menu item
+- `firestore.rules` - Added /feedback collection rules
+
+**Analytics Events:**
+- `feedback_submitted` - Tracks type and screenshot presence
+
+**Commits:**
+- `ba763bd` - "Add in-app feedback system with user submission and admin management"
+- `6a4ce59` - "Fix text color in feedback screen header - make title readable"
+- `939cfa3` - "Fix feedback screen navigation - use internal state management instead of named routes"
+
+**Status:** Deployed to develop branch with Firestore rules
+
+**🚨 NAVIGATION PATTERN LESSON LEARNED:**
+When adding new screens to the app, always follow this pattern to maintain smooth transitions:
+1. Add screen to `lib/screens/main_screen.dart` `_screens` list with new index
+2. Add icon mapping in `_getIconForIndex()`
+3. Add label mapping in `_getLabelForIndex()`
+4. Add analytics name in `_getScreenNameForIndex()`
+5. Update drawer to use `onItemSelected(index)` instead of `Navigator.pushNamed()`
+
+**Why This Matters:**
+- ✅ Smooth fade transitions between screens
+- ✅ No URL changes (consistent PWA experience)
+- ✅ Proper analytics tracking
+- ✅ Fast, instant navigation
+- ❌ Using `Navigator.pushNamed()` causes full page reloads and URL changes, breaking the smooth UX
+
 ---
 
 This is the context you need when helping implement changes or new features for this application.
