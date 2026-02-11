@@ -512,4 +512,123 @@ When adding new screens to the app, always follow this pattern to maintain smoot
 
 ---
 
+## 🚀 **DEPLOYMENT & VERSION MANAGEMENT** (CRITICAL)
+
+### **⚠️ PWA Auto-Update Requires Version Bumps**
+
+**THE PROBLEM:**
+PWAs cache aggressively. Without version changes, browsers assume nothing's new and use cached versions indefinitely. Users won't see updates even after deployment!
+
+### **✅ MANDATORY STEPS FOR EVERY DEPLOYMENT:**
+
+**Before deploying to production, you MUST bump versions in TWO places:**
+
+#### **1. Service Worker (`web/service-worker.js`):**
+```javascript
+// Line 2-3: Update version in comment and constant
+const CACHE_VERSION = 'v1.0.X';  // Increment this!
+```
+
+#### **2. App Version (`pubspec.yaml`):**
+```yaml
+# Line 19: Increment version
+version: 1.0.X+Y  # Increment both numbers!
+```
+
+### **📋 Version Numbering Rules:**
+
+**Format:** `MAJOR.MINOR.PATCH+BUILD`
+- **Example:** `1.0.3+4` = Version 1.0.3, Build 4
+
+**When to increment:**
+- **MAJOR** (1.x.x): Breaking changes, major overhauls
+- **MINOR** (x.1.x): New features, significant updates → **Use this for most deployments**
+- **PATCH** (x.x.1): Bug fixes, minor tweaks
+- **BUILD** (+X): **ALWAYS increment** for every deployment
+
+**Typical deployment:**
+- `1.0.2+3` → `1.0.3+4` (new features)
+- `1.0.3+4` → `1.0.3+5` (bug fixes only)
+
+### **🔄 Deployment Workflow:**
+
+```bash
+# 1. Make your changes
+git checkout develop
+# ... code changes ...
+
+# 2. Bump versions (CRITICAL!)
+# Edit web/service-worker.js: CACHE_VERSION = 'v1.0.3'
+# Edit pubspec.yaml: version: 1.0.3+4
+
+# 3. Commit version bump
+git add web/service-worker.js pubspec.yaml
+git commit -m "Bump version to 1.0.3+4 for [feature name]"
+
+# 4. Push to develop
+git push origin develop
+
+# 5. Merge to main
+git checkout main
+git pull origin main
+git merge develop
+git push origin main
+
+# 6. Deploy to Firebase Hosting
+# (Your CI/CD or manual deployment command)
+```
+
+### **🐛 What Happens If You Forget:**
+
+1. ❌ New code deploys to server
+2. ❌ Users still see old cached version
+3. ❌ No update notification appears
+4. ❌ 3-second auto-reload never triggers
+5. ❌ Users must manually clear cache or reinstall PWA
+
+### **✅ What Happens When Done Correctly:**
+
+1. ✅ New code deploys with new version
+2. ✅ Service worker detects version change
+3. ✅ UpdateService receives UPDATE_AVAILABLE message
+4. ✅ Blue banner appears with 3-second countdown
+5. ✅ App auto-reloads with new version
+6. ✅ All users get update within seconds
+
+### **🔍 How to Verify Version:**
+
+**Check current deployed version:**
+```javascript
+// In browser console at your deployed app:
+navigator.serviceWorker.controller.postMessage({type: 'GET_VERSION'});
+// Listen for response in console
+```
+
+**Check if update system is working:**
+1. Open app in browser
+2. Open DevTools Console
+3. Look for: `[UpdateService] Initialized successfully`
+4. After deployment: `[UpdateService] Update available: v1.0.X`
+5. After 3 seconds: Page should reload automatically
+
+### **📝 Deployment Checklist:**
+
+- [ ] Code changes complete and tested
+- [ ] `web/service-worker.js` - CACHE_VERSION bumped
+- [ ] `pubspec.yaml` - version bumped
+- [ ] Both version numbers match (e.g., both show 1.0.3)
+- [ ] Changes committed with descriptive message
+- [ ] Pushed to develop branch
+- [ ] Merged to main branch
+- [ ] Deployed to hosting
+- [ ] Verified version in browser console
+
+### **🎯 Remember:**
+
+**NO VERSION BUMP = NO AUTO-UPDATES**
+
+This is the #1 most common mistake. Always bump versions before deploying!
+
+---
+
 This is the context you need when helping implement changes or new features for this application.

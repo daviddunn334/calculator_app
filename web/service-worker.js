@@ -1,7 +1,7 @@
 // Enhanced Service Worker for Integrity Tools PWA
-// Version: 1.0.2 - Aggressive auto-updates with mobile install instructions
+// Version: 1.0.3 - Feedback system with auto-updates
 
-const CACHE_VERSION = 'v1.0.2';
+const CACHE_VERSION = 'v1.0.3';
 const CACHE_NAME = `integrity-tools-${CACHE_VERSION}`;
 const DATA_CACHE_NAME = `integrity-tools-data-${CACHE_VERSION}`;
 
