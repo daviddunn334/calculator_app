@@ -207,6 +207,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 'We Value Your Feedback',
                                 style: AppTheme.titleMedium.copyWith(
                                   fontWeight: FontWeight.bold,
+                                  color: AppTheme.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
