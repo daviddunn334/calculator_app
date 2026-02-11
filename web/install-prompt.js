@@ -1,4 +1,4 @@
-// PWA Install Prompt Handler for Integrity Tools
+// PWA Install Prompt Handler for NDT Tool-Kit
 // Captures beforeinstallprompt event and shows custom install UI
 
 let deferredPrompt;
@@ -94,7 +94,7 @@ function showInstallBanner() {
     <div style="display: flex; align-items: center; gap: 16px;">
       <div style="flex: 1;">
         <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">
-          📱 Install Integrity Tools
+          📱 Install NDT Tool-Kit
         </div>
         <div style="font-size: 13px; opacity: 0.9;">
           Fast access, offline support, native experience

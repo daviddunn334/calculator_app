@@ -14,7 +14,7 @@ class EnhancedPdfService {
   static const PdfColor _tableHeaderColor = PdfColor.fromInt(0xFFE8F4FD);
   static const PdfColor _tableBorderColor = PdfColor.fromInt(0xFF000000);
 
-  /// Generates a professional PDF report matching Integrity Specialists format
+  /// Generates a professional PDF report
   Future<Uint8List> generateProfessionalReportPdf(Report report) async {
     try {
       final pdf = pw.Document();
@@ -53,7 +53,7 @@ class EnhancedPdfService {
     }
   }
 
-  /// Builds the cover page matching the Integrity Specialists format
+  /// Builds the cover page
   Future<pw.Page> _buildCoverPage(Report report) async {
     return pw.Page(
       pageFormat: PdfPageFormat.a4,
@@ -314,7 +314,7 @@ class EnhancedPdfService {
     return pw.Container(
       child: pw.Column(
         children: [
-          // Logo placeholder - you can replace this with actual logo later
+          // Logo placeholder - replace with your company logo
           pw.Container(
             width: 300,
             height: 80,
@@ -324,7 +324,7 @@ class EnhancedPdfService {
             ),
             child: pw.Center(
               child: pw.Text(
-                'INTEGRITY\nSPECIALISTS',
+                'NDT\nTOOL-KIT',
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
                   fontSize: 24,
@@ -337,7 +337,7 @@ class EnhancedPdfService {
           ),
           pw.SizedBox(height: 5),
           pw.Text(
-            'LLC',
+            'Professional NDT Platform',
             style: pw.TextStyle(
               fontSize: 12,
               color: _primaryColor,
@@ -361,7 +361,7 @@ class EnhancedPdfService {
           ),
           child: pw.Center(
             child: pw.Text(
-              'INTEGRITY\nSPECIALISTS',
+              'NDT\nTOOL-KIT',
               textAlign: pw.TextAlign.center,
               style: pw.TextStyle(
                 fontSize: 12,
@@ -417,8 +417,8 @@ class EnhancedPdfService {
             border: pw.TableBorder.all(color: _tableBorderColor),
             children: [
               _buildTableRow('Client WO #:', report.id),
-              _buildTableRow('Integrity Specialists #:',
-                  'WIL-AL-P${report.id.substring(0, 4)}'),
+              _buildTableRow('Company WO #:',
+                  'WO-${report.id.substring(0, 4)}'),
               _buildTableRow('Project Name:', report.location),
               _buildTableRow('Item #:', report.pipeDiameter),
               _buildTableRow('Dig Site:', report.id.substring(0, 3)),

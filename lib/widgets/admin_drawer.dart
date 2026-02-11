@@ -37,7 +37,7 @@ class AdminDrawer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Company Logo
+                // App Logo
                 Container(
                   width: 70,
                   height: 70,
@@ -46,9 +46,10 @@ class AdminDrawer extends StatelessWidget {
                     color: Colors.white.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Image.asset(
-                    'assets/logos/logo_main_white.png',
-                    fit: BoxFit.contain,
+                  child: Icon(
+                    Icons.admin_panel_settings,
+                    size: 50,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -67,7 +68,7 @@ class AdminDrawer extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Integrity Specialists',
+                      'NDT Tool-Kit',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.85),
                         fontSize: 12,

@@ -196,19 +196,40 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                             // Logo and App Name
                             Column(
                               children: [
-                                // Company Logo
-                                SizedBox(
-                                  width: 250,
-                                  height: 250,
-                                  child: Image.asset(
-                                    'assets/logos/logo_main.png',
-                                    fit: BoxFit.contain,
+                                // Generic App Icon
+                                Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        AppTheme.primaryNavy,
+                                        AppTheme.primaryBlue,
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.engineering_outlined,
+                                      size: 60,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 24),
                                 // Company Name
                                 Text(
-                                  'Integrity Specialists',
+                                  'NDT Tool-Kit',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 24,

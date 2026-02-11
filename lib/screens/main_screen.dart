@@ -106,19 +106,27 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           ),
         ),
         actions: [
-          // Company Text Logo
+          // App Name Logo
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                AppTheme.primaryNavy,
-                BlendMode.srcIn,
-              ),
-              child: Image.asset(
-                'assets/logos/logo_text_final.png',
-                height: 24,
-                fit: BoxFit.contain,
-              ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.build_circle,
+                  color: AppTheme.primaryNavy,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'NDT Tool-Kit',
+                  style: TextStyle(
+                    color: AppTheme.primaryNavy,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

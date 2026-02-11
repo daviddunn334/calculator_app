@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // Company Brand Colors - Integrity Specialists
+  // Brand Colors
   static const Color primaryNavy = Color(0xFF1b325b); // Navy Blue
   static const Color accentGold = Color(0xFFfbcd0f); // Gold/Yellow
   

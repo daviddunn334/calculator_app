@@ -1,9 +1,9 @@
-// Enhanced Service Worker for Integrity Tools PWA
+// Enhanced Service Worker for NDT Tool-Kit PWA
 // Version: 1.0.3 - Feedback system with auto-updates
 
 const CACHE_VERSION = 'v1.0.3';
-const CACHE_NAME = `integrity-tools-${CACHE_VERSION}`;
-const DATA_CACHE_NAME = `integrity-tools-data-${CACHE_VERSION}`;
+const CACHE_NAME = `ndt-toolkit-${CACHE_VERSION}`;
+const DATA_CACHE_NAME = `ndt-toolkit-data-${CACHE_VERSION}`;
 
 // Assets to precache on install
 const PRECACHE_ASSETS = [
@@ -275,7 +275,7 @@ self.addEventListener('push', (event) => {
   };
   
   event.waitUntil(
-    self.registration.showNotification('Integrity Tools', options)
+    self.registration.showNotification('NDT Tool-Kit', options)
   );
 });
 

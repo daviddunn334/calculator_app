@@ -187,39 +187,60 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             // Logo and App Name
                             Column(
                               children: [
-                                // Company Logo
-                                SizedBox(
-                                  width: 250,
-                                  height: 250,
-                                  child: Image.asset(
-                                    'assets/logos/logo_main.png',
-                                    fit: BoxFit.contain,
+                                // Generic App Icon
+                                Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        AppTheme.primaryNavy,
+                                        AppTheme.primaryBlue,
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppTheme.primaryBlue.withOpacity(0.3),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.engineering_outlined,
+                                      size: 60,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 16),
+                                const SizedBox(height: 24),
                                 // Company Name and Tagline
                                 Column(
                                   children: [
-                                    Text(
-                                      'Integrity Specialists',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 26,
-                                        color: AppTheme.primaryNavy,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Our people are trained to be the difference.',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppTheme.textSecondary,
-                                        letterSpacing: 0.2,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
+                                Text(
+                                  'NDT Tool-Kit',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 26,
+                                    color: AppTheme.primaryNavy,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Professional NDT inspection tools and resources',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppTheme.textSecondary,
+                                    letterSpacing: 0.2,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                                   ],
                                 ),
                               ],

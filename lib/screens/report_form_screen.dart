@@ -1184,8 +1184,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
       final pdfBytes =
           await _pdfService.generateProfessionalReportPdf(widget.report!);
       if (mounted) {
-        final filename =
-            'Integrity_Specialists_Report_${widget.report!.location}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final filename =
+          'NDT_Report_${widget.report!.location}_${DateTime.now().millisecondsSinceEpoch}.pdf';
         await _pdfService.downloadPdfWeb(pdfBytes, filename);
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1363,8 +1363,8 @@ class _ReportFormScreenState extends State<ReportFormScreen> {
                             child: TextFormField(
                               controller: _integritySpecialistsNumberController,
                               decoration: const InputDecoration(
-                                labelText: 'Integrity Specialists #',
-                                hintText: 'Enter IS number',
+                                labelText: 'Company WO #',
+                                hintText: 'Enter company WO number',
                               ),
                             ),
                           ),

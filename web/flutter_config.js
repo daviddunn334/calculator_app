@@ -1,4 +1,4 @@
-// Flutter web configuration for Integrity Tools
+// Flutter web configuration for NDT Tool-Kit
 window.flutterWebRenderer = "html";
 window.flutterConfiguration = {
   "buildMode": "release",

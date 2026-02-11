@@ -39,19 +39,25 @@ class AppDrawer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Company Text Logo
+                // App Name
                 Container(
                   width: 200,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Image.asset(
-                    'assets/logos/logo_text_final.png',
-                    fit: BoxFit.contain,
+                  child: Text(
+                    'NDT Tool-Kit',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
                 // Tagline
                 Text(
-                  'Our people are trained to be the difference.',
+                  'Professional NDT Inspection Platform',
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.85),
                     fontSize: 11,
