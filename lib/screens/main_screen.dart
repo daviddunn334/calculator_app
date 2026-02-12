@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'home_screen.dart';
+import 'most_used_tools_screen.dart';
 import 'tools_screen.dart';
 import '../theme/app_theme.dart';
 import 'profile_screen.dart';
@@ -32,6 +33,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   final List<Widget> _screens = [
     const HomeScreen(),
+    const MostUsedToolsScreen(),
     const ToolsScreen(),
     const MapsScreen(),
     const MethodHoursScreen(),
@@ -218,28 +220,30 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       case 0:
         return isSelected ? Icons.home : Icons.home_outlined;
       case 1:
-        return isSelected ? Icons.build : Icons.build_outlined;
+        return isSelected ? Icons.star : Icons.star_outlined;
       case 2:
-        return isSelected ? Icons.map : Icons.map_outlined;
+        return isSelected ? Icons.build : Icons.build_outlined;
       case 3:
-        return isSelected ? Icons.note_alt : Icons.note_alt_outlined;
+        return isSelected ? Icons.map : Icons.map_outlined;
       case 4:
-        return isSelected ? Icons.psychology : Icons.psychology_outlined;
+        return isSelected ? Icons.note_alt : Icons.note_alt_outlined;
       case 5:
-        return isSelected ? Icons.person : Icons.person_outline;
+        return isSelected ? Icons.psychology : Icons.psychology_outlined;
       case 6:
-        return isSelected ? Icons.inventory_2 : Icons.inventory_2_outlined;
+        return isSelected ? Icons.person : Icons.person_outline;
       case 7:
-        return isSelected ? Icons.people_alt : Icons.people_alt_outlined;
+        return isSelected ? Icons.inventory_2 : Icons.inventory_2_outlined;
       case 8:
-        return isSelected ? Icons.newspaper : Icons.newspaper_outlined;
+        return isSelected ? Icons.people_alt : Icons.people_alt_outlined;
       case 9:
-        return isSelected ? Icons.transform : Icons.transform_outlined;
+        return isSelected ? Icons.newspaper : Icons.newspaper_outlined;
       case 10:
-        return isSelected ? Icons.feedback : Icons.feedback_outlined;
+        return isSelected ? Icons.transform : Icons.transform_outlined;
       case 11:
-        return isSelected ? Icons.analytics : Icons.analytics_outlined;
+        return isSelected ? Icons.feedback : Icons.feedback_outlined;
       case 12:
+        return isSelected ? Icons.analytics : Icons.analytics_outlined;
+      case 13:
         return isSelected ? Icons.photo_camera : Icons.photo_camera_outlined;
       default:
         return Icons.home_outlined;
@@ -251,28 +255,30 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       case 0:
         return 'Home';
       case 1:
-        return 'Tools';
+        return 'Most Used Tools';
       case 2:
-        return 'Maps';
+        return 'NDT Tools';
       case 3:
-        return 'Method Hours';
+        return 'Maps';
       case 4:
-        return 'KB';
+        return 'Method Hours';
       case 5:
-        return 'Profile';
+        return 'KB';
       case 6:
-        return 'Inventory';
+        return 'Profile';
       case 7:
-        return 'Directory';
+        return 'Inventory';
       case 8:
-        return 'News & Updates';
+        return 'Directory';
       case 9:
-        return 'Equotip Data Converter';
+        return 'News & Updates';
       case 10:
-        return 'Send Feedback';
+        return 'Equotip Data Converter';
       case 11:
-        return 'Defect AI Analyzer';
+        return 'Send Feedback';
       case 12:
+        return 'Defect AI Analyzer';
+      case 13:
         return 'Defect AI Identifier';
       default:
         return '';
@@ -284,28 +290,30 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       case 0:
         return 'home';
       case 1:
-        return 'tools';
+        return 'most_used_tools';
       case 2:
-        return 'maps';
+        return 'ndt_tools';
       case 3:
-        return 'method_hours';
+        return 'maps';
       case 4:
-        return 'knowledge_base';
+        return 'method_hours';
       case 5:
-        return 'profile';
+        return 'knowledge_base';
       case 6:
-        return 'inventory';
+        return 'profile';
       case 7:
-        return 'company_directory';
+        return 'inventory';
       case 8:
-        return 'news_updates';
+        return 'company_directory';
       case 9:
-        return 'equotip_converter';
+        return 'news_updates';
       case 10:
-        return 'feedback';
+        return 'equotip_converter';
       case 11:
-        return 'defect_analyzer';
+        return 'feedback';
       case 12:
+        return 'defect_analyzer';
+      case 13:
         return 'defect_identifier';
       default:
         return 'unknown';

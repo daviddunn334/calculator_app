@@ -5,125 +5,91 @@ import '../calculators/time_clock_calculator.dart';
 import '../calculators/dent_ovality_calculator.dart';
 import '../calculators/b31g_calculator.dart';
 import '../calculators/depth_percentages_calculator.dart';
-import '../calculators/snells_law_calculator.dart';
-import '../calculators/trig_beam_path_calculator.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_header.dart';
 import '../widgets/offline_indicator.dart';
 import '../services/offline_service.dart';
 import 'corrosion_grid_logger_screen.dart';
 import 'pdf_to_excel_screen.dart';
-import 'beam_geometry_category_screen.dart';
-import 'snells_law_suite_category_screen.dart';
-import 'array_geometry_category_screen.dart';
-import 'pipeline_specific_category_screen.dart';
-import 'field_productivity_category_screen.dart';
 
-class ToolsScreen extends StatefulWidget {
-  const ToolsScreen({super.key});
+class MostUsedToolsScreen extends StatefulWidget {
+  const MostUsedToolsScreen({super.key});
 
   @override
-  State<ToolsScreen> createState() => _ToolsScreenState();
+  State<MostUsedToolsScreen> createState() => _MostUsedToolsScreenState();
 }
 
-class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStateMixin {
+class _MostUsedToolsScreenState extends State<MostUsedToolsScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   final OfflineService _offlineService = OfflineService();
   bool _isOnline = true;
   
-  final List<Map<String, dynamic>> _toolCategories = [
+  final List<Map<String, dynamic>> _calculators = [
     {
-      'title': 'Beam Geometry',
-      'icon': Icons.explore_outlined,
-      'description': 'Beam path calculations and visualization tools',
-      'tags': ['Beam Path', 'Skip Distance', 'Angles'],
-      'color': Color(0xFF2196F3), // Blue
-    },
-    {
-      'title': 'Snell\'s Law Suite',
-      'icon': Icons.waves_outlined,
-      'description': 'Refraction angle and velocity calculations',
-      'tags': ['Refraction', 'Wedge', 'Velocity'],
-      'color': Color(0xFF00BCD4), // Cyan
-    },
-    {
-      'title': 'Array Geometry',
-      'icon': Icons.grid_4x4_outlined,
-      'description': 'Phased array probe and element calculations',
-      'tags': ['Phased Array', 'Elements', 'Pitch'],
-      'color': Color(0xFF9C27B0), // Purple
-    },
-    {
-      'title': 'Focal Law Tools',
-      'icon': Icons.center_focus_strong_outlined,
-      'description': 'Focal law generation and delay calculations',
-      'tags': ['Focal Laws', 'Delays', 'PAUT'],
-      'color': Color(0xFF673AB7), // Deep Purple
-    },
-    {
-      'title': 'Advanced',
-      'icon': Icons.science_outlined,
-      'description': 'Advanced NDT calculations and analysis',
-      'tags': ['Advanced', 'Complex', 'Analysis'],
+      'title': '📐 ABS + ES Calculator',
+      'icon': Icons.calculate_outlined,
+      'description': 'Calculate ABS and ES values',
+      'tags': ['Offset', 'Distance', 'RGW'],
       'color': Color(0xFF3F51B5), // Indigo
+      'route': const AbsEsCalculator(),
     },
     {
-      'title': 'Amplitude / dB Tools',
-      'icon': Icons.graphic_eq_outlined,
-      'description': 'Amplitude, decibel, and signal calculations',
-      'tags': ['Amplitude', 'dB', 'Signal'],
-      'color': Color(0xFF4CAF50), // Green
-    },
-    {
-      'title': 'Magnetic Particle',
-      'icon': Icons.grain_outlined,
-      'description': 'MT inspection tools and reference materials',
-      'tags': ['MT', 'Magnetic', 'Surface'],
-      'color': Color(0xFFE91E63), // Pink
-    },
-    {
-      'title': 'Field Productivity Tools',
-      'icon': Icons.work_outline,
-      'description': 'Time-saving tools and utilities for field work',
-      'tags': ['Productivity', 'Field', 'Utilities'],
-      'color': Color(0xFFFF5722), // Deep Orange
-    },
-    {
-      'title': 'Radiography',
-      'icon': Icons.camera_outlined,
-      'description': 'RT inspection tools and reference materials',
-      'tags': ['RT', 'X-Ray', 'Film'],
-      'color': Color(0xFF607D8B), // Blue Grey
-    },
-    {
-      'title': 'Materials & Metallurgy Tools',
-      'icon': Icons.category_outlined,
-      'description': 'Material properties and metallurgy references',
-      'tags': ['Materials', 'Metallurgy', 'Properties'],
-      'color': Color(0xFF795548), // Brown
-    },
-    {
-      'title': 'Pipeline-Specific',
-      'icon': Icons.linear_scale_outlined,
-      'description': 'Pipeline integrity and corrosion tools',
-      'tags': ['Pipeline', 'Corrosion', 'Integrity'],
-      'color': Color(0xFFFF9800), // Orange
-    },
-    {
-      'title': 'Geometry & Math Reference',
-      'icon': Icons.functions_outlined,
-      'description': 'Mathematical formulas and geometry tools',
-      'tags': ['Math', 'Geometry', 'Formulas'],
+      'title': '📏 Pit Depth Calculator',
+      'icon': Icons.height_outlined,
+      'description': 'Calculate pit depths and measurements',
+      'tags': ['Corrosion', 'Wall Loss', 'Remaining'],
       'color': Color(0xFF009688), // Teal
+      'route': const PitDepthCalculator(),
     },
     {
-      'title': 'Code & Standard Reference',
-      'icon': Icons.menu_book_outlined,
-      'description': 'ASME, API, and other code references',
-      'tags': ['Codes', 'Standards', 'ASME', 'API'],
-      'color': Color(0xFF5E35B1), // Deep Purple
+      'title': '🕐 Time Clock Calculator',
+      'icon': Icons.access_time_outlined,
+      'description': 'Track and calculate work hours',
+      'tags': ['Clock Position', 'Distance', 'Conversion'],
+      'color': Color(0xFF673AB7), // Deep Purple
+      'route': const TimeClockCalculator(),
+    },
+    {
+      'title': '⭕ Dent Ovality Calculator',
+      'icon': Icons.circle_outlined,
+      'description': 'Calculate dent ovality percentage',
+      'tags': ['Dent', 'Deformation', 'Percentage'],
+      'color': Color(0xFFE91E63), // Pink
+      'route': const DentOvalityCalculator(),
+    },
+    {
+      'title': '🔧 B31G Calculator',
+      'icon': Icons.engineering_outlined,
+      'description': 'Calculate pipe defect assessment using B31G method',
+      'tags': ['Corrosion', 'Assessment', 'ASME'],
+      'color': Color(0xFF2196F3), // Blue
+      'route': const B31GCalculator(),
+    },
+    {
+      'title': '📊 Corrosion Grid Logger',
+      'icon': Icons.grid_on_outlined,
+      'description': 'Log and export corrosion grid data for RSTRENG',
+      'tags': ['Grid', 'RSTRENG', 'Export'],
+      'color': Color(0xFFFF9800), // Orange
+      'route': const CorrosionGridLoggerScreen(),
+    },
+    {
+      'title': '📄 PDF to Excel Converter',
+      'icon': Icons.picture_as_pdf_outlined,
+      'description': 'Convert hardness PDF files to Excel format',
+      'tags': ['PDF', 'Excel', 'Hardness', 'Convert'],
+      'color': Color(0xFF4CAF50), // Green
+      'route': const PdfToExcelScreen(),
+    },
+    {
+      'title': '📈 Depth Percentages Chart',
+      'icon': Icons.analytics_outlined,
+      'description': 'Visualize and analyze depth percentages for inspection data',
+      'tags': ['Charts', 'Analysis', 'Visualization', 'Depth'],
+      'color': Color(0xFF9C27B0), // Purple
+      'route': const DepthPercentagesCalculator(),
     },
   ];
 
@@ -210,9 +176,9 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                 ),
                 if (MediaQuery.of(context).size.width >= 1200)
                   const AppHeader(
-                    title: 'NDT Tools',
-                    subtitle: 'Professional calculation tools for pipeline inspection',
-                    icon: Icons.build,
+                    title: 'Most Used Tools',
+                    subtitle: 'Most frequently used NDT calculation tools',
+                    icon: Icons.star,
                   ),
                 Expanded(
                   child: FadeTransition(
@@ -266,7 +232,7 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                                         ],
                                       ),
                                       child: const Icon(
-                                        Icons.build_rounded,
+                                        Icons.star_rounded,
                                         size: 32,
                                         color: Colors.white,
                                       ),
@@ -277,7 +243,7 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            'NDT Tools',
+                                            'Most Used Tools',
                                             style: AppTheme.titleLarge.copyWith(
                                               fontWeight: FontWeight.bold,
                                               color: AppTheme.textPrimary,
@@ -285,7 +251,7 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            'Professional calculation tools for pipeline inspection',
+                                            'Most frequently used NDT calculation tools',
                                             style: AppTheme.bodyMedium.copyWith(
                                               color: AppTheme.textSecondary,
                                             ),
@@ -306,68 +272,23 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                                   crossAxisSpacing: 16,
                                   mainAxisSpacing: 16,
                                 ),
-                                itemCount: _toolCategories.length,
+                                itemCount: _calculators.length,
                                 itemBuilder: (context, index) {
-                                  final category = _toolCategories[index];
+                                  final calculator = _calculators[index];
                                   return _buildCalculatorCard(
                                     context,
-                                    category['title'],
-                                    category['icon'],
-                                    category['description'],
-                                    category['tags'],
-                                    category['color'],
+                                    calculator['title'],
+                                    calculator['icon'],
+                                    calculator['description'],
+                                    calculator['tags'],
+                                    calculator['color'],
                                     () {
-                                      // Navigate to category detail screen
-                                      if (index == 0) {
-                                        // Beam Geometry
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const BeamGeometryCategoryScreen(),
-                                          ),
-                                        );
-                                      } else if (index == 1) {
-                                        // Snell's Law Suite
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const SnellsLawSuiteCategoryScreen(),
-                                          ),
-                                        );
-                                      } else if (index == 2) {
-                                        // Array Geometry
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const ArrayGeometryCategoryScreen(),
-                                          ),
-                                        );
-                                      } else if (index == 7) {
-                                        // Field Productivity Tools
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const FieldProductivityCategoryScreen(),
-                                          ),
-                                        );
-                                      } else if (index == 10) {
-                                        // Pipeline-Specific
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => const PipelineSpecificCategoryScreen(),
-                                          ),
-                                        );
-                                      } else {
-                                        // Other categories - coming soon
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('${category['title']} - Coming soon!'),
-                                            backgroundColor: category['color'],
-                                            duration: const Duration(seconds: 2),
-                                          ),
-                                        );
-                                      }
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => calculator['route'],
+                                        ),
+                                      );
                                     },
                                   );
                                 },

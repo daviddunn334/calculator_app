@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'services/offline_service.dart';
 import 'services/update_service.dart';
 import 'services/performance_service.dart';
+import 'services/coordinates_service.dart';
 import 'widgets/auto_update_notification.dart';
 import 'screens/main_screen.dart';
 import 'screens/corrosion_grid_logger_screen.dart';
@@ -43,6 +44,18 @@ void main() async {
   // Initialize PWA update service (web only)
   final updateService = UpdateService();
   await updateService.initialize();
+  
+  // Initialize Hive for local storage (coordinates logger)
+  try {
+    await CoordinatesService.init();
+    if (kDebugMode) {
+      print('[Hive] Coordinates storage initialized');
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print('[Hive] Error initializing coordinates storage: $e');
+    }
+  }
   
   try {
     await Firebase.initializeApp(

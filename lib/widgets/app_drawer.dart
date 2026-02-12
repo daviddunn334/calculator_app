@@ -80,10 +80,18 @@ class AppDrawer extends StatelessWidget {
                 ),
                 _buildMenuItem(
                   context,
-                  'Tools',
+                  'Most Used Tools',
+                  Icons.star_outlined,
+                  Icons.star,
+                  1,
+                  isLargeScreen,
+                ),
+                _buildMenuItem(
+                  context,
+                  'NDT Tools',
                   Icons.build_outlined,
                   Icons.build,
-                  1,
+                  2,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -91,7 +99,7 @@ class AppDrawer extends StatelessWidget {
                   'Maps',
                   Icons.map_outlined,
                   Icons.map,
-                  2,
+                  3,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -99,7 +107,7 @@ class AppDrawer extends StatelessWidget {
                   'Method Hours',
                   Icons.note_alt_outlined,
                   Icons.note_alt,
-                  3,
+                  4,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -107,7 +115,7 @@ class AppDrawer extends StatelessWidget {
                   'Knowledge Base',
                   Icons.menu_book_outlined,
                   Icons.menu_book,
-                  4,
+                  5,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -115,7 +123,7 @@ class AppDrawer extends StatelessWidget {
                   'Equotip Data Converter',
                   Icons.transform_outlined,
                   Icons.transform,
-                  9,
+                  10,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -123,7 +131,7 @@ class AppDrawer extends StatelessWidget {
                   'Defect AI Analyzer',
                   Icons.analytics_outlined,
                   Icons.analytics,
-                  11,
+                  12,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -131,7 +139,7 @@ class AppDrawer extends StatelessWidget {
                   'Defect AI Identifier',
                   Icons.photo_camera_outlined,
                   Icons.photo_camera,
-                  12,
+                  13,
                   isLargeScreen,
                 ),
                 
@@ -158,7 +166,7 @@ class AppDrawer extends StatelessWidget {
                   'Inventory',
                   Icons.inventory_2_outlined,
                   Icons.inventory_2,
-                  6,
+                  7,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -166,7 +174,7 @@ class AppDrawer extends StatelessWidget {
                   'Send Feedback',
                   Icons.feedback_outlined,
                   Icons.feedback,
-                  10,
+                  11,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -174,7 +182,7 @@ class AppDrawer extends StatelessWidget {
                   'Company Directory',
                   Icons.people_outline,
                   Icons.people,
-                  7,
+                  8,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -182,7 +190,7 @@ class AppDrawer extends StatelessWidget {
                   'Profile',
                   Icons.person_outline,
                   Icons.person,
-                  5,
+                  6,
                   isLargeScreen,
                 ),
                 _buildMenuItem(
@@ -190,7 +198,7 @@ class AppDrawer extends StatelessWidget {
                   'News & Updates',
                   Icons.newspaper_outlined,
                   Icons.newspaper,
-                  8,
+                  9,
                   isLargeScreen,
                 ),
                 

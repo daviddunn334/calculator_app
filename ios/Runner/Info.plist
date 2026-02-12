@@ -49,6 +49,10 @@
 	<string>This app needs access to photos to save and share PDF reports</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>This app needs access to photos to save PDF reports</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to capture GPS coordinates for field work</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to capture GPS coordinates for field work</string>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>
