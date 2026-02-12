@@ -126,6 +126,14 @@ class AppDrawer extends StatelessWidget {
                   11,
                   isLargeScreen,
                 ),
+                _buildMenuItem(
+                  context,
+                  'Defect AI Identifier',
+                  Icons.photo_camera_outlined,
+                  Icons.photo_camera,
+                  12,
+                  isLargeScreen,
+                ),
                 
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),

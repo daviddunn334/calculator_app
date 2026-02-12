@@ -14,6 +14,7 @@ import '../widgets/app_drawer.dart';
 import 'pdf_to_excel_screen.dart';
 import 'feedback_screen.dart';
 import 'defect_analyzer_screen.dart';
+import 'defect_identifier_screen.dart';
 import '../services/analytics_service.dart';
 
 class MainScreen extends StatefulWidget {
@@ -42,6 +43,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     const PdfToExcelScreen(),
     const FeedbackScreen(),
     const DefectAnalyzerScreen(),
+    const DefectIdentifierScreen(),
   ];
 
   @override
@@ -237,6 +239,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return isSelected ? Icons.feedback : Icons.feedback_outlined;
       case 11:
         return isSelected ? Icons.analytics : Icons.analytics_outlined;
+      case 12:
+        return isSelected ? Icons.photo_camera : Icons.photo_camera_outlined;
       default:
         return Icons.home_outlined;
     }
@@ -268,6 +272,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return 'Send Feedback';
       case 11:
         return 'Defect AI Analyzer';
+      case 12:
+        return 'Defect AI Identifier';
       default:
         return '';
     }
@@ -299,6 +305,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return 'feedback';
       case 11:
         return 'defect_analyzer';
+      case 12:
+        return 'defect_identifier';
       default:
         return 'unknown';
     }

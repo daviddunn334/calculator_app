@@ -16,6 +16,15 @@ export {
   invalidateCacheOnPdfDelete,
 } from "./cache-invalidation";
 
+// Export defect photo identification function (Firestore trigger)
+export {analyzePhotoIdentificationOnCreate} from "./defect-photo-identification";
+
+// Export defect identifier cache invalidation functions
+export {
+  invalidateDefectIdentifierCacheOnUpload,
+  invalidateDefectIdentifierCacheOnDelete,
+} from "./defect-identifier-cache-invalidation";
+
 export const processHardnessReport = onRequest({cors: true}, async (req, res) => {
   try {
     const {filePath} = req.body;

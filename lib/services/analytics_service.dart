@@ -299,4 +299,38 @@ class AnalyticsService {
       },
     );
   }
+
+  /// Log defect photo identification started
+  Future<void> logDefectPhotoIdentificationStarted() async {
+    await logEvent(
+      name: 'defect_photo_identification_started',
+      parameters: {},
+    );
+  }
+
+  /// Log defect photo identification completed
+  Future<void> logDefectPhotoIdentificationCompleted(
+    String topMatch,
+    String confidence,
+    double processingTime,
+  ) async {
+    await logEvent(
+      name: 'defect_photo_identification_completed',
+      parameters: {
+        'top_match': topMatch,
+        'confidence': confidence,
+        'processing_time': processingTime,
+      },
+    );
+  }
+
+  /// Log defect photo identification failed
+  Future<void> logDefectPhotoIdentificationFailed(String errorMessage) async {
+    await logEvent(
+      name: 'defect_photo_identification_failed',
+      parameters: {
+        'error_message': errorMessage,
+      },
+    );
+  }
 }

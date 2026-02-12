@@ -173,5 +173,27 @@ service cloud.firestore {
       // Cloud Functions (running as admin service account) have full access
       // This is implicitly allowed for service accounts
     }
+
+    // Defect Identifier Cache - System-managed cache metadata (singleton)
+    match /defect_identifier_cache/{document=**} {
+      // No user access - cache is system-managed by Cloud Functions
+      allow read, write: if false;
+      // Cloud Functions (running as admin service account) have full access
+      // This is implicitly allowed for service accounts
+    }
+
+    // Photo Identifications - Async defect photo analysis
+    match /photo_identifications/{photoId} {
+      // Users can read their own photo identifications
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Users can create their own photo identifications
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Users can delete their own photo identifications
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Allow Cloud Function (running as admin service account) to update analysis fields only
+      // This allows the AI analysis function to write results
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['analysisStatus', 'analysisCompletedAt', 'matches', 'processingTime', 'errorMessage']);
+    }
   }
 }
