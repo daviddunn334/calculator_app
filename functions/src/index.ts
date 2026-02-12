@@ -25,6 +25,9 @@ export {
   invalidateDefectIdentifierCacheOnDelete,
 } from "./defect-identifier-cache-invalidation";
 
+// Export Method Hours export function
+export {exportMethodHoursToExcel} from "./method-hours-export";
+
 export const processHardnessReport = onRequest({cors: true}, async (req, res) => {
   try {
     const {filePath} = req.body;

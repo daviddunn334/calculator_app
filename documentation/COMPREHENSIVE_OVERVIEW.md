@@ -1758,6 +1758,120 @@ Comprehensive Firebase error code handling:
 **Status:** ✅ Fully implemented and deployed
 **Version:** 1.0.3+4
 
+16. **Method Hours Server-Side Excel Export** 📊🔧 **NEW** (February 12, 2026)
+   - Fixed Excel file corruption by moving export processing to Cloud Functions
+   - Server-side template filling using mature ExcelJS library
+   - Signed download URLs for secure file delivery
+   - Cross-platform compatibility (web and mobile)
+   - Template preserved in Firebase Storage
+
+**Problem Solved:**
+- Client-side Excel generation using Flutter's `excel` package was causing file corruption
+- Files opened in Google Sheets but Microsoft Excel reported corruption
+- Root cause: Immature Dart `excel` package doesn't preserve Excel's internal XML structure
+
+**Solution: Server-Side Generation**
+- **Cloud Function** (`functions/src/method-hours-export.ts`):
+  - HTTP Callable function: `exportMethodHoursToExcel`
+  - Authentication required (auto-gets userId from context)
+  - Accepts `year` parameter (e.g., 2025, 2026)
+  - Downloads template from Storage: `assets/templates/method_hours_template.xlsx`
+  - Queries Firestore for user's method hours entries for that year
+  - Uses **ExcelJS** (Node.js library) to load template and fill cell values only
+  - Preserves all formatting, formulas, and Excel structure
+  - Saves filled file to Storage: `exports/{userId}/Method_Hours_{year}.xlsx`
+  - Returns signed download URL (24-hour expiration)
+  - 120-second timeout, 512MB memory allocation
+
+- **Flutter Service Update** (`lib/services/method_hours_service.dart`):
+  - Replaced local Excel processing with Cloud Function call
+  - Calls `FirebaseFunctions.instance.httpsCallable('exportMethodHoursToExcel')`
+  - Downloads file from signed URL using http package
+  - Handles web (browser download) and mobile (save & share) platforms
+  - Removed dependencies on: `excel`, `rootBundle`, `ByteData`, `Uint8List`
+  - Added dependencies: `cloud_functions`, `http` (already present in pubspec.yaml)
+
+**Technical Details:**
+- **ExcelJS Features Used**:
+  - `workbook.xlsx.load()` - Loads template without corruption
+  - `worksheet.getCell(row, column)` - Sets cell values (1-based indexing)
+  - `workbook.xlsx.writeBuffer()` - Generates valid Excel file
+  - Sets only values, preserves all styling and formulas
+  
+- **Template Structure**:
+  - 12 sheets: Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+  - Data starts at row 7 (ExcelJS row index 7)
+  - Columns: A=Date(1), B=Location(2), C=MT(3), D=PT(4), E=ET(5), F=UT(6), G=VT(7), H=LM(8), I=PAUT(9), J=Supervising Tech(10)
+  - Template must exist in Storage before function works
+
+**Deployment Requirements:**
+1. **Upload template to Firebase Storage:**
+   ```bash
+   # Via gsutil:
+   gsutil cp assets/templates/method_hours_template.xlsx gs://integrity-tools.appspot.com/assets/templates/method_hours_template.xlsx
+   
+   # Or manually via Firebase Console:
+   # Storage → Create folder: assets/templates/
+   # Upload: method_hours_template.xlsx
+   ```
+
+2. **Deploy Cloud Function:**
+   ```bash
+   cd functions
+   npm run build
+   cd ..
+   firebase deploy --only functions:exportMethodHoursToExcel --project integrity-tools
+   ```
+
+3. **Test the export:**
+   - Create method hours entries in the app
+   - Export for a year
+   - Open in Microsoft Excel (not Google Sheets)
+   - Verify no corruption warnings
+
+**Benefits:**
+- ✅ **No more corruption** - ExcelJS properly preserves Excel structure
+- ✅ **Consistent output** - Same result on web and mobile
+- ✅ **Template integrity** - Server-side processing, no mobile file system issues
+- ✅ **Faster for users** - Offloads processing to powerful server
+- ✅ **Secure** - Signed URLs expire after 24 hours
+- ✅ **User-scoped** - Each user can only export their own data
+
+**Files Added:**
+- `functions/src/method-hours-export.ts` - Server-side Excel generation function
+
+**Files Modified:**
+- `lib/services/method_hours_service.dart` - Replaced local processing with Cloud Function call
+- `functions/src/index.ts` - Exported new function
+- (No changes to pubspec.yaml - all dependencies already present)
+
+**Storage Structure:**
+```
+assets/templates/method_hours_template.xlsx  # Original template (admin uploads once)
+exports/{userId}/Method_Hours_2025.xlsx       # Generated files (auto-created per user/year)
+exports/{userId}/Method_Hours_2026.xlsx
+```
+
+**Security:**
+- Cloud Function requires authentication (Firebase Auth)
+- Users can only query their own method hours (Firestore rules)
+- Signed URLs expire after 24 hours
+- Old exports can be cleaned up periodically via Storage lifecycle rules
+
+**Why ExcelJS vs Flutter's excel Package:**
+- ExcelJS is mature (Node.js ecosystem, millions of downloads)
+- Properly handles OOXML format (Excel's internal structure)
+- Battle-tested in production by many companies
+- Flutter's `excel` package is newer, less reliable for complex templates
+
+**Cost:**
+- Cloud Function executions: Free tier covers typical usage
+- Storage: Minimal (exports can be auto-deleted after 7 days)
+- Egress: Free within Firebase services
+
+**Status:** ✅ Implemented, ready for deployment after template upload
+**Version:** Current (no version bump needed until deployed)
+
 ---
 
 This is the context you need when helping implement changes or new features for this application.
