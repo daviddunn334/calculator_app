@@ -100,19 +100,21 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
           acceptedTerms: _agreedToTerms,
           acceptedPrivacy: _agreedToPrivacy,
         );
+        
+        // Send email verification automatically
+        try {
+          await _authService.sendEmailVerification();
+          print('Email verification sent to new user');
+        } catch (e) {
+          print('Error sending verification email: $e');
+          // Don't fail signup if email send fails - user can resend from verification screen
+        }
       }
       
-      // Clear form fields after successful signup
-      _emailController.clear();
-      _passwordController.clear();
-      _confirmPasswordController.clear();
-      _nameController.clear();
-      _agreedToTerms = false;
-      _agreedToPrivacy = false;
-      
-      setState(() {
-        _successMessage = 'Account created successfully! You can now log in.';
-      });
+      // Navigate to email verification screen
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/email_verification');
+      }
     } catch (e) {
       print('Signup error: $e');
       String errorMessage = 'An error occurred during signup';

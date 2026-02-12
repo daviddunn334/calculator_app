@@ -23,6 +23,7 @@ import 'screens/reports_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/reset_password_screen.dart';
+import 'screens/email_verification_screen.dart';
 import 'screens/terms_of_service_screen.dart';
 import 'screens/privacy_policy_screen.dart';
 import 'screens/news_updates_screen.dart';
@@ -30,8 +31,10 @@ import 'screens/tools_screen.dart';
 import 'screens/method_hours_screen.dart';
 import 'screens/feedback_screen.dart';
 import 'services/auth_service.dart';
+import 'services/onboarding_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'theme/app_theme.dart';
+import 'screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,6 +95,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
         '/reset_password': (context) => const ResetPasswordScreen(),
+        '/email_verification': (context) => const EmailVerificationScreen(),
         '/terms_of_service': (context) => const TermsOfServiceScreen(),
         '/privacy_policy': (context) => const PrivacyPolicyScreen(),
         '/corrosion_grid_logger': (context) => const CorrosionGridLoggerScreen(),
@@ -109,6 +113,7 @@ class MyApp extends StatelessWidget {
         '/reports': (context) => const ReportsScreen(),
         '/method_hours': (context) => const MethodHoursScreen(),
         '/feedback': (context) => const FeedbackScreen(),
+        '/onboarding': (context) => const OnboardingScreen(),
       }
     );
   }
@@ -200,12 +205,85 @@ class AuthGate extends StatelessWidget {
               return const LoginScreen();
             }
 
-            // Show main screen if authenticated
-            return const MainScreen();
+            // Check onboarding status for authenticated users
+            return const OnboardingChecker();
           },
         );
       },
     );
+  }
+}
+
+/// Widget that checks if user needs onboarding and email verification
+class OnboardingChecker extends StatelessWidget {
+  const OnboardingChecker({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: OnboardingService().hasCompletedOnboarding(),
+      builder: (context, snapshot) {
+        // Show loading while checking
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            backgroundColor: AppTheme.background,
+            body: Center(
+              child: LoadingLogo(),
+            ),
+          );
+        }
+
+        // If user hasn't completed onboarding, show onboarding screen
+        final hasCompleted = snapshot.data ?? false;
+        if (!hasCompleted) {
+          return const OnboardingScreen();
+        }
+
+        // After onboarding, check email verification
+        return const EmailVerificationChecker();
+      },
+    );
+  }
+}
+
+/// Widget that checks if user needs email verification (with grandfathering)
+class EmailVerificationChecker extends StatelessWidget {
+  const EmailVerificationChecker({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final user = AuthService().currentUser;
+    
+    if (user == null) {
+      return const LoginScreen();
+    }
+
+    // GRANDFATHERING LOGIC: Protect existing users
+    // Cutoff date: February 12, 2026 (deployment date)
+    final cutoffDate = DateTime(2026, 2, 12);
+    final accountCreated = user.metadata.creationTime;
+
+    // If account was created BEFORE the cutoff date, skip email verification
+    if (accountCreated != null && accountCreated.isBefore(cutoffDate)) {
+      if (kDebugMode) {
+        print('[EmailVerification] Grandfathered user (created: $accountCreated) - skipping verification');
+      }
+      return const MainScreen();
+    }
+
+    // For NEW users (created on or after cutoff), check email verification
+    if (!user.emailVerified) {
+      if (kDebugMode) {
+        print('[EmailVerification] New user (created: $accountCreated) - requires verification');
+      }
+      return const EmailVerificationScreen();
+    }
+
+    // Email is verified - proceed to main screen
+    if (kDebugMode) {
+      print('[EmailVerification] Email verified - granting access');
+    }
+    return const MainScreen();
   }
 }
 

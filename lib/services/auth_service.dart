@@ -91,4 +91,39 @@ class AuthService {
       rethrow;
     }
   }
+
+  // Send email verification
+  Future<void> sendEmailVerification() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('No user is currently signed in');
+      }
+      
+      if (user.emailVerified) {
+        print('User email is already verified');
+        return;
+      }
+      
+      print('Attempting to send email verification to: ${user.email}');
+      await user.sendEmailVerification();
+      print('Email verification sent successfully to: ${user.email}');
+    } catch (e) {
+      print('Error sending email verification: $e');
+      rethrow;
+    }
+  }
+
+  // Check if current user's email is verified
+  bool get isEmailVerified => _auth.currentUser?.emailVerified ?? false;
+
+  // Reload current user data from Firebase
+  Future<void> reloadUser() async {
+    try {
+      await _auth.currentUser?.reload();
+    } catch (e) {
+      print('Error reloading user: $e');
+      rethrow;
+    }
+  }
 }

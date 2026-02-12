@@ -196,7 +196,20 @@ Comprehensive user behavior and engagement tracking:
 - Privacy-focused (no PII collection)
 - Extensible for future events
 
-### 12. Additional Features
+### 12. User Onboarding & App Tour ⭐ NEW
+
+First-time user experience with guided tour of key features:
+
+- **6-Screen Onboarding Flow**: Welcome, Calculators, AI Features, Method Hours/Reporting, Knowledge Base, Get Started
+- **Auto-trigger**: Shows automatically after first login for new users
+- **"Take Tour Again"**: Restart button in Profile screen Settings
+- **Analytics Tracking**: 5 onboarding events (started, page_viewed, completed, skipped, restarted)
+- **Data Persistence**: Stored in Firestore UserProfile.hasCompletedOnboarding + SharedPreferences cache
+- **OnboardingService**: Manages state and completion status
+- **Package**: Uses `introduction_screen: ^3.1.14` for polished UI
+- **Design**: Brief, icon-based screens with skip option, navy/gold branding
+
+### 13. Additional Features
 
 - Certifications tracking
 - Inventory management
@@ -218,7 +231,7 @@ Comprehensive user behavior and engagement tracking:
 
 ### Collections
 
-- /users/{userId} - User profiles with isAdmin flag
+- /users/{userId} - User profiles with isAdmin flag and hasCompletedOnboarding
 - /reports/{reportId} - Inspection reports with userId reference
 - /method_hours/{entryId} - Method hours entries with userId reference
 - /news_updates/{updateId} - News posts with isPublished flag
@@ -262,6 +275,19 @@ Located in `lib/utils/contact_helper.dart`
 - Integrated analytics tracking
 - Cross-platform support (iOS, Android, Web)
 
+### **OnboardingService** ⭐ NEW
+Located in `lib/services/onboarding_service.dart`
+
+**Core Methods:**
+- `hasCompletedOnboarding()` - Check if user finished tour (checks SharedPreferences then Firestore)
+- `markOnboardingComplete()` - Save completion status to both storage layers
+- `resetOnboarding()` - Clear local cache to restart tour
+
+**Features:**
+- Dual-layer persistence (SharedPreferences + Firestore)
+- Fast local checks with Firestore fallback
+- Used by AuthGate to route new users to OnboardingScreen
+
 ### **AnalyticsService** ⭐ NEW
 Located in `lib/services/analytics_service.dart`
 
@@ -270,6 +296,7 @@ Located in `lib/services/analytics_service.dart`
 - `logEvent(name, parameters)` - Custom event logging
 - `setUserId(userId)` - Associate events with user
 - `setUserProperty(name, value)` - Set user attributes
+- `logOnboardingStarted()`, `logOnboardingCompleted()`, `logOnboardingSkipped()`, etc. - Onboarding events
 
 **Architecture:**
 - Singleton pattern for app-wide access
@@ -284,6 +311,97 @@ The app is functional and feature-complete, preparing for Google Play Store and 
 ---
 
 ## Recent Updates (Latest Session)
+
+### **February 12, 2026** (Current Session)
+
+**Email Verification System with Grandfathering** 🔐✉️
+
+- Implemented mandatory email verification for new user signups
+- **Grandfathering protection**: Existing users (accounts created before Feb 12, 2026) are exempt from verification
+- Automatic verification email sent immediately after account creation
+- Email verification screen with auto-check every 5 seconds
+- Resend email functionality with 60-second cooldown timer to prevent abuse
+- SharedPreferences tracking for cooldown enforcement
+- User-friendly "I've Verified" button for manual verification checking
+- Sign out option to change email if needed
+
+**AuthService Enhancements:**
+- Added `sendEmailVerification()` method for sending verification emails
+- Added `isEmailVerified` getter to check verification status
+- Added `reloadUser()` method to refresh user data from Firebase
+- Automatic email sending integrated into signup flow
+
+**EmailVerificationChecker Component:**
+- Checks account creation date against cutoff (Feb 12, 2026)
+- Routes existing users directly to MainScreen (bypasses verification)
+- Routes new unverified users to EmailVerificationScreen
+- Debug logging for verification flow tracking
+
+**UI/UX Features:**
+- Clean verification screen matching app design patterns
+- Email icon with circle background
+- User email display in highlighted container
+- Success/error message containers with color coding
+- Info banner with troubleshooting tips
+- Resend button shows countdown timer
+- Auto-refresh prevents manual polling
+
+**Analytics Events:**
+- `email_verification_shown` - Verification screen displayed
+- `email_verification_resent` - User requests new email
+- `email_verified_success` - Successful verification
+
+**Files Added:**
+- `lib/screens/email_verification_screen.dart` - Main verification UI
+
+**Files Modified:**
+- `lib/services/auth_service.dart` - Added verification methods
+- `lib/screens/signup_screen.dart` - Auto-send email, navigate to verification screen
+- `lib/main.dart` - Added EmailVerificationChecker with grandfathering logic
+- `lib/main.dart` - Added /email_verification route
+
+**Important Implementation Notes:**
+- **Cutoff date is hardcoded**: `DateTime(2026, 2, 12)` in EmailVerificationChecker
+- **Zero impact on existing users**: Accounts created before cutoff skip verification entirely
+- **New user flow**: Signup → Verification Email → Verification Screen → Email Verified → Main Screen
+- **Firebase handles email sending**: Uses Firebase's built-in email verification system
+- **Link expiration**: Verification links expire in 1 hour (Firebase default)
+- **No Firestore changes**: Uses Firebase Auth's `user.emailVerified` property
+- **Can customize email template**: Firebase Console → Authentication → Templates → Email verification
+
+**Testing the Grandfathering Logic:**
+To test different user scenarios, temporarily modify the cutoff date in `lib/main.dart` line 265:
+- Set to yesterday: `DateTime(2026, 2, 11)` - All existing accounts will require verification (test new user flow)
+- Set to tomorrow: `DateTime(2026, 2, 13)` - All accounts bypass verification (test existing user flow)
+
+**Status:** Complete and ready for testing
+
+---
+
+**User Onboarding & App Tour Implementation** 🎓✨
+
+- Created 6-screen onboarding flow using `introduction_screen: ^3.1.14` package
+- Auto-triggers for first-time users after login (checks `hasCompletedOnboarding` field)
+- Added "Take Tour Again" button in Profile screen Settings
+- Integrated OnboardingService for state management (SharedPreferences + Firestore dual-layer)
+- Added 5 analytics events: onboarding_started, page_viewed, completed, skipped, restarted
+- Updated UserProfile model with `hasCompletedOnboarding` boolean field
+- Modified AuthGate with OnboardingChecker widget for routing logic
+- Brief, icon-based screens matching navy/gold branding
+
+**Files Added:**
+- `lib/screens/onboarding_screen.dart` - Main onboarding UI
+- `lib/services/onboarding_service.dart` - State management
+
+**Files Modified:**
+- `pubspec.yaml` - Added introduction_screen dependency
+- `lib/models/user_profile.dart` - Added hasCompletedOnboarding field
+- `lib/services/user_service.dart` - Updated updateUserProfile() method signature
+- `lib/services/analytics_service.dart` - Added onboarding event methods
+- `lib/main.dart` - Added OnboardingChecker and route
+- `lib/screens/profile_screen.dart` - Added "Take Tour Again" button
+
+**Status:** Complete and ready for testing
 
 ### **February 10, 2026**
 
