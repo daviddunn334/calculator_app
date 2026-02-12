@@ -4,6 +4,10 @@ import {getFirestore, FieldValue} from "firebase-admin/firestore";
 import {getStorage} from "firebase-admin/storage";
 import {VertexAI} from "@google-cloud/vertexai";
 import * as pdfParse from "pdf-parse";
+import {
+  getCacheForClient,
+  createCacheForClient,
+} from "./cache-manager";
 
 // Initialize Vertex AI
 const vertexAI = new VertexAI({
@@ -38,28 +42,63 @@ export const analyzeDefectOnCreate = onDocumentCreated(
         analysisStartedAt: FieldValue.serverTimestamp(),
       });
 
-      // Step 2: Fetch procedure PDFs for this client
-      logger.info(`Fetching procedures for client: ${defectData.clientName}`);
-      const procedureTexts = await fetchClientProcedures(
-        defectData.clientName
-      );
-
-      if (procedureTexts.length === 0) {
+      // Step 2: Check for cached context or create new one
+      logger.info(`Checking cache for client: ${defectData.clientName}`);
+      
+      // First, get list of PDF files to check cache validity
+      const pdfFileNames = await getPdfFileNames(defectData.clientName);
+      
+      if (pdfFileNames.length === 0) {
         throw new Error(
           `No procedure PDFs found for client: ${defectData.clientName}`
         );
       }
-
-      logger.info(
-        `Extracted text from ${procedureTexts.length} procedure document(s)`
+      
+      // Check if valid cache exists
+      const cacheResult = await getCacheForClient(
+        defectData.clientName,
+        pdfFileNames
       );
+      
+      let cacheId: string;
+      
+      if (cacheResult.isValid && cacheResult.cacheId) {
+        // Use existing cache (FAST PATH)
+        logger.info(
+          `✅ Using cached context for ${defectData.clientName} (cache hit!)`
+        );
+        cacheId = cacheResult.cacheId;
+      } else {
+        // Create new cache (SLOW PATH - first time or expired)
+        logger.info(
+          `⚠️ No valid cache found. Creating new cache for ${defectData.clientName}...`
+        );
+        
+        // Fetch and extract procedure PDFs
+        const procedureTexts = await fetchClientProcedures(
+          defectData.clientName
+        );
+        
+        logger.info(
+          `Extracted text from ${procedureTexts.length} procedure document(s)`
+        );
+        
+        // Create the cache
+        cacheId = await createCacheForClient(
+          defectData.clientName,
+          procedureTexts,
+          pdfFileNames
+        );
+        
+        logger.info(`✅ Cache created successfully: ${cacheId}`);
+      }
 
-      // Step 3: Build AI prompt
-      const prompt = buildAnalysisPrompt(defectData, procedureTexts);
+      // Step 3: Build AI prompt with ONLY defect data (procedures are cached)
+      const defectPrompt = buildDefectOnlyPrompt(defectData);
 
-      // Step 4: Call Gemini AI
-      logger.info("Calling Gemini AI for analysis");
-      const analysisResult = await callGeminiAPI(prompt);
+      // Step 4: Call Gemini AI with cached context
+      logger.info("Calling Gemini AI with cached context");
+      const analysisResult = await callGeminiAPIWithCache(cacheId, defectPrompt);
 
       // Step 5: Parse and validate AI response
       const parsedResult = parseAIResponse(analysisResult);
@@ -89,6 +128,35 @@ export const analyzeDefectOnCreate = onDocumentCreated(
     }
   }
 );
+
+/**
+ * Gets list of PDF filenames for a client (without downloading)
+ * Used for cache validation
+ */
+async function getPdfFileNames(clientName: string): Promise<string[]> {
+  try {
+    const storage = getStorage();
+    const bucket = storage.bucket();
+
+    // List all files in the client's procedure folder
+    const folderPath = `procedures/${clientName}/`;
+    const [files] = await bucket.getFiles({
+      prefix: folderPath,
+    });
+
+    // Filter for PDF files only and extract names
+    const pdfFileNames = files
+      .filter((file) => file.name.endsWith(".pdf"))
+      .map((file) => file.name);
+
+    logger.info(`Found ${pdfFileNames.length} PDF file(s) for ${clientName}`);
+    
+    return pdfFileNames;
+  } catch (error) {
+    logger.error("Error getting PDF file names:", error);
+    return [];
+  }
+}
 
 /**
  * Fetches all procedure PDFs for a given client from Firebase Storage
@@ -149,19 +217,14 @@ async function fetchClientProcedures(
 }
 
 /**
- * Builds the prompt for Gemini AI analysis
+ * Builds the defect-only prompt (procedures are in cached context)
  */
-function buildAnalysisPrompt(
-  defectData: any,
-  procedureTexts: string[]
-): string {
-  const allProcedures = procedureTexts.join("\n");
-
+function buildDefectOnlyPrompt(defectData: any): string {
   const depthLabel = defectData.defectType
     .toLowerCase()
     .includes("hardspot") ? "Max HB" : "inches";
 
-  return `You are an expert pipeline integrity analyst. Analyze the following defect based on the provided client procedures.
+  return `DEFECT ANALYSIS REQUEST:
 
 DEFECT INFORMATION:
 - Type: ${defectData.defectType}
@@ -171,64 +234,65 @@ DEFECT INFORMATION:
 - Client: ${defectData.clientName}
 ${defectData.notes ? `- Notes: ${defectData.notes}` : ""}
 
-CLIENT PROCEDURES:
-${allProcedures}
-
 TASK:
-Based on the defect measurements and the client's procedures, provide a comprehensive analysis.
-Focus on:
-1. Whether repair is required (based on procedure thresholds like 10%, 80% wall thickness, etc.)
-2. The recommended repair method (reference Table 1 or equivalent from procedures)
+Analyze this defect based on the ${defectData.clientName} procedures in your context.
+
+Provide:
+1. Whether repair is required (based on procedure thresholds)
+2. Recommended repair method (reference specific procedures)
 3. Severity assessment (low/medium/high/critical)
 4. Specific procedure references (sections, pages, tables)
 5. Clear recommendations for the field technician
 
 IMPORTANT:
-- Use exact thresholds from the procedures (e.g., "metal loss >80% requires repair")
-- Reference specific sections/tables when making recommendations
-- Be conservative - if unsure, recommend consulting Asset Integrity
-- For hardspots, note if hardness exceeds 300 BHN or if cracking is possible
-- For dents, check if depth exceeds 6% of pipe diameter
-- For metal loss, evaluate using RSTRENG/B31G if between 10-80%
+- Use exact thresholds from procedures
+- Reference specific sections/tables
+- Be conservative - recommend Asset Integrity if uncertain
+- For hardspots: check if exceeds 300 BHN or cracking risk
+- For dents: check if exceeds 6% pipe diameter
+- For metal loss: evaluate using RSTRENG/B31G if 10-80%
 
-RESPONSE FORMAT:
-You MUST output a single, valid JSON object with NO additional text, markdown formatting, or conversational content.
+RESPONSE FORMAT (CRITICAL):
+Output ONLY a valid JSON object. NO markdown, NO conversational text.
 
-CRITICAL JSON REQUIREMENTS:
-- Output ONLY the JSON object - do NOT include markdown code fences like \`\`\`json
-- Do NOT include any conversational text before or after the JSON
-- Ensure ALL string values are properly escaped for JSON (escape quotes, newlines, backslashes)
-- Keep recommendations concise to fit within token limits
-- If response is truncated, ensure the JSON is still valid (close all braces)
-
-Required JSON structure:
 {
   "repairRequired": true/false,
-  "repairType": "specific repair method from procedures or null if no repair",
+  "repairType": "specific method or null",
   "severity": "low/medium/high/critical",
   "recommendations": "detailed explanation with procedure references",
-  "procedureReference": "specific sections/tables/pages referenced",
+  "procedureReference": "specific sections/tables/pages",
   "confidence": "high/medium/low"
-}
-
-OUTPUT ONLY THE JSON OBJECT ABOVE. NO OTHER TEXT.`;
+}`;
 }
 
 /**
- * Calls Gemini AI API with the prompt
+ * Calls Gemini AI API with cached context
  */
-async function callGeminiAPI(prompt: string): Promise<string> {
+async function callGeminiAPIWithCache(
+  cacheId: string,
+  defectPrompt: string
+): Promise<string> {
   try {
+    // Create model with cached content reference
+    // The cacheId is the full resource name from Vertex AI
     const model = vertexAI.getGenerativeModel({
       model: "gemini-2.5-flash",
+      cachedContent: {name: cacheId} as any, // 🔥 This is where the magic happens!
+    });
+
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [{text: defectPrompt}],
+        },
+      ],
       generationConfig: {
-        temperature: 0.2, // Low temperature for consistency
-        maxOutputTokens: 4096, // Increased from 2048 to handle larger responses
+        temperature: 0.2,
+        maxOutputTokens: 4096,
         responseMimeType: "application/json",
       },
     });
-
-    const result = await model.generateContent(prompt);
     const response = result.response;
     
     // Extract text from the response
@@ -237,11 +301,11 @@ async function callGeminiAPI(prompt: string): Promise<string> {
     if (!text) {
       throw new Error("No text content in AI response");
     }
-
-    logger.info("Received response from Gemini AI");
+    
+    logger.info("✅ Received response from Gemini AI (using cached context)");
     logger.info(`Response length: ${text.length} characters`);
     
-    // Log first 500 chars for debugging (without sensitive data)
+    // Log first 500 chars for debugging
     logger.info(`Response preview: ${text.substring(0, 500)}...`);
     
     return text;

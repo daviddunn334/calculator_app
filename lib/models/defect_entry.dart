@@ -11,6 +11,19 @@ class DefectEntry {
   final String clientName; // Client company for AI analysis
   final DateTime createdAt;
   final DateTime updatedAt;
+  
+  // AI Analysis fields
+  final String? analysisStatus; // 'pending' | 'analyzing' | 'complete' | 'error'
+  final DateTime? analysisCompletedAt;
+  
+  // Analysis Results
+  final bool? repairRequired;
+  final String? repairType;
+  final String? severity; // 'low' | 'medium' | 'high' | 'critical'
+  final String? aiRecommendations;
+  final String? procedureReference;
+  final String? aiConfidence; // 'high' | 'medium' | 'low'
+  final String? errorMessage;
 
   DefectEntry({
     required this.id,
@@ -23,6 +36,15 @@ class DefectEntry {
     required this.clientName,
     required this.createdAt,
     required this.updatedAt,
+    this.analysisStatus,
+    this.analysisCompletedAt,
+    this.repairRequired,
+    this.repairType,
+    this.severity,
+    this.aiRecommendations,
+    this.procedureReference,
+    this.aiConfidence,
+    this.errorMessage,
   });
 
   factory DefectEntry.fromFirestore(DocumentSnapshot doc) {
@@ -39,6 +61,17 @@ class DefectEntry {
       clientName: data['clientName'] ?? '',
       createdAt: (data['createdAt'] as Timestamp).toDate().toUtc(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate().toUtc(),
+      analysisStatus: data['analysisStatus'],
+      analysisCompletedAt: data['analysisCompletedAt'] != null
+          ? (data['analysisCompletedAt'] as Timestamp).toDate().toUtc()
+          : null,
+      repairRequired: data['repairRequired'],
+      repairType: data['repairType'],
+      severity: data['severity'],
+      aiRecommendations: data['aiRecommendations'],
+      procedureReference: data['procedureReference'],
+      aiConfidence: data['aiConfidence'],
+      errorMessage: data['errorMessage'],
     );
   }
 
@@ -59,10 +92,20 @@ class DefectEntry {
   // Helper method to get local date
   DateTime get localCreatedAt => createdAt.toLocal();
   DateTime get localUpdatedAt => updatedAt.toLocal();
+  DateTime? get localAnalysisCompletedAt => analysisCompletedAt?.toLocal();
 
   // Helper to check if this is a hardspot defect
   bool get isHardspot => defectType.toLowerCase().contains('hardspot');
 
   // Helper to get the appropriate label for the depth field
   String get depthLabel => isHardspot ? 'Max HB' : 'Depth (in)';
+  
+  // Helper to check if analysis is complete
+  bool get hasAnalysis => analysisStatus == 'complete' && aiRecommendations != null;
+  
+  // Helper to check if analysis is in progress
+  bool get isAnalyzing => analysisStatus == 'analyzing';
+  
+  // Helper to check if analysis has error
+  bool get hasAnalysisError => analysisStatus == 'error';
 }

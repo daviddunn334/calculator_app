@@ -225,4 +225,78 @@ class AnalyticsService {
       },
     );
   }
+
+  /// Log defect logged
+  Future<void> logDefectLogged(String defectType, String clientName) async {
+    await logEvent(
+      name: 'defect_logged',
+      parameters: {
+        'defect_type': defectType,
+        'client_name': clientName,
+      },
+    );
+  }
+
+  /// Log AI analysis started
+  Future<void> logDefectAnalysisStarted(String defectId, String defectType) async {
+    await logEvent(
+      name: 'defect_analysis_started',
+      parameters: {
+        'defect_id': defectId,
+        'defect_type': defectType,
+      },
+    );
+  }
+
+  /// Log AI analysis completed
+  Future<void> logDefectAnalysisCompleted({
+    required String defectId,
+    required String defectType,
+    required String severity,
+    required bool repairRequired,
+    required String confidence,
+  }) async {
+    await logEvent(
+      name: 'defect_analysis_completed',
+      parameters: {
+        'defect_id': defectId,
+        'defect_type': defectType,
+        'severity': severity,
+        'repair_required': repairRequired.toString(),
+        'confidence': confidence,
+      },
+    );
+  }
+
+  /// Log AI analysis failed
+  Future<void> logDefectAnalysisFailed(String defectId, String errorMessage) async {
+    await logEvent(
+      name: 'defect_analysis_failed',
+      parameters: {
+        'defect_id': defectId,
+        'error_message': errorMessage,
+      },
+    );
+  }
+
+  /// Log AI analysis retried
+  Future<void> logDefectAnalysisRetried(String defectId) async {
+    await logEvent(
+      name: 'defect_analysis_retried',
+      parameters: {
+        'defect_id': defectId,
+      },
+    );
+  }
+
+  /// Log defect viewed
+  Future<void> logDefectViewed(String defectId, bool hasAnalysis) async {
+    await logEvent(
+      name: 'defect_viewed',
+      parameters: {
+        'defect_id': defectId,
+        'has_analysis': hasAnalysis.toString(),
+      },
+    );
+  }
 }

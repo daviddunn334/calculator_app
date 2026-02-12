@@ -7,6 +7,7 @@ import '../models/defect_type.dart';
 import '../services/defect_service.dart';
 import '../services/defect_type_service.dart';
 import '../services/pdf_management_service.dart';
+import '../services/analytics_service.dart';
 
 class LogDefectScreen extends StatefulWidget {
   const LogDefectScreen({Key? key}) : super(key: key);
@@ -20,6 +21,7 @@ class _LogDefectScreenState extends State<LogDefectScreen> {
   final DefectService _defectService = DefectService();
   final DefectTypeService _defectTypeService = DefectTypeService();
   final PdfManagementService _pdfManagementService = PdfManagementService();
+  final AnalyticsService _analyticsService = AnalyticsService();
   
   final TextEditingController _lengthController = TextEditingController();
   final TextEditingController _widthController = TextEditingController();
@@ -126,13 +128,20 @@ class _LogDefectScreenState extends State<LogDefectScreen> {
         updatedAt: DateTime.now().toUtc(),
       );
 
-      await _defectService.addDefectEntry(defectEntry);
+      final newDefectId = await _defectService.addDefectEntry(defectEntry);
+
+      // Log analytics event
+      await _analyticsService.logDefectLogged(
+        _selectedDefectType!,
+        _selectedClient!,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Defect logged successfully!'),
+            content: Text('Defect logged successfully! AI analysis starting...'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
           ),
         );
         Navigator.pop(context, true); // Return true to indicate success

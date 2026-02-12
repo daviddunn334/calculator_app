@@ -7,6 +7,15 @@ import * as ExcelJS from "exceljs";
 
 initializeApp();
 
+// Export the defect analysis function
+export {analyzeDefectOnCreate} from "./defect-analysis";
+
+// Export cache invalidation functions
+export {
+  invalidateCacheOnPdfUpload,
+  invalidateCacheOnPdfDelete,
+} from "./cache-invalidation";
+
 export const processHardnessReport = onRequest({cors: true}, async (req, res) => {
   try {
     const {filePath} = req.body;

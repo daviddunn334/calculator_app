@@ -163,6 +163,9 @@ class _DefectHistoryScreenState extends State<DefectHistoryScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  // Status Badge
+                  _buildStatusBadge(defect),
+                  const SizedBox(width: 8),
                   Icon(
                     Icons.chevron_right,
                     color: AppTheme.textSecondary,
@@ -170,6 +173,51 @@ class _DefectHistoryScreenState extends State<DefectHistoryScreen> {
                   ),
                 ],
               ),
+
+              // Severity Badge (if analysis complete)
+              if (defect.hasAnalysis && defect.severity != null) ...[
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getSeverityColor(defect.severity).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: _getSeverityColor(defect.severity).withOpacity(0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _getSeverityIcon(defect.severity),
+                        size: 14,
+                        color: _getSeverityColor(defect.severity),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        defect.severity!.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _getSeverityColor(defect.severity),
+                        ),
+                      ),
+                      if (defect.repairRequired == true) ...[
+                        const SizedBox(width: 6),
+                        Icon(
+                          Icons.build_circle,
+                          size: 14,
+                          color: _getSeverityColor(defect.severity),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
 
               const SizedBox(height: 12),
 
@@ -248,6 +296,93 @@ class _DefectHistoryScreenState extends State<DefectHistoryScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildStatusBadge(DefectEntry defect) {
+    MaterialColor badgeColor;
+    IconData badgeIcon;
+    String badgeText;
+
+    if (defect.isAnalyzing) {
+      badgeColor = Colors.blue;
+      badgeIcon = Icons.hourglass_empty;
+      badgeText = 'Analyzing';
+    } else if (defect.hasAnalysisError) {
+      badgeColor = Colors.red;
+      badgeIcon = Icons.error_outline;
+      badgeText = 'Error';
+    } else if (defect.hasAnalysis) {
+      badgeColor = Colors.green;
+      badgeIcon = Icons.check_circle;
+      badgeText = 'Complete';
+    } else {
+      badgeColor = Colors.grey;
+      badgeIcon = Icons.pending;
+      badgeText = 'Pending';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
+      decoration: BoxDecoration(
+        color: badgeColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: badgeColor.withOpacity(0.3),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            badgeIcon,
+            size: 12,
+            color: badgeColor.shade700,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            badgeText,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: badgeColor.shade700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getSeverityColor(String? severity) {
+    switch (severity?.toLowerCase()) {
+      case 'critical':
+        return Colors.red;
+      case 'high':
+        return Colors.orange;
+      case 'medium':
+        return Colors.yellow;
+      case 'low':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getSeverityIcon(String? severity) {
+    switch (severity?.toLowerCase()) {
+      case 'critical':
+        return Icons.crisis_alert_rounded;
+      case 'high':
+        return Icons.warning_rounded;
+      case 'medium':
+        return Icons.info_rounded;
+      case 'low':
+        return Icons.check_circle_rounded;
+      default:
+        return Icons.help_outline_rounded;
+    }
   }
 
   Widget _buildMeasurement(String label, double value, String unit) {

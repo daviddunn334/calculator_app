@@ -158,6 +158,20 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
       // Admins can update/delete any defect entry (for admin management)
       allow update, delete: if request.auth != null && isAdmin();
+      // Allow Cloud Function (running as admin service account) to update analysis fields only
+      // This allows the AI analysis function to write results
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['analysisStatus', 'analysisStartedAt', 'analysisCompletedAt', 
+                  'repairRequired', 'repairType', 'severity', 'aiRecommendations', 
+                  'procedureReference', 'aiConfidence', 'errorMessage']);
+    }
+
+    // Procedure Caches - System-managed cache metadata
+    match /procedure_caches/{clientName} {
+      // No user access - caches are system-managed by Cloud Functions
+      allow read, write: if false;
+      // Cloud Functions (running as admin service account) have full access
+      // This is implicitly allowed for service accounts
     }
   }
 }
