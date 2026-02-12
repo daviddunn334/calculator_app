@@ -28,6 +28,9 @@ export {
 // Export Method Hours export function
 export {exportMethodHoursToExcel} from "./method-hours-export";
 
+// Export Account Deletion function
+export {deleteUserAccount} from "./account-deletion";
+
 export const processHardnessReport = onRequest({cors: true}, async (req, res) => {
   try {
     const {filePath} = req.body;

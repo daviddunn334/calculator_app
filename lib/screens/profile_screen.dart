@@ -5,6 +5,7 @@ import '../services/profile_service.dart';
 import '../services/image_service.dart';
 import '../models/user_profile.dart';
 import '../widgets/app_header.dart';
+import '../widgets/delete_account_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -763,6 +764,29 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                               );
                                             }
                                           }
+                                        },
+                                      ),
+                                      const Divider(height: 1),
+                                      ListTile(
+                                        leading: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red.shade50,
+                                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                          ),
+                                          child: Icon(Icons.delete_forever, color: Colors.red.shade700),
+                                        ),
+                                        title: Text(
+                                          'Delete Account',
+                                          style: TextStyle(color: Colors.red.shade700),
+                                        ),
+                                        subtitle: const Text('Permanently delete your account and data'),
+                                        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red.shade700),
+                                        onTap: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => const DeleteAccountDialog(),
+                                          );
                                         },
                                       ),
                                     ],
