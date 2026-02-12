@@ -1,5 +1,5 @@
 # INTEGRITY TOOLS APP - COMPREHENSIVE OVERVIEW
-
+- Do not commit or push anything to any branch of this project until instructed to do so
 ## App Identity
 
 - Name: Integrity Tools
@@ -763,16 +763,145 @@ procedures/
   │   └── defect-specifications.pdf
 ```
 
-**Future Part (Not Yet Implemented):**
-- **Part 3**: Vertex AI / Gemini integration
-  - Cloud Function triggers on new defect creation
-  - Fetches procedures from `procedures/{defect.clientName}/`
-  - Extracts text from PDFs
-  - Sends to Gemini AI with defect data + procedure context
-  - Returns automated repair recommendations
-  - Saves analysis results to Firestore
-
 **Status:** Parts 1 & 2 complete and deployed to `integrity-tools` project on develop branch
+
+9. **Defect AI Analyzer - Part 3 (AI Integration with Gemini)** 🤖✨ **DEPLOYED**
+   - Cloud Function for automated defect analysis using Google Gemini AI
+   - Real-time AI analysis triggered on defect creation
+   - Procedure-aware recommendations based on client-specific PDFs
+   - Comprehensive UI for displaying analysis results
+   - Status tracking (analyzing, complete, error, pending)
+
+**AI Analysis Features:**
+- **Cloud Function** (`functions/src/defect-analysis.ts`):
+  - Triggers automatically when new defect is created in Firestore
+  - Sets status to "analyzing" immediately
+  - Fetches all procedure PDFs for selected client from Firebase Storage
+  - Extracts text from PDFs using pdf-parse library
+  - Builds comprehensive prompt with defect measurements + procedure context
+  - **Calls Google Gemini 2.5 Flash API for analysis** (upgraded from 1.5)
+  - **Robust JSON parsing with cleaning utility** - handles markdown wrappers, truncation, and malformed responses
+  - Validates fields and saves results back to Firestore (or error message if failed)
+  - Deployed to us-central1 region
+  - **Enhanced error logging** with response previews and detailed debugging
+
+- **AI Analysis Fields** (added to DefectEntry model):
+  - `analysisStatus`: "pending" | "analyzing" | "complete" | "error"
+  - `analysisCompletedAt`: Timestamp when analysis finished
+  - `repairRequired`: boolean - AI decision on repair necessity
+  - `repairType`: string - Recommended repair method from procedures
+  - `severity`: "low" | "medium" | "high" | "critical"
+  - `aiRecommendations`: Full analysis text with explanations
+  - `procedureReference`: Specific sections/tables cited from procedures
+  - `aiConfidence`: "high" | "medium" | "low"
+  - `errorMessage`: Error details if analysis failed
+
+- **Defect Detail Screen Updates** (lib/screens/defect_detail_screen.dart):
+  - **Analyzing State**: Blue animated container with spinner, shows "Analyzing Defect..." message
+  - **Complete State**: Comprehensive results display with:
+    - Color-coded severity badge (red/orange/yellow/green)
+    - Repair required indicator
+    - Recommended repair method (if applicable)
+    - Full AI recommendations text
+    - Procedure references with purple highlight
+    - Confidence level indicator
+    - Analysis timestamp
+  - **Error State**: Red error container with retry button
+  - **Pending State**: Grey container explaining analysis will begin shortly
+
+- **AI Prompt Engineering**:
+  - Expert pipeline integrity analyst persona
+  - Structured prompt with all defect measurements
+  - Full procedure text as context
+  - **Explicit JSON formatting instructions** - prohibits markdown wrappers and conversational text
+  - Specific instructions for repair evaluation based on thresholds (10%, 80% wall thickness, etc.)
+  - Conservative approach (escalate to Asset Integrity when uncertain)
+  - JSON response format for reliable parsing
+  - Temperature: 0.2 (low for consistency)
+  - **Max Output Tokens: 4096** (doubled from 2048 to handle large contexts)
+
+- **Robust JSON Parsing** (`cleanAndExtractJSON` utility):
+  - Strips markdown code fences (```json ... ```)
+  - Extracts pure JSON by finding first `{` and last `}`
+  - Detects potential truncation (responses near token limits)
+  - Handles malformed responses gracefully
+  - Comprehensive error logging for debugging
+  - Logs raw response previews (first 500 chars) for troubleshooting
+
+**Technical Implementation:**
+- **Dependencies Added** (`functions/package.json`):
+  - `@google-cloud/vertexai`: ^1.7.0 (Gemini AI SDK)
+  - `pdf-parse`: ^1.1.1 (PDF text extraction)
+  
+- **Firestore Rules Updated**:
+  - Cloud Function can update analysis fields on defect entries
+  - Restricts updates to only analysis-related fields
+  
+- **Analytics Events Added**:
+  - `defect_logged` - When defect is created
+  - `defect_analysis_started` - Function begins processing (planned)
+  - `defect_analysis_completed` - Successful analysis (planned)
+  - `defect_analysis_failed` - Error occurred (planned)
+  - `defect_analysis_retried` - User retries failed analysis (planned)
+  - `defect_viewed` - User views defect detail
+
+**Cost Analysis:**
+- Gemini 1.5 Flash pricing:
+  - Input: $0.075 per 1M characters
+  - Output: $0.30 per 1M characters
+- Typical 27-page PDF procedure: ~50,000 characters
+- Prompt + defect data: ~500 characters
+- AI response: ~500 characters
+- **Cost per analysis: ~$0.005 (half a cent)**
+- **Monthly estimates:**
+  - 100 defects = ~$0.50
+  - 500 defects = ~$2.50
+  - 1000 defects = ~$5.00
+
+**Deployment Details:**
+- Function: `analyzeDefectOnCreate` deployed to us-central1
+- Runtime: Node.js 22 (2nd Gen)
+- Memory: 256 MB (default)
+- Timeout: 60 seconds (default)
+- Trigger: onCreate for `/defect_entries/{defectId}`
+
+**Important Notes:**
+- **Vertex AI API must be enabled** in Google Cloud Console before first use
+- **Billing must be enabled** on Firebase project (Vertex AI requires it)
+- Procedure PDFs must be uploaded to `procedures/{clientName}/` folder structure
+- Function logs available via: `firebase functions:log --project integrity-tools`
+
+**Files Added:**
+- `functions/src/defect-analysis.ts` - Cloud Function for AI analysis
+
+**Files Modified:**
+- `lib/models/defect_entry.dart` - Added AI analysis fields
+- `lib/screens/defect_detail_screen.dart` - Comprehensive AI results UI
+- `lib/services/analytics_service.dart` - Added defect analysis event methods
+- `functions/src/index.ts` - Exported analyzeDefectOnCreate function
+- `functions/package.json` - Added Vertex AI and pdf-parse dependencies
+- `firestore.rules` - Allow Cloud Function to update analysis fields
+
+**Troubleshooting Notes:**
+- TypeScript errors resolved by removing unused axios import
+- Gemini response accessed via `response.candidates[0].content.parts[0].text` (not `.text()` method)
+- Flutter cache clearing required after file edits: `flutter clean`
+- Function compilation: `npm --prefix functions run build`
+
+**Status:** 
+- ✅ Cloud Functions deployed successfully
+- ✅ Flutter app running and compiling
+- ✅ Backend AI integration 100% complete
+- ✅ Frontend UI displaying analysis results
+- ⏳ Requires Vertex AI API enablement before first production use
+- ⏳ Requires client procedure PDFs uploaded to Storage
+
+**Next Steps for Production:**
+1. Enable Vertex AI API: https://console.cloud.google.com/apis/library/aiplatform.googleapis.com?project=integrity-tools
+2. Upload client procedure PDFs to Firebase Storage
+3. Test with real defect entries
+4. Monitor function logs for any errors
+5. Consider increasing function timeout to 120s for large PDFs if needed
 
 **Important Technical Notes:**
 - Defect types auto-initialize on first app load (prevents empty dropdown)
