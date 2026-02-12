@@ -1,4 +1,4 @@
-# INTEGRITY TOOLS APP - COMPREHENSIVE OVERVIEW
+# NDT TOOLKIT APP - COMPREHENSIVE OVERVIEW
 
 **Important Rules:**
 - Do not commit or push anything to any branch until instructed
@@ -11,17 +11,35 @@
 - Ensure calculator tools work offline
 - Follow existing file organization structure
 
-## App Identity
+## Project Branches & Deployments
 
-- **Name:** Integrity Tools
-- **Company:** Integrity Specialists
-- **Tagline:** "Our people are trained to be the difference."
+This codebase has TWO versions on separate branches:
+
+### Main Branch (Integrity Specialists - Company Internal)
+- **Firebase Project:** integrity-tools
+- **URL:** https://integrity-tools.web.app
+- **Storage Bucket:** integrity-tools.appspot.com
+- **For:** Internal company use by Integrity Specialists employees
+
+### ndt-toolkit Branch (NDT-ToolKit - General Market)
+- **Firebase Project:** ndt-toolkit
+- **URL:** https://ndt-toolkit.web.app
+- **Storage Bucket:** ndt-toolkit.appspot.com
+- **Support:** ndt-toolkit-support@gmail.com
+- **For:** General market release without company-specific branding
+
+**Important:** Always verify which branch you're on before making changes or deployments!
+
+## App Identity (Current Branch: ndt-toolkit)
+
+- **Name:** NDT-ToolKit
+- **Tagline:** "Professional NDT Tools & Calculators"
 - **Purpose:** Mobile and web toolkit for pipeline inspection professionals (NDT)
 - **Platform:** Flutter (iOS, Android, Web)
 - **Backend:** Firebase (Firestore, Auth, Storage, Functions, Analytics)
 - **Colors:** Navy Blue (#1b325b), Gold (#fbcd0f)
-- **Package:** com.integrityspecialists.app
-- **Project:** integrity-tools
+- **Package:** com.ndttoolkit.app
+- **Project:** ndt-toolkit
 
 ## Tech Stack
 
