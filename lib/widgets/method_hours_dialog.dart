@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/method_hours_entry.dart';
+import '../models/company_employee.dart';
+import '../services/employee_service.dart';
 import '../theme/app_theme.dart';
 
 class MethodHoursDialog extends StatefulWidget {
@@ -18,16 +20,18 @@ class MethodHoursDialog extends StatefulWidget {
 
 class _MethodHoursDialogState extends State<MethodHoursDialog> {
   final _formKey = GlobalKey<FormState>();
+  final EmployeeService _employeeService = EmployeeService();
   late TextEditingController _locationController;
-  late TextEditingController _supervisingTechnicianController;
+  String? _selectedSupervisingTechnician;
   final List<TextEditingController> _methodHoursControllers = [];
   final List<InspectionMethod> _selectedMethods = [];
+  List<CompanyEmployee> _employees = [];
 
   @override
   void initState() {
     super.initState();
     _locationController = TextEditingController(text: widget.existingEntry?.location ?? '');
-    _supervisingTechnicianController = TextEditingController(text: widget.existingEntry?.supervisingTechnician ?? '');
+    _selectedSupervisingTechnician = widget.existingEntry?.supervisingTechnician;
     
     if (widget.existingEntry != null) {
       for (var mh in widget.existingEntry!.methodHours) {
@@ -40,7 +44,6 @@ class _MethodHoursDialogState extends State<MethodHoursDialog> {
   @override
   void dispose() {
     _locationController.dispose();
-    _supervisingTechnicianController.dispose();
     for (var controller in _methodHoursControllers) {
       controller.dispose();
     }
@@ -107,16 +110,50 @@ class _MethodHoursDialogState extends State<MethodHoursDialog> {
                 },
               ),
               const SizedBox(height: 16),
-              TextFormField(
-                controller: _supervisingTechnicianController,
-                decoration: const InputDecoration(
-                  labelText: 'Supervising Technician',
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter supervising technician';
+              StreamBuilder<List<CompanyEmployee>>(
+                stream: _employeeService.getEmployees(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    // Filter employees to only show specific groups
+                    final allowedGroups = [
+                      'Directors',
+                      'Project Managers',
+                      'Advanced NDE Technicians',
+                      'Senior Technicians',
+                    ];
+                    
+                    _employees = snapshot.data!
+                        .where((employee) => allowedGroups.contains(employee.group))
+                        .toList();
                   }
-                  return null;
+                  
+                  return DropdownButtonFormField<String>(
+                    value: _selectedSupervisingTechnician,
+                    decoration: const InputDecoration(
+                      labelText: 'Supervising Technician',
+                      hintText: 'Select a technician',
+                    ),
+                    items: _employees.map((employee) {
+                      final fullName = '${employee.firstName} ${employee.lastName}';
+                      return DropdownMenuItem<String>(
+                        value: fullName,
+                        child: Text(fullName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedSupervisingTechnician = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a supervising technician';
+                      }
+                      return null;
+                    },
+                    isExpanded: true,
+                    menuMaxHeight: 300,
+                  );
                 },
               ),
               const SizedBox(height: 16),
@@ -255,7 +292,7 @@ class _MethodHoursDialogState extends State<MethodHoursDialog> {
                 userId: widget.existingEntry?.userId ?? '',
                 date: widget.date,
                 location: _locationController.text,
-                supervisingTechnician: _supervisingTechnicianController.text,
+                supervisingTechnician: _selectedSupervisingTechnician ?? '',
                 methodHours: methodHours,
                 createdAt: widget.existingEntry?.createdAt ?? DateTime.now(),
                 updatedAt: DateTime.now(),
