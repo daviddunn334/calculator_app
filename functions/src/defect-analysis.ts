@@ -223,14 +223,24 @@ function buildDefectOnlyPrompt(defectData: any): string {
   const depthLabel = defectData.defectType
     .toLowerCase()
     .includes("hardspot") ? "Max HB" : "inches";
+  
+  // Calculate wall loss percentage if this is a metal loss defect
+  const wallLossPercent = !defectData.defectType.toLowerCase().includes("hardspot")
+    ? ((defectData.depth / defectData.pipeNWT) * 100).toFixed(1)
+    : null;
 
   return `DEFECT ANALYSIS REQUEST:
+
+PIPE SPECIFICATIONS:
+- Pipe OD: ${defectData.pipeOD} inches
+- Pipe NWT: ${defectData.pipeNWT} inches
 
 DEFECT INFORMATION:
 - Type: ${defectData.defectType}
 - Length: ${defectData.length} inches
 - Width: ${defectData.width} inches
 - Depth/HB: ${defectData.depth} ${depthLabel}
+${wallLossPercent ? `- Wall Loss: ${wallLossPercent}% (${defectData.depth} / ${defectData.pipeNWT})` : ""}
 - Client: ${defectData.clientName}
 ${defectData.notes ? `- Notes: ${defectData.notes}` : ""}
 
@@ -245,12 +255,14 @@ Provide:
 5. Clear recommendations for the field technician
 
 IMPORTANT:
-- Use exact thresholds from procedures
+- Use exact thresholds from procedures and pipe specifications
 - Reference specific sections/tables
 - Be conservative - recommend Asset Integrity if uncertain
 - For hardspots: check if exceeds 300 BHN or cracking risk
-- For dents: check if exceeds 6% pipe diameter
-- For metal loss: evaluate using RSTRENG/B31G if 10-80%
+- For dents: check if exceeds 6% of pipe OD (6% of ${defectData.pipeOD}" = ${(defectData.pipeOD * 0.06).toFixed(3)}")
+- For metal loss: evaluate using RSTRENG/B31G if 10-80% wall loss
+  ${wallLossPercent ? `(Current: ${wallLossPercent}% wall loss)` : ""}
+- Consider pipe diameter and wall thickness in structural integrity assessment
 
 RESPONSE FORMAT (CRITICAL):
 Output ONLY a valid JSON object. NO markdown, NO conversational text.

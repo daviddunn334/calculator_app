@@ -23,6 +23,8 @@ class _LogDefectScreenState extends State<LogDefectScreen> {
   final PdfManagementService _pdfManagementService = PdfManagementService();
   final AnalyticsService _analyticsService = AnalyticsService();
   
+  final TextEditingController _pipeODController = TextEditingController();
+  final TextEditingController _pipeNWTController = TextEditingController();
   final TextEditingController _lengthController = TextEditingController();
   final TextEditingController _widthController = TextEditingController();
   final TextEditingController _depthController = TextEditingController();
@@ -75,6 +77,8 @@ class _LogDefectScreenState extends State<LogDefectScreen> {
 
   @override
   void dispose() {
+    _pipeODController.dispose();
+    _pipeNWTController.dispose();
     _lengthController.dispose();
     _widthController.dispose();
     _depthController.dispose();
@@ -119,6 +123,8 @@ class _LogDefectScreenState extends State<LogDefectScreen> {
         id: '', // Will be set by service
         userId: userId,
         defectType: _selectedDefectType!,
+        pipeOD: double.parse(_pipeODController.text),
+        pipeNWT: double.parse(_pipeNWTController.text),
         length: double.parse(_lengthController.text),
         width: double.parse(_widthController.text),
         depth: double.parse(_depthController.text),
@@ -203,6 +209,90 @@ class _LogDefectScreenState extends State<LogDefectScreen> {
                           ),
                         ],
                       ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Pipe OD Field
+                    const Text(
+                      'Pipe OD (in)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _pipeODController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                      ],
+                      decoration: InputDecoration(
+                        hintText: 'Enter pipe outside diameter',
+                        prefixIcon: const Icon(Icons.straighten),
+                        suffixText: 'in',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter pipe OD';
+                        }
+                        if (double.tryParse(value) == null) {
+                          return 'Please enter a valid number';
+                        }
+                        if (double.parse(value) <= 0) {
+                          return 'Pipe OD must be greater than 0';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Pipe NWT Field
+                    const Text(
+                      'Pipe NWT (in)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: _pipeNWTController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                      ],
+                      decoration: InputDecoration(
+                        hintText: 'Enter nominal wall thickness',
+                        prefixIcon: const Icon(Icons.width_normal),
+                        suffixText: 'in',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter pipe NWT';
+                        }
+                        if (double.tryParse(value) == null) {
+                          return 'Please enter a valid number';
+                        }
+                        if (double.parse(value) <= 0) {
+                          return 'Pipe NWT must be greater than 0';
+                        }
+                        return null;
+                      },
                     ),
 
                     const SizedBox(height: 24),

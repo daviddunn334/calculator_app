@@ -4,6 +4,8 @@ class DefectEntry {
   final String id;
   final String userId;
   final String defectType;
+  final double pipeOD; // Pipe Outside Diameter (inches)
+  final double pipeNWT; // Pipe Nominal Wall Thickness (inches)
   final double length; // inches
   final double width; // inches
   final double depth; // inches (or Max HB for Hardspot)
@@ -29,6 +31,8 @@ class DefectEntry {
     required this.id,
     required this.userId,
     required this.defectType,
+    required this.pipeOD,
+    required this.pipeNWT,
     required this.length,
     required this.width,
     required this.depth,
@@ -54,6 +58,8 @@ class DefectEntry {
       id: doc.id,
       userId: data['userId'] ?? '',
       defectType: data['defectType'] ?? '',
+      pipeOD: (data['pipeOD'] ?? 0).toDouble(),
+      pipeNWT: (data['pipeNWT'] ?? 0).toDouble(),
       length: (data['length'] ?? 0).toDouble(),
       width: (data['width'] ?? 0).toDouble(),
       depth: (data['depth'] ?? 0).toDouble(),
@@ -79,6 +85,8 @@ class DefectEntry {
     return {
       'userId': userId,
       'defectType': defectType,
+      'pipeOD': pipeOD,
+      'pipeNWT': pipeNWT,
       'length': length,
       'width': width,
       'depth': depth,

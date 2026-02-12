@@ -213,6 +213,24 @@ class _DefectDetailScreenState extends State<DefectDetailScreen> {
               child: Column(
                 children: [
                   _buildInfoRow(
+                    Icons.straighten,
+                    'Pipe OD',
+                    '${defect.pipeOD.toStringAsFixed(3)} in',
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(height: 1),
+                  ),
+                  _buildInfoRow(
+                    Icons.width_normal,
+                    'Pipe NWT',
+                    '${defect.pipeNWT.toStringAsFixed(3)} in',
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: Divider(height: 1),
+                  ),
+                  _buildInfoRow(
                     Icons.business,
                     'Client',
                     defect.clientName.toUpperCase(),
