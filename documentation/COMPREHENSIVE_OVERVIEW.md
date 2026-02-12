@@ -1872,6 +1872,204 @@ exports/{userId}/Method_Hours_2026.xlsx
 **Status:** ✅ Implemented, ready for deployment after template upload
 **Version:** Current (no version bump needed until deployed)
 
+17. **Terms of Service & Privacy Policy System** ⚖️🔒 **NEW** (February 12, 2026)
+   - Comprehensive legal documentation with mandatory acceptance during signup
+   - Dual document system (Terms of Service + Privacy Policy)
+   - Acceptance tracking with timestamps and versioning
+   - Multiple access points throughout the app
+   - Web and in-app versions of all documents
+
+**Legal Documentation Features:**
+
+- **Terms of Service Document**:
+  - Comprehensive coverage of user responsibilities and acceptable use
+  - Professional responsibility disclaimers for NDT calculations
+  - Limitation of liability for calculation errors and data loss
+  - Intellectual property protections
+  - Governing law and dispute resolution
+  - Contact information: integrity-tools-support@gmail.com
+  - Current version: 1.0
+  - Last updated: February 12, 2026
+
+- **Privacy Policy Document**:
+  - Data collection and usage transparency
+  - Firebase service integrations (Auth, Firestore, Storage, Analytics)
+  - User rights (access, deletion, portability)
+  - Cookie and local storage usage
+  - Third-party service disclosures
+  - Data retention and security measures
+  - Current version: 1.0
+  - Last updated: February 12, 2026
+
+**Signup Flow Integration:**
+
+- **Mandatory Acceptance** (lib/screens/signup_screen.dart):
+  - Two separate checkboxes (Terms of Service + Privacy Policy)
+  - Sign-up button **DISABLED** until both are checked
+  - Clickable links to view full documents before agreeing
+  - Visual feedback (button color changes from grey to blue)
+  - Clear error message if user tries to proceed without agreement
+  - Timestamps recorded in user profile upon acceptance
+
+- **Acceptance Tracking** (lib/models/user_profile.dart):
+  - `termsAcceptedAt`: DateTime - When user agreed to Terms
+  - `privacyAcceptedAt`: DateTime - When user agreed to Privacy Policy
+  - `termsVersion`: String - Version number (currently "1.0")
+  - `privacyVersion`: String - Version number (currently "1.0")
+  - Enables future re-acceptance flow when documents are updated
+
+- **UserService Integration** (lib/services/user_service.dart):
+  - `createUserProfile()` enhanced with acceptance parameters
+  - Stores timestamps using FieldValue.serverTimestamp()
+  - Records version numbers for audit trail
+  - Data persisted in Firestore `/users/{userId}` collection
+
+**Document Access Points:**
+
+1. **Login Screen** (lib/screens/login_screen.dart):
+   - Disclaimer text at bottom: "By logging in, you agree to our..."
+   - Clickable links to both documents
+   - Small, non-intrusive presentation (12px font)
+
+2. **App Drawer** (lib/widgets/app_drawer.dart):
+   - New "LEGAL" section above logout
+   - Two menu items: "Terms of Service" and "Privacy Policy"
+   - Gavel and privacy tip icons
+   - Consistent with app drawer design patterns
+
+3. **Signup Screen** (lib/screens/signup_screen.dart):
+   - Dual checkboxes with underlined, clickable links
+   - Primary placement before account creation button
+   - Mandatory for account creation
+
+**Technical Implementation:**
+
+- **Flutter Screens Created**:
+  - `lib/screens/terms_of_service_screen.dart` - Full scrollable Terms document
+  - `lib/screens/privacy_policy_screen.dart` - Full scrollable Privacy document
+  - Both use AppTheme styling for consistency
+  - White AppBars with proper navigation
+  - Section headers and formatted content
+  - Mobile and desktop responsive
+
+- **Web Versions** (HTML):
+  - `web/terms-of-service.html` - Standalone HTML version
+  - `web/privacy-policy.html` - Standalone HTML version
+  - Professional styling matching app theme (Navy #1b325b, Gold #fbcd0f)
+  - Responsive design for all devices
+  - SEO meta tags included
+  - Accessible via direct URL or browser
+
+- **URL Helper Utility** (lib/utils/url_helper.dart):
+  - `openTermsOfService()` - Opens web version in external browser
+  - `openPrivacyPolicy()` - Opens web version in external browser
+  - Uses url_launcher package with LaunchMode.externalApplication
+  - Error handling with user-friendly messages
+  - Also includes: `openCompanyWebsite()`, `openSupportEmail()`
+
+- **Routing** (lib/main.dart):
+  - Added routes: `/terms_of_service` and `/privacy_policy`
+  - Imported both screen files
+  - Accessible via Navigator.pushNamed()
+
+**Document Content Highlights:**
+
+**Terms of Service includes:**
+- Acceptance of Terms (18+ or employer authorization)
+- Description of Service (NDT tools, inspection management)
+- User Accounts (security, no sharing, termination rights)
+- Acceptable Use Policy (professional use, prohibited activities)
+- Professional Responsibility (tools are aids, user must verify)
+- Limitation of Liability (calculation errors, data loss, service interruptions)
+- Governing Law (Texas, USA)
+- Severability and Entire Agreement clauses
+
+**Privacy Policy includes:**
+- Information Collection (email, profile, usage data, photos)
+- How We Use Information (authentication, features, analytics, improvements)
+- Firebase Services (Auth, Firestore, Storage, Analytics, Functions)
+- Data Storage and Security (Firebase's infrastructure)
+- User Rights (access, delete, export, opt-out)
+- Cookies and Local Storage (PWA functionality)
+- Third-Party Services (Google Cloud, Vertex AI)
+- Children's Privacy (not intended for under 13)
+- Changes to Policy (notification process)
+
+**Security & Compliance:**
+
+- **Firestore Rules**: No special rules needed (handled by UserService)
+- **Data Privacy**: No PII collected beyond email (required for auth)
+- **User Rights**: Profile deletion available (deletes all user data)
+- **Version Control**: Enables future forced re-acceptance if documents change
+- **Audit Trail**: Timestamps provide legal compliance evidence
+
+**Future Enhancements (Optional):**
+
+- **Re-acceptance Flow**: Create `lib/services/terms_service.dart` to check version mismatches
+- **Modal Dialog**: Force re-acceptance on app launch if terms updated
+- **Email Notifications**: Notify users of policy changes before re-acceptance
+- **Admin Dashboard**: View acceptance statistics and versions
+
+**Benefits:**
+
+- ✅ **Legal Compliance**: Proper user consent for data collection
+- ✅ **Liability Protection**: Clear disclaimers for calculation accuracy
+- ✅ **User Transparency**: Full disclosure of data usage
+- ✅ **App Store Requirements**: Meets Google Play and Apple guidelines
+- ✅ **Professional Image**: Builds trust with enterprise clients
+- ✅ **Audit Trail**: Timestamped acceptance records
+- ✅ **Version Control**: Supports future document updates
+
+**Deployment Checklist:**
+
+- [x] Create Terms of Service content (comprehensive, NDT-specific)
+- [x] Create Privacy Policy content (Firebase services disclosure)
+- [x] Implement Flutter screens with scrollable content
+- [x] Create web HTML versions with professional styling
+- [x] Update UserProfile model with acceptance fields
+- [x] Update UserService to store timestamps
+- [x] Modify signup screen with dual checkboxes
+- [x] Add disclaimer to login screen
+- [x] Add Legal section to app drawer
+- [x] Create URL helper for external links
+- [x] Update routing in main.dart
+- [ ] Deploy web files to Firebase Hosting
+- [ ] Update Google Play Store listing with Terms URL
+- [ ] Update Apple App Store listing with Terms URL
+- [ ] Legal review by counsel (RECOMMENDED)
+
+**Important Legal Notes:**
+
+⚠️ **LEGAL REVIEW REQUIRED**: Before production launch, have both documents reviewed by legal counsel, especially:
+- Professional responsibility disclaimers (NDT calculations for pipeline integrity)
+- Limitation of liability clauses (calculation errors, data loss)
+- Industry-specific regulations (ASME, API standards compliance)
+- State and federal requirements
+- International users (GDPR compliance if applicable)
+
+**Web URLs (After Deployment):**
+- Terms of Service: `https://integrity-tools.web.app/terms-of-service.html`
+- Privacy Policy: `https://integrity-tools.web.app/privacy-policy.html`
+
+**Files Added:**
+- `lib/screens/terms_of_service_screen.dart` - Flutter Terms screen
+- `lib/screens/privacy_policy_screen.dart` - Flutter Privacy screen
+- `web/terms-of-service.html` - Web Terms version
+- `web/privacy-policy.html` - Web Privacy version
+- `lib/utils/url_helper.dart` - External link utility
+
+**Files Modified:**
+- `lib/models/user_profile.dart` - Added acceptance tracking fields
+- `lib/services/user_service.dart` - Store timestamps on signup
+- `lib/screens/signup_screen.dart` - Dual checkboxes, validation, disabled button
+- `lib/screens/login_screen.dart` - Added disclaimer with links
+- `lib/widgets/app_drawer.dart` - Added Legal section
+- `lib/main.dart` - Added routes for both documents
+
+**Status:** ✅ Fully implemented, ready for deployment
+**Version:** Current (no version bump needed until deployed to hosting)
+**Legal Review:** Pending (recommended before production)
+
 ---
 
 This is the context you need when helping implement changes or new features for this application.

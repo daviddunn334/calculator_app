@@ -23,6 +23,8 @@ import 'screens/reports_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/reset_password_screen.dart';
+import 'screens/terms_of_service_screen.dart';
+import 'screens/privacy_policy_screen.dart';
 import 'screens/news_updates_screen.dart';
 import 'screens/tools_screen.dart';
 import 'screens/method_hours_screen.dart';
@@ -90,6 +92,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/signup': (context) => const SignupScreen(),
         '/reset_password': (context) => const ResetPasswordScreen(),
+        '/terms_of_service': (context) => const TermsOfServiceScreen(),
+        '/privacy_policy': (context) => const PrivacyPolicyScreen(),
         '/corrosion_grid_logger': (context) => const CorrosionGridLoggerScreen(),
         '/inspection_checklist': (context) => const InspectionChecklistScreen(),
         '/common_formulas': (context) => const CommonFormulasScreen(),

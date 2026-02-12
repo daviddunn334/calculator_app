@@ -21,7 +21,8 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
   String? _successMessage;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _acceptTerms = false;
+  bool _agreedToTerms = false;
+  bool _agreedToPrivacy = false;
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -62,9 +63,9 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
       return;
     }
     
-    if (!_acceptTerms) {
+    if (!_agreedToTerms || !_agreedToPrivacy) {
       setState(() {
-        _errorMessage = 'You must accept the terms and conditions to continue';
+        _errorMessage = 'You must agree to both the Terms of Service and Privacy Policy to continue';
       });
       return;
     }
@@ -96,6 +97,8 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
           displayName: _nameController.text.trim().isNotEmpty 
               ? _nameController.text.trim() 
               : null,
+          acceptedTerms: _agreedToTerms,
+          acceptedPrivacy: _agreedToPrivacy,
         );
       }
       
@@ -104,7 +107,8 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
       _passwordController.clear();
       _confirmPasswordController.clear();
       _nameController.clear();
-      _acceptTerms = false;
+      _agreedToTerms = false;
+      _agreedToPrivacy = false;
       
       setState(() {
         _successMessage = 'Account created successfully! You can now log in.';
@@ -392,7 +396,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                             ),
                             const SizedBox(height: 16),
                             
-                            // Terms and conditions
+                            // Terms of Service checkbox
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -400,25 +404,99 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                                   height: 24,
                                   width: 24,
                                   child: Checkbox(
-                                    value: _acceptTerms,
+                                    value: _agreedToTerms,
                                     activeColor: AppTheme.primaryBlue,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     onChanged: (val) {
                                       setState(() {
-                                        _acceptTerms = val ?? false;
+                                        _agreedToTerms = val ?? false;
                                       });
                                     },
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: Text(
-                                    'I agree to the Terms of Service and Privacy Policy',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: AppTheme.textSecondary,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).pushNamed('/terms_of_service');
+                                    },
+                                    child: MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: AppTheme.textSecondary,
+                                          ),
+                                          children: [
+                                            const TextSpan(text: 'I agree to the '),
+                                            TextSpan(
+                                              text: 'Terms of Service',
+                                              style: TextStyle(
+                                                color: AppTheme.primaryBlue,
+                                                decoration: TextDecoration.underline,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            
+                            // Privacy Policy checkbox
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: Checkbox(
+                                    value: _agreedToPrivacy,
+                                    activeColor: AppTheme.primaryBlue,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    onChanged: (val) {
+                                      setState(() {
+                                        _agreedToPrivacy = val ?? false;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).pushNamed('/privacy_policy');
+                                    },
+                                    child: MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: AppTheme.textSecondary,
+                                          ),
+                                          children: [
+                                            const TextSpan(text: 'I agree to the '),
+                                            TextSpan(
+                                              text: 'Privacy Policy',
+                                              style: TextStyle(
+                                                color: AppTheme.primaryBlue,
+                                                decoration: TextDecoration.underline,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -479,7 +557,9 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                               height: 52,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.primaryBlue,
+                                  backgroundColor: (_agreedToTerms && _agreedToPrivacy) 
+                                      ? AppTheme.primaryBlue 
+                                      : Colors.grey,
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
@@ -492,7 +572,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                                     letterSpacing: 0.5,
                                   ),
                                 ),
-                                onPressed: _isLoading
+                                onPressed: (_isLoading || !_agreedToTerms || !_agreedToPrivacy)
                                     ? null
                                     : () {
                                         if (_formKey.currentState!.validate()) {

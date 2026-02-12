@@ -10,6 +10,10 @@ class UserProfile {
   final bool isAdmin;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? termsAcceptedAt;
+  final DateTime? privacyAcceptedAt;
+  final String? termsVersion;
+  final String? privacyVersion;
 
   UserProfile({
     required this.userId,
@@ -21,6 +25,10 @@ class UserProfile {
     this.isAdmin = false,
     DateTime? createdAt,
     this.updatedAt,
+    this.termsAcceptedAt,
+    this.privacyAcceptedAt,
+    this.termsVersion,
+    this.privacyVersion,
   }) : preferences = preferences ?? {},
        createdAt = createdAt ?? DateTime.now();
 
@@ -36,6 +44,10 @@ class UserProfile {
       isAdmin: data['isAdmin'] ?? false,
       createdAt: data['createdAt']?.toDate() ?? DateTime.now(),
       updatedAt: data['updatedAt']?.toDate(),
+      termsAcceptedAt: data['termsAcceptedAt']?.toDate(),
+      privacyAcceptedAt: data['privacyAcceptedAt']?.toDate(),
+      termsVersion: data['termsVersion'],
+      privacyVersion: data['privacyVersion'],
     );
   }
 
@@ -49,6 +61,10 @@ class UserProfile {
       'isAdmin': isAdmin,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': FieldValue.serverTimestamp(),
+      'termsAcceptedAt': termsAcceptedAt != null ? Timestamp.fromDate(termsAcceptedAt!) : null,
+      'privacyAcceptedAt': privacyAcceptedAt != null ? Timestamp.fromDate(privacyAcceptedAt!) : null,
+      'termsVersion': termsVersion,
+      'privacyVersion': privacyVersion,
     };
   }
 
@@ -58,6 +74,10 @@ class UserProfile {
     String? bio,
     Map<String, dynamic>? preferences,
     bool? isAdmin,
+    DateTime? termsAcceptedAt,
+    DateTime? privacyAcceptedAt,
+    String? termsVersion,
+    String? privacyVersion,
   }) {
     return UserProfile(
       userId: userId,
@@ -69,6 +89,10 @@ class UserProfile {
       isAdmin: isAdmin ?? this.isAdmin,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
+      termsAcceptedAt: termsAcceptedAt ?? this.termsAcceptedAt,
+      privacyAcceptedAt: privacyAcceptedAt ?? this.privacyAcceptedAt,
+      termsVersion: termsVersion ?? this.termsVersion,
+      privacyVersion: privacyVersion ?? this.privacyVersion,
     );
   }
 }

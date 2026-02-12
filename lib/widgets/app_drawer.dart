@@ -194,6 +194,64 @@ class AppDrawer extends StatelessWidget {
                   isLargeScreen,
                 ),
                 
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Divider(height: 1),
+                ),
+                
+                const Padding(
+                  padding: EdgeInsets.only(left: 16, top: 8, bottom: 4),
+                  child: Text(
+                    'LEGAL',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textSecondary,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+                
+                ListTile(
+                  leading: Icon(Icons.gavel_outlined, color: AppTheme.textSecondary, size: 22),
+                  title: Text(
+                    'Terms of Service',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  dense: true,
+                  visualDensity: const VisualDensity(horizontal: 0, vertical: -1),
+                  onTap: () {
+                    if (!isLargeScreen) {
+                      Navigator.pop(context);
+                    }
+                    Navigator.of(context).pushNamed('/terms_of_service');
+                  },
+                ),
+                
+                ListTile(
+                  leading: Icon(Icons.privacy_tip_outlined, color: AppTheme.textSecondary, size: 22),
+                  title: Text(
+                    'Privacy Policy',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  dense: true,
+                  visualDensity: const VisualDensity(horizontal: 0, vertical: -1),
+                  onTap: () {
+                    if (!isLargeScreen) {
+                      Navigator.pop(context);
+                    }
+                    Navigator.of(context).pushNamed('/privacy_policy');
+                  },
+                ),
+                
                 // Admin Dashboard - Only show for admin users
                 StreamBuilder<bool>(
                   stream: UserService().isCurrentUserAdminStream(),

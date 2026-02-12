@@ -414,7 +414,59 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               ),
                             ),
                             
-                            const SizedBox(height: 32),
+                            const SizedBox(height: 24),
+                            
+                            // Terms and Privacy disclaimer
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: RichText(
+                                textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.textSecondary,
+                                  ),
+                                  children: [
+                                    const TextSpan(text: 'By logging in, you agree to our '),
+                                    WidgetSpan(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).pushNamed('/terms_of_service');
+                                        },
+                                        child: Text(
+                                          'Terms of Service',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppTheme.primaryBlue,
+                                            decoration: TextDecoration.underline,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const TextSpan(text: ' and '),
+                                    WidgetSpan(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).pushNamed('/privacy_policy');
+                                        },
+                                        child: Text(
+                                          'Privacy Policy',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: AppTheme.primaryBlue,
+                                            decoration: TextDecoration.underline,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            
+                            const SizedBox(height: 24),
                             
                             // Sign up link
                             Row(

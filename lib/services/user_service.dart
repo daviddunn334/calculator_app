@@ -40,6 +40,8 @@ class UserService {
     required String userId,
     required String email,
     String? displayName,
+    bool acceptedTerms = false,
+    bool acceptedPrivacy = false,
   }) async {
     try {
       final userProfile = UserProfile(
@@ -47,6 +49,10 @@ class UserService {
         email: email,
         displayName: displayName,
         isAdmin: false, // New users are not admin by default
+        termsAcceptedAt: acceptedTerms ? DateTime.now() : null,
+        privacyAcceptedAt: acceptedPrivacy ? DateTime.now() : null,
+        termsVersion: acceptedTerms ? '1.0' : null,
+        privacyVersion: acceptedPrivacy ? '1.0' : null,
       );
 
       await _firestore
