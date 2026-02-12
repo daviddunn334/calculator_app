@@ -13,6 +13,7 @@ import 'news_updates_screen.dart';
 import '../widgets/app_drawer.dart';
 import 'pdf_to_excel_screen.dart';
 import 'feedback_screen.dart';
+import 'defect_analyzer_screen.dart';
 import '../services/analytics_service.dart';
 
 class MainScreen extends StatefulWidget {
@@ -40,6 +41,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     const NewsUpdatesScreen(),
     const PdfToExcelScreen(),
     const FeedbackScreen(),
+    const DefectAnalyzerScreen(),
   ];
 
   @override
@@ -233,6 +235,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return isSelected ? Icons.transform : Icons.transform_outlined;
       case 10:
         return isSelected ? Icons.feedback : Icons.feedback_outlined;
+      case 11:
+        return isSelected ? Icons.analytics : Icons.analytics_outlined;
       default:
         return Icons.home_outlined;
     }
@@ -262,6 +266,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return 'Equotip Data Converter';
       case 10:
         return 'Send Feedback';
+      case 11:
+        return 'Defect AI Analyzer';
       default:
         return '';
     }
@@ -291,6 +297,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         return 'equotip_converter';
       case 10:
         return 'feedback';
+      case 11:
+        return 'defect_analyzer';
       default:
         return 'unknown';
     }

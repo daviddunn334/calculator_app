@@ -136,5 +136,28 @@ service cloud.firestore {
         }
       }
     }
+
+    // Defect Analyzer - Defect Types
+    // All authenticated users can read, only admins can write
+    match /defect_types/{typeId} {
+      // All authenticated users can read active defect types
+      allow read: if request.auth != null;
+      // Only admins can create, update, delete defect types
+      allow create, update, delete: if request.auth != null && isAdmin();
+    }
+
+    // Defect Analyzer - Defect Entries
+    match /defect_entries/{entryId} {
+      // Users can read their own defect entries
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Admins can read all defect entries
+      allow read: if request.auth != null && isAdmin();
+      // Users can create their own defect entries
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      // Users can update/delete their own defect entries
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      // Admins can update/delete any defect entry (for admin management)
+      allow update, delete: if request.auth != null && isAdmin();
+    }
   }
 }

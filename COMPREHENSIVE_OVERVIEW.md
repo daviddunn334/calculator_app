@@ -629,6 +629,158 @@ navigator.serviceWorker.controller.postMessage({type: 'GET_VERSION'});
 
 This is the #1 most common mistake. Always bump versions before deploying!
 
+8. **Defect AI Analyzer - Parts 1 & 2 (Foundation, Logging & Client Management)** 🔍🤖 NEW
+   - Complete defect logging system for pipeline defects with measurements
+   - Configurable defect types stored in Firestore
+   - Smart form with dynamic field labels (Hardspot special handling)
+   - Client selection for procedure-specific AI analysis
+   - Defect history with real-time updates
+   - Full CRUD operations with proper security rules
+
+**Defect Analyzer Features:**
+- **Landing Screen** (lib/screens/defect_analyzer_screen.dart):
+  - Total defects counter using Firestore aggregation
+  - "Log New Defect" and "Defect History" action buttons
+  - Info section explaining how the system works
+  - Auto-initializes default defect types on first load
+
+- **Log Defect Form** (lib/screens/log_defect_screen.dart):
+  - Dropdown selector for defect type (populated from Firestore)
+  - Length, Width, Depth measurements (in inches)
+  - **Special Hardspot handling**: Depth field becomes "Max HB" with HB units
+  - Optional notes field (multiline)
+  - **Client dropdown** - Selects which client's procedures to use for AI analysis
+  - Dynamically loads client list from Firebase Storage `procedures/` folder
+  - Real-time form validation
+  - Success/error feedback with SnackBars
+
+- **Defect History** (lib/screens/defect_history_screen.dart):
+  - Real-time stream of user's defects
+  - Card-based list view, newest first
+  - Displays measurements with proper units (L, W, D/HB)
+  - Notes preview (if present)
+  - Timestamp display
+  - Tap card to view full details
+  - Empty state for no defects
+
+- **Defect Details** (lib/screens/defect_detail_screen.dart):
+  - Full defect information display
+  - Defect type header with icon
+  - Measurements table with highlighted values
+  - **Client name display** (which client's procedures will be used)
+  - Full notes display
+  - Metadata (client, created, updated timestamps)
+  - Delete functionality with confirmation
+  - AI analysis placeholder (coming in Part 3)
+
+- **DefectTypeService** (lib/services/defect_type_service.dart):
+  - Manages configurable defect types in Firestore
+  - `initializeDefaultDefectTypes()` - Seeds 10 default types:
+    1. Corrosion / Loss of Metal, 2. Dent, 3. Crack, 4. Lamination
+    5. Lack of Fusion, 6. Gouge, 7. Arc Burn, 8. **Hardspot** (special)
+    9. Wrinkle, 10. Bend
+  - `getActiveDefectTypes()` - Real-time stream for dropdown
+  - Admin functions for managing types
+
+- **DefectService** (lib/services/defect_service.dart):
+  - `getUserDefectEntries()` - Real-time stream ordered by createdAt DESC
+  - `addDefectEntry()`, `updateDefectEntry()`, `deleteDefectEntry()`
+  - `getUserDefectCount()` - Aggregation query for counts
+  - `getDefectEntriesByType()` - Filter by defect type
+
+**Data Models:**
+- **DefectType** (lib/models/defect_type.dart):
+  - Configurable defect types: name, isActive, sortOrder
+  - Helper method: `isHardspot` for special UI handling
+  
+- **DefectEntry** (lib/models/defect_entry.dart):
+  - Properties: defectType (string), length, width, depth (all doubles)
+  - Notes (optional string - nullable)
+  - **clientName (required string)** - Which client's procedures to use for AI analysis
+  - Special: depth field represents "Max HB" for Hardspot defects
+  - Timestamps: createdAt, updatedAt (UTC storage, local display)
+  - Helper: `isHardspot` getter for UI logic
+
+**Database Structure:**
+- Collection: `/defect_types/{typeId}` - Configurable defect types
+- Collection: `/defect_entries/{entryId}` - User defect logs
+- **Firestore Index Required:** `defect_entries` with userId (ASCENDING) + createdAt (DESCENDING)
+
+**Security Rules:**
+- `/defect_types`: All users read, only admins create/update/delete
+- `/defect_entries`: Users CRUD their own (userId match), admins CRUD all
+
+**UI/UX Design:**
+- Clean white AppBars (matches Method Hours screen pattern)
+- No gradient AppBars (removed for consistency)
+- Card-based layouts with proper spacing
+- Responsive design for mobile and desktop
+- Material Design 3 with AppTheme styling
+
+**Navigation Integration:**
+- Added to AppDrawer under "PROFESSIONAL" section (index 11)
+- Placed after "Equotip Data Converter"
+- Uses analytics_outlined/analytics icons
+- Internal state management for smooth transitions
+
+**Files Added:**
+- `lib/models/defect_type.dart` - Configurable defect type model
+- `lib/models/defect_entry.dart` - Main defect entry model
+- `lib/services/defect_type_service.dart` - Defect type CRUD operations
+- `lib/services/defect_service.dart` - Defect entry CRUD operations
+- `lib/screens/defect_analyzer_screen.dart` - Landing page
+- `lib/screens/log_defect_screen.dart` - Defect logging form
+- `lib/screens/defect_history_screen.dart` - Defect list view
+- `lib/screens/defect_detail_screen.dart` - Detail view with delete
+
+**Files Modified:**
+- `lib/widgets/app_drawer.dart` - Added "Defect AI Analyzer" menu item (index 11)
+- `lib/screens/main_screen.dart` - Added DefectAnalyzerScreen to _screens[11]
+- `firestore.rules` - Added security rules for defect_types and defect_entries
+- `firestore.indexes.json` - Added composite index for userId + createdAt query
+
+**Deployment Steps Completed:**
+1. ✅ Deployed Firestore rules: `firebase deploy --only firestore:rules --project integrity-tools`
+2. ✅ Deployed Firestore indexes: `firebase deploy --only firestore:indexes --project integrity-tools`
+3. ✅ Index built successfully (1-2 minutes after deployment)
+4. ✅ All CRUD operations tested and working
+
+**Part 2 Implementation (COMPLETE):**
+- **Client Selection in Defect Logging**: Users must select which client they're working for
+- **Dynamic Client Loading**: Client dropdown populated from Firebase Storage `procedures/` folder structure
+- **Client Display**: Defect detail screen shows which client was selected
+- **Procedure Organization**: PDFs organized as `procedures/{clientName}/procedure.pdf`
+- **Admin Management**: Existing `pdf_management_screen.dart` manages client procedures
+- **PdfManagementService**: Reused for client/PDF management operations
+
+**Storage Structure for AI (Part 3):**
+```
+procedures/
+  ├── {client1}/
+  │   ├── corrosion-procedure.pdf
+  │   └── repair-standards.pdf
+  ├── {client2}/
+  │   └── defect-specifications.pdf
+```
+
+**Future Part (Not Yet Implemented):**
+- **Part 3**: Vertex AI / Gemini integration
+  - Cloud Function triggers on new defect creation
+  - Fetches procedures from `procedures/{defect.clientName}/`
+  - Extracts text from PDFs
+  - Sends to Gemini AI with defect data + procedure context
+  - Returns automated repair recommendations
+  - Saves analysis results to Firestore
+
+**Status:** Parts 1 & 2 complete and deployed to `integrity-tools` project on develop branch
+
+**Important Technical Notes:**
+- Defect types auto-initialize on first app load (prevents empty dropdown)
+- Hardspot detection is case-insensitive (`toLowerCase().contains('hardspot')`)
+- All measurements in inches except Hardspot depth (HB units)
+- Firestore composite indexes required for sorting queries
+- Following the link in index error messages sometimes doesn't work - manually add to firestore.indexes.json instead
+
 ---
 
 This is the context you need when helping implement changes or new features for this application.
