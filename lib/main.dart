@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:path_provider/path_provider.dart';
 import 'firebase_options.dart';
 import 'services/offline_service.dart';
 import 'services/update_service.dart';
@@ -31,10 +30,8 @@ import 'screens/tools_screen.dart';
 import 'screens/method_hours_screen.dart';
 import 'screens/feedback_screen.dart';
 import 'services/auth_service.dart';
-import 'services/onboarding_service.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'theme/app_theme.dart';
-import 'screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -113,7 +110,6 @@ class MyApp extends StatelessWidget {
         '/reports': (context) => const ReportsScreen(),
         '/method_hours': (context) => const MethodHoursScreen(),
         '/feedback': (context) => const FeedbackScreen(),
-        '/onboarding': (context) => const OnboardingScreen(),
       }
     );
   }
@@ -205,42 +201,10 @@ class AuthGate extends StatelessWidget {
               return const LoginScreen();
             }
 
-            // Check onboarding status for authenticated users
-            return const OnboardingChecker();
+            // Check email verification for authenticated users
+            return const EmailVerificationChecker();
           },
         );
-      },
-    );
-  }
-}
-
-/// Widget that checks if user needs onboarding and email verification
-class OnboardingChecker extends StatelessWidget {
-  const OnboardingChecker({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: OnboardingService().hasCompletedOnboarding(),
-      builder: (context, snapshot) {
-        // Show loading while checking
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: AppTheme.background,
-            body: Center(
-              child: LoadingLogo(),
-            ),
-          );
-        }
-
-        // If user hasn't completed onboarding, show onboarding screen
-        final hasCompleted = snapshot.data ?? false;
-        if (!hasCompleted) {
-          return const OnboardingScreen();
-        }
-
-        // After onboarding, check email verification
-        return const EmailVerificationChecker();
       },
     );
   }
