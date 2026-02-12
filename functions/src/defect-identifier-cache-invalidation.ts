@@ -8,7 +8,7 @@ import {invalidateDefectIdentifierCache} from "./defect-identifier-cache-manager
  */
 export const invalidateDefectIdentifierCacheOnUpload = onObjectFinalized(
   {
-    bucket: "integrity-tools.appspot.com",
+    bucket: "ndt-toolkit.appspot.com",
     region: "us-central1",
   },
   async (event) => {
@@ -43,7 +43,7 @@ export const invalidateDefectIdentifierCacheOnUpload = onObjectFinalized(
  */
 export const invalidateDefectIdentifierCacheOnDelete = onObjectDeleted(
   {
-    bucket: "integrity-tools.appspot.com",
+    bucket: "ndt-toolkit.appspot.com",
     region: "us-central1",
   },
   async (event) => {

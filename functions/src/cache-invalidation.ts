@@ -8,7 +8,7 @@ import {invalidateCacheForClient} from "./cache-manager";
  */
 export const invalidateCacheOnPdfUpload = onObjectFinalized(
   {
-    bucket: "integrity-tools.appspot.com",
+    bucket: "ndt-toolkit.appspot.com",
     region: "us-central1",
   },
   async (event) => {
@@ -52,7 +52,7 @@ export const invalidateCacheOnPdfUpload = onObjectFinalized(
  */
 export const invalidateCacheOnPdfDelete = onObjectDeleted(
   {
-    bucket: "integrity-tools.appspot.com",
+    bucket: "ndt-toolkit.appspot.com",
     region: "us-central1",
   },
   async (event) => {
