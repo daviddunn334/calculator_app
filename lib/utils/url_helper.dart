@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 class UrlHelper {
   // Open Terms of Service in external browser
   static Future<void> openTermsOfService() async {
-    const url = 'https://integrity-tools.web.app/terms-of-service.html';
+    const url = 'https://ndt-toolkit.web.app/terms-of-service.html';
     final uri = Uri.parse(url);
     
     try {
@@ -19,7 +19,7 @@ class UrlHelper {
 
   // Open Privacy Policy in external browser
   static Future<void> openPrivacyPolicy() async {
-    const url = 'https://integrity-tools.web.app/privacy-policy.html';
+    const url = 'https://ndt-toolkit.web.app/privacy-policy.html';
     final uri = Uri.parse(url);
     
     try {
@@ -51,8 +51,8 @@ class UrlHelper {
 
   // Open email client
   static Future<void> openSupportEmail() async {
-    const email = 'integrity-tools-support@gmail.com';
-    final uri = Uri.parse('mailto:$email?subject=Integrity Tools Support');
+    const email = 'ndt-toolkit-support@gmail.com';
+    final uri = Uri.parse('mailto:$email?subject=NDT-ToolKit Support');
     
     try {
       if (await canLaunchUrl(uri)) {

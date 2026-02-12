@@ -46,13 +46,13 @@ class TermsOfServiceScreen extends StatelessWidget {
             // Acceptance of Terms
             _buildSection(
               '1. Acceptance of Terms',
-              'By accessing or using the Integrity Tools mobile and web application ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Service. You must be at least 18 years old or have authorization from your employer to use this Service.',
+              'By accessing or using the NDT-ToolKit mobile and web application ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Service. You must be at least 18 years old or have authorization from your employer to use this Service.',
             ),
 
             // Description of Service
             _buildSection(
               '2. Description of Service',
-              'Integrity Tools is a professional application for pipeline inspection and Non-Destructive Testing (NDT) provided by Integrity Specialists. The Service includes:',
+              'NDT-ToolKit is a professional application for pipeline inspection and Non-Destructive Testing (NDT). The Service includes:',
             ),
             _buildBulletPoint('NDT calculation tools (B31G, pit depth, wall loss, etc.)'),
             _buildBulletPoint('Inspection report creation and management'),
@@ -91,7 +91,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             _buildBulletPoint('Misrepresent your credentials, qualifications, or employment'),
             _buildBulletPoint('Share confidential company information without authorization'),
             _buildBulletPoint('Harass, abuse, or harm other users'),
-            _buildBulletPoint('Use the Service to compete with Integrity Specialists'),
+            _buildBulletPoint('Use the Service to compete with NDT-ToolKit'),
             _buildBulletPoint('Scrape, data mine, or extract data using automated means'),
             const SizedBox(height: 16),
 
@@ -128,7 +128,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             // Intellectual Property
             _buildSection(
               '7. Intellectual Property',
-              'The Service and all its content (excluding your User Content) are owned by Integrity Specialists:',
+              'The Service and all its content (excluding your User Content) are owned by NDT-ToolKit:',
             ),
             _buildBulletPoint('All trademarks, logos, and service marks are our property'),
             _buildBulletPoint('You may not reproduce, distribute, or create derivative works without written permission'),
@@ -139,7 +139,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             // Limitation of Liability
             _buildSection(
               '8. Limitation of Liability',
-              'TO THE MAXIMUM EXTENT PERMITTED BY LAW, INTEGRITY SPECIALISTS IS NOT LIABLE FOR:',
+              'TO THE MAXIMUM EXTENT PERMITTED BY LAW, NDT-TOOLKIT IS NOT LIABLE FOR:',
             ),
             _buildBulletPoint('Calculation errors or inaccuracies in any tool or feature'),
             _buildBulletPoint('Data loss, corruption, or unauthorized access'),
@@ -173,7 +173,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             // Indemnification
             _buildSection(
               '10. Indemnification',
-              'You agree to indemnify, defend, and hold harmless Integrity Specialists, its officers, employees, and agents from any claims, damages, or expenses arising from:',
+              'You agree to indemnify, defend, and hold harmless NDT-ToolKit, its officers, employees, and agents from any claims, damages, or expenses arising from:',
             ),
             _buildBulletPoint('Your violation of these Terms of Service'),
             _buildBulletPoint('Your violation of any laws or regulations'),
@@ -236,10 +236,8 @@ class TermsOfServiceScreen extends StatelessWidget {
               '14. Contact Information',
               'For questions about these Terms of Service, technical support, or to report violations, contact us:',
             ),
-            _buildContactInfo('Email', 'integrity-tools-support@gmail.com'),
-            _buildContactInfo('Company', 'Integrity Specialists'),
-            _buildContactInfo('Address', 'Texas, United States'),
-            _buildContactInfo('Website', 'www.integrityspecialists.com'),
+            _buildContactInfo('Email', 'ndt-toolkit-support@gmail.com'),
+            _buildContactInfo('Company', 'NDT-ToolKit'),
             const SizedBox(height: 16),
 
             // Severability
@@ -251,7 +249,7 @@ class TermsOfServiceScreen extends StatelessWidget {
             // Entire Agreement
             _buildSection(
               '16. Entire Agreement',
-              'These Terms of Service, together with our Privacy Policy, constitute the entire agreement between you and Integrity Specialists regarding the Service. These Terms supersede any prior agreements or understandings. We may update these Terms from time to time - continued use after changes constitutes acceptance.',
+              'These Terms of Service, together with our Privacy Policy, constitute the entire agreement between you and NDT-ToolKit regarding the Service. These Terms supersede any prior agreements or understandings. We may update these Terms from time to time - continued use after changes constitutes acceptance.',
             ),
 
             const SizedBox(height: 32),

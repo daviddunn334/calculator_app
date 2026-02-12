@@ -95,7 +95,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Integrity Tools',
+      title: 'NDT-ToolKit',
       theme: AppTheme.theme,
       debugShowCheckedModeBanner: false,
       home: const AggressiveUpdateWrapper(
@@ -272,7 +272,7 @@ class OfflineMainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Integrity Tools (Offline)'),
+        title: const Text('NDT-ToolKit (Offline)'),
         backgroundColor: AppTheme.primaryBlue,
         foregroundColor: Colors.white,
       ),
