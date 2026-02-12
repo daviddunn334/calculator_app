@@ -1551,6 +1551,85 @@ firebase deploy --only functions --project integrity-tools
 
 **Status:** Implemented and ready for testing
 
+14. **Password Reset Functionality** 🔐 **NEW** (February 12, 2026)
+   - Firebase Authentication password reset with email verification
+   - Clean UI matching app design patterns
+   - Comprehensive error handling for various scenarios
+   - User-friendly flow with success/error feedback
+
+**Password Reset Features:**
+- **Reset Password Screen** (lib/screens/reset_password_screen.dart):
+  - Email input field with validation
+  - "Send Reset Link" button with loading state
+  - Success message when email is sent (green container)
+  - Error messages for various Firebase exceptions (red container)
+  - "Back to Login" button for easy navigation
+  - Info banner explaining link expiration (1 hour)
+  - Animated entrance (fade + slide transitions)
+  - Matching AppTheme styling (white card, shadows, decorative circles)
+
+- **Login Screen Integration** (lib/screens/login_screen.dart):
+  - "Forgot Password?" link added below password field
+  - Right-aligned, underlined, primary blue color
+  - Navigates to reset password screen
+  - Consistent with existing "Create account" link styling
+
+- **AuthService Enhancement** (lib/services/auth_service.dart):
+  - Added `sendPasswordResetEmail(String email)` method
+  - Calls `FirebaseAuth.instance.sendPasswordResetEmail()`
+  - Proper error handling with rethrow for UI layer
+  - Debug logging for troubleshooting
+
+**User Flow:**
+1. User taps "Forgot Password?" on login screen
+2. Enters email address on reset password screen
+3. Taps "Send Reset Link" button
+4. Firebase sends password reset email automatically
+5. User clicks link in email → Opens Firebase hosted page in browser
+6. User sets new password on Firebase page
+7. Returns to app and logs in with new password
+
+**Error Handling:**
+Comprehensive Firebase error code handling:
+- `user-not-found` → "No account found with this email address"
+- `invalid-email` → "Please enter a valid email address"
+- `too-many-requests` → "Too many attempts. Please try again later"
+- `network-request-failed` → "Network error. Please check your connection"
+- Generic errors with user-friendly messages
+
+**Technical Implementation:**
+- Firebase automatically handles email template and reset page (no backend config required)
+- Reset link expires in 1 hour for security
+- Rate limiting automatically enforced by Firebase
+- No additional Firestore rules needed (handled by Firebase Auth)
+- Route added to main.dart: `/reset_password`
+
+**UI/UX Design:**
+- Matches login screen design (white card, animated entrance, background circles)
+- Form validation (email format, empty check)
+- Loading spinner during API call
+- Success state disables email field and shows green success message
+- Error state shows red error container with icon
+- "Back to Login" button always accessible
+- Blue info banner about link expiration
+
+**Files Added:**
+- `lib/screens/reset_password_screen.dart` - Complete reset password UI
+
+**Files Modified:**
+- `lib/services/auth_service.dart` - Added sendPasswordResetEmail method
+- `lib/screens/login_screen.dart` - Added "Forgot Password?" link
+- `lib/main.dart` - Added /reset_password route
+
+**Benefits:**
+- Self-service password recovery reduces support burden
+- Secure Firebase-managed reset process
+- Consistent with app's design language
+- Clear user feedback at each step
+- Mobile and desktop responsive
+
+**Status:** Implemented and ready for testing
+
 ---
 
 This is the context you need when helping implement changes or new features for this application.

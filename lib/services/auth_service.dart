@@ -79,4 +79,16 @@ class AuthService {
 
   // Get user email
   String? get userEmail => _auth.currentUser?.email;
-} 
+
+  // Send password reset email
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      print('Attempting to send password reset email to: $email');
+      await _auth.sendPasswordResetEmail(email: email.trim());
+      print('Password reset email sent successfully to: $email');
+    } catch (e) {
+      print('Error sending password reset email: $e');
+      rethrow;
+    }
+  }
+}

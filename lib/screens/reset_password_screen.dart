@@ -2,22 +2,20 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/app_theme.dart';
-import '../widgets/mobile_install_dialog.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class ResetPasswordScreen extends StatefulWidget {
+  const ResetPasswordScreen({Key? key}) : super(key: key);
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
-  bool _obscurePassword = true;
+  bool _emailSent = false;
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -40,30 +38,16 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
       curve: Curves.easeOutCubic,
     ));
     _controller.forward();
-
-    // Listen to auth state changes
-    _authService.authStateChanges.listen((User? user) {
-      print('Auth state changed: ${user?.email ?? 'No user'}');
-      if (user != null && mounted) {
-        Navigator.of(context).pushReplacementNamed('/');
-      }
-    });
-
-    // Show mobile install dialog if needed
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      MobileInstallDialog.showIfNeeded(context);
-    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
-  Future<void> _login() async {
+  Future<void> _sendResetEmail() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -71,42 +55,44 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _emailSent = false;
     });
 
     try {
       final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
 
-      if (email.isEmpty || password.isEmpty) {
-        throw 'Please enter both email and password';
+      if (email.isEmpty) {
+        throw 'Please enter your email address';
       }
 
-      print('Attempting to sign in with email: $email');
-      final userCredential = await _authService.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      print('Sign in successful: ${userCredential.user?.email}');
+      print('Sending password reset email to: $email');
+      await _authService.sendPasswordResetEmail(email);
+      
+      setState(() {
+        _emailSent = true;
+      });
+      
+      print('Password reset email sent successfully');
     } catch (e) {
-      print('Sign in error: $e');
-      String errorMessage = 'An error occurred during sign in';
+      print('Password reset error: $e');
+      String errorMessage = 'An error occurred while sending reset email';
       
       if (e is FirebaseAuthException) {
         switch (e.code) {
           case 'user-not-found':
-            errorMessage = 'No user found with this email';
-            break;
-          case 'wrong-password':
-            errorMessage = 'Wrong password provided';
+            errorMessage = 'No account found with this email address';
             break;
           case 'invalid-email':
-            errorMessage = 'Invalid email address';
+            errorMessage = 'Please enter a valid email address';
             break;
-          case 'user-disabled':
-            errorMessage = 'This account has been disabled';
+          case 'too-many-requests':
+            errorMessage = 'Too many attempts. Please try again later';
+            break;
+          case 'network-request-failed':
+            errorMessage = 'Network error. Please check your connection';
             break;
           default:
-            errorMessage = e.message ?? 'An error occurred during sign in';
+            errorMessage = e.message ?? 'An error occurred while sending reset email';
         }
       }
 
@@ -184,56 +170,33 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Logo and App Name
-                            Column(
-                              children: [
-                                // Company Logo
-                                SizedBox(
-                                  width: 250,
-                                  height: 250,
-                                  child: Image.asset(
-                                    'assets/logos/logo_main.png',
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                // Company Name and Tagline
-                                Column(
-                                  children: [
-                                    Text(
-                                      'Integrity Specialists',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 26,
-                                        color: AppTheme.primaryNavy,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Our people are trained to be the difference.',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppTheme.textSecondary,
-                                        letterSpacing: 0.2,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ],
+                            // Back button
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: IconButton(
+                                icon: Icon(Icons.arrow_back, color: AppTheme.primaryNavy),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                tooltip: 'Back to login',
+                              ),
                             ),
-                            const SizedBox(height: 40),
+                            const SizedBox(height: 8),
                             
-                            // Welcome text
+                            // Title
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 4),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
+                                  Icon(
+                                    Icons.lock_reset,
+                                    size: 56,
+                                    color: AppTheme.primaryBlue,
+                                  ),
+                                  const SizedBox(height: 16),
                                   Text(
-                                    'Welcome back',
+                                    'Reset Password',
                                     style: TextStyle(
                                       fontSize: 28,
                                       fontWeight: FontWeight.bold,
@@ -244,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Sign in to access your tools and resources',
+                                    'Enter your email address and we\'ll send you a link to reset your password',
                                     style: TextStyle(
                                       fontSize: 15,
                                       color: AppTheme.textSecondary,
@@ -284,71 +247,49 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               validator: (value) => value == null || value.isEmpty 
                                   ? 'Please enter your email' 
                                   : (!value.contains('@') ? 'Please enter a valid email' : null),
-                            ),
-                            const SizedBox(height: 20),
-                            
-                            // Password field
-                            TextFormField(
-                              controller: _passwordController,
-                              decoration: InputDecoration(
-                                labelText: 'Password',
-                                hintText: '••••••••',
-                                prefixIcon: Icon(Icons.lock_outline, color: AppTheme.textSecondary),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                    color: AppTheme.textSecondary,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
-                                  },
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                  borderSide: BorderSide(color: AppTheme.divider),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                  borderSide: BorderSide(color: AppTheme.divider),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                  borderSide: BorderSide(color: AppTheme.primaryBlue, width: 1.5),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                              ),
-                              obscureText: _obscurePassword,
-                              validator: (value) => value == null || value.length < 6 
-                                  ? 'Password must be at least 6 characters' 
-                                  : null,
+                              enabled: !_emailSent,
                             ),
                             
-                            // Forgot Password link
-                            const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pushNamed('/reset_password');
-                                },
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                            // Success message
+                            if (_emailSent)
+                              Container(
+                                margin: const EdgeInsets.only(top: 16),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                  border: Border.all(color: Colors.green.shade200),
                                 ),
-                                child: Text(
-                                  'Forgot Password?',
-                                  style: TextStyle(
-                                    color: AppTheme.primaryBlue,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    decoration: TextDecoration.underline,
-                                  ),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.check_circle_outline, color: Colors.green.shade700, size: 24),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Email Sent!',
+                                            style: TextStyle(
+                                              color: Colors.green.shade700,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            'Check your email for a password reset link. Click the link to set a new password.',
+                                            style: TextStyle(
+                                              color: Colors.green.shade700,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
                             
                             // Error message
                             if (_errorMessage != null)
@@ -376,17 +317,56 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             
                             const SizedBox(height: 24),
                             
-                            // Sign in button
+                            // Send reset link button
+                            if (!_emailSent)
+                              SizedBox(
+                                height: 52,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppTheme.primaryBlue,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                                    ),
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () {
+                                          if (_formKey.currentState!.validate()) {
+                                            _sendResetEmail();
+                                          }
+                                        },
+                                  child: _isLoading
+                                      ? const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2.5,
+                                          ),
+                                        )
+                                      : const Text('Send Reset Link'),
+                                ),
+                              ),
+                            
+                            // Back to login button
+                            const SizedBox(height: 16),
                             SizedBox(
                               height: 52,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.primaryBlue,
-                                  foregroundColor: Colors.white,
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppTheme.primaryBlue,
+                                  side: BorderSide(color: AppTheme.primaryBlue),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
                                   ),
-                                  elevation: 0,
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                   textStyle: const TextStyle(
                                     fontWeight: FontWeight.w600,
@@ -394,57 +374,38 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     letterSpacing: 0.5,
                                   ),
                                 ),
-                                onPressed: _isLoading
-                                    ? null
-                                    : () {
-                                        if (_formKey.currentState!.validate()) {
-                                          _login();
-                                        }
-                                      },
-                                child: _isLoading
-                                    ? const SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2.5,
-                                        ),
-                                      )
-                                    : const Text('Sign in'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('Back to Login'),
                               ),
                             ),
                             
-                            const SizedBox(height: 32),
-                            
-                            // Sign up link
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Don't have an account? ",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppTheme.textSecondary,
-                                  ),
+                            // Info text
+                            if (!_emailSent)
+                              Container(
+                                margin: const EdgeInsets.only(top: 24),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.blue.shade50,
+                                  borderRadius: BorderRadius.circular(AppTheme.radiusSmall),
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).pushReplacementNamed('/signup');
-                                  },
-                                  child: MouseRegion(
-                                    cursor: SystemMouseCursors.click,
-                                    child: Text(
-                                      'Create account',
-                                      style: TextStyle(
-                                        color: AppTheme.primaryBlue,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'The reset link will expire in 1 hour for security',
+                                        style: TextStyle(
+                                          color: Colors.blue.shade700,
+                                          fontSize: 13,
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
                           ],
                         ),
                       ),
