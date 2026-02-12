@@ -11,16 +11,25 @@ service firebase.storage {
       allow read: if request.auth != null;
     }
     
-<<<<<<< HEAD
-    // Allow authenticated users to read PDF procedures and standards
-    match /procedures/{allPaths=**} {
+    // Allow authenticated users to upload defect photos for AI identification
+    match /defect_photos/{userId}/{imageId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to upload temporary defect photos (legacy)
+    match /defect_photos/temporary/{userId}/{imageId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Allow authenticated users to read any defect photos (for Cloud Function processing)
+    match /defect_photos/{allPaths=**} {
       allow read: if request.auth != null;
-=======
-    // TEMPORARY: Allow all authenticated users to write to procedures (for testing)
-    // TODO: Restrict to admins only once we confirm this works
+    }
+    
+    // Allow authenticated users to read and write PDF procedures
+    // TODO: Restrict write access to admins only in production
     match /procedures/{allPaths=**} {
       allow read, write, delete: if request.auth != null;
->>>>>>> develop
     }
   }
 }
