@@ -76,7 +76,7 @@ lib/
 
 ### 2. NDT Calculator Tools (Offline-Capable)
 
-Eight professional calculators for pipeline inspection:
+Ten professional calculators for pipeline inspection:
 
 - ABS + ES Calculator: Calculate ABS and ES values for offset and distance
 - Pit Depth Calculator: Wall loss and remaining thickness calculations
@@ -86,6 +86,8 @@ Eight professional calculators for pipeline inspection:
 - Depth Percentages Calculator: Data visualization and analysis
 - SOC/EOC Calculator: Start/End of corrosion calculations
 - Corrosion Grid Logger: Grid data logging for RSTRENG export
+- **⚡ Snell's Law Calculator**: Calculate refraction angles when ultrasonic waves pass from one medium to another (e.g., Rexolite wedge → Steel). Features dual solving modes (θ₁ or θ₂), material presets, critical angle calculation, and validation for total internal reflection
+- **📐 Trigonometric Beam Path Tool**: Calculate beam path geometry for shear wave UT inspections using right-triangle trigonometry. Determines depth, leg number, and skip distances based on probe angle, material thickness, and surface distance. Includes automatic leg detection (odd/even) for accurate depth calculation and skip distance table generator for quick reference
 
 ### 3. Inspection Reports System
 
@@ -1387,6 +1389,167 @@ firebase deploy --only functions --project integrity-tools
 - Leverages comprehensive NDT reference knowledge
 - Low cost per identification (~$0.003)
 - Reuses proven caching infrastructure from Defect AI Analyzer
+
+12. **⚡ Snell's Law Calculator** 🔬 **NEW** (February 12, 2026)
+   - Professional calculator for ultrasonic wave refraction analysis
+   - Dual solving modes for incident or refracted angles
+   - Material presets for common NDT materials
+   - Critical angle calculation with total internal reflection detection
+   - Fully offline-capable calculator tool
+
+**Calculator Features:**
+- **Dual Solving Modes**:
+  - **Mode A**: Solve for refracted angle (θ₂) given incident angle (θ₁)
+  - **Mode B**: Solve for incident angle (θ₁) given refracted angle (θ₂)
+  - Smooth toggle using SegmentedButton widget
+
+- **Material Presets**:
+  - Rexolite: 2337 m/s (longitudinal)
+  - Acrylic: 2730 m/s (longitudinal)
+  - Water: 1480 m/s
+  - Steel (Shear): 3240 m/s
+  - Steel (Longitudinal): 5920 m/s
+  - Custom: Manual velocity entry
+
+- **Core Calculations**:
+  - Snell's Law formula: sin(θ₁)/V₁ = sin(θ₂)/V₂
+  - Automatic degree ↔ radian conversion
+  - Critical angle: θ_crit = arcsin(V₁/V₂) when V₂ > V₁
+  - Precision: 3 decimal places for angles
+
+- **Validation & Error Handling**:
+  - Total internal reflection detection
+  - Angle range validation (0° - 90°)
+  - Velocity validation (must be > 0)
+  - Clear error messages with status indicators
+
+- **User Interface**:
+  - Clean white AppBar matching app design patterns
+  - Dynamic input labels based on selected mode
+  - Material preset dropdowns with auto-fill
+  - Color-coded results (blue for valid, red for errors, orange for critical angle)
+  - Info section explaining Snell's Law usage for field inspectors
+  - Responsive design for mobile and desktop
+
+**Use Cases:**
+- Quick field verification of wedge angles for ultrasonic testing
+- Probe setup validation
+- Refracted angle verification (e.g., Rexolite wedge → Steel)
+- Critical angle determination to avoid total internal reflection
+- Training tool for NDT technicians
+
+**Technical Implementation:**
+- Uses `dart:math` for trigonometric functions (sin, asin, pi)
+- Implements both forward and reverse Snell's Law calculations
+- Real-time result clearing when inputs change
+- Analytics tracking for calculator usage with input parameters
+- Follows existing calculator patterns (StatefulWidget with TextEditingControllers)
+
+**Files Added:**
+- `lib/calculators/snells_law_calculator.dart` - Main calculator implementation
+
+**Files Modified:**
+- `lib/screens/tools_screen.dart` - Added Snell's Law Calculator to tools grid (9th position)
+- `COMPREHENSIVE_OVERVIEW.md` - Updated calculator count from 8 to 9
+
+**Calculator Positioning:**
+- Added at the bottom of the NDT Tools list
+- Icon: waves_outlined (represents wave propagation)
+- Color: Cyan (#00BCD4)
+- Tags: Refraction, Wedge, Ultrasonic
+
+**Analytics Integration:**
+- Event: `calculator_used` with name "Snells Law Calculator"
+- Tracked parameters: solve_mode, input_angle, v1, v2, has_solution
+
+**Status:** Implemented and ready for testing
+
+13. **📐 Trigonometric Beam Path Tool** 📐 **NEW** (February 12, 2026)
+   - Professional calculator for shear wave UT beam path geometry
+   - Right-triangle trigonometry for flat plate inspections
+   - Automatic leg detection (odd/even) for accurate depth calculation
+   - Skip distance table generator for quick field reference
+   - Fully offline-capable calculator tool
+
+**Calculator Features:**
+- **Input Parameters**:
+  - Probe Angle (θ) - Refracted angle inside material (1° - 89°)
+  - Material Thickness (T) - Plate thickness in inches
+  - Surface Distance (SD) - Distance along surface in inches
+
+- **Core Calculations**:
+  - **Depth (D)**: Beam depth at given surface distance
+  - **Leg Number (L)**: Which reflection the beam is on (1, 2, 3, 4...)
+  - **Distance into Current Leg**: Position within the active leg
+  - **Half Skip Distance (HS)**: T × tan(θ)
+  - **Full Skip Distance (FS)**: 2 × T × tan(θ)
+
+- **Geometry Logic**:
+  - Leg calculation: L = floor(SD / HS) + 1
+  - Odd legs (1, 3, 5...): Beam traveling down from top surface
+  - Even legs (2, 4, 6...): Beam traveling up from bottom surface
+  - Depth formula (odd): D = LegPosition × tan(θ)
+  - Depth formula (even): D = T - (LegPosition × tan(θ))
+  - Depth clamped between 0 and T
+
+- **Skip Distance Table**:
+  - Generates 1st, 2nd, 3rd, 4th leg skip distances
+  - Quick reference for field inspectors
+  - Shows cumulative distances for each leg
+  - All values rounded to 3 decimal places
+
+- **Validation & Error Handling**:
+  - Angle range: 1° to 89° (prevents division by zero)
+  - Thickness must be > 0
+  - Surface distance must be ≥ 0
+  - Real-time validation with clear error messages
+
+- **User Interface**:
+  - Clean white AppBar matching app design patterns
+  - Three input fields with appropriate units (degrees, inches)
+  - Blue results container with primary results
+  - Orange skip distance table section
+  - Info section with assumptions and formulas
+  - Responsive design for mobile and desktop
+
+**Use Cases:**
+- Shear wave UT inspections on flat plates
+- Quick field verification of beam path geometry
+- Depth calculation at specific surface distances
+- Skip distance reference for probe positioning
+- Training tool for UT technicians
+
+**Technical Implementation:**
+- Uses `dart:math` for tan(), floor(), and modulo operations
+- Automatic degree to radian conversion (× π/180)
+- Real-time result clearing when inputs change
+- Analytics tracking for calculator usage
+- Follows existing calculator patterns (StatefulWidget with TextEditingControllers)
+
+**Assumptions:**
+- Angle is already refracted inside material (not incident angle)
+- Flat plate geometry (no curvature compensation)
+- Pure trigonometry (no velocity calculations)
+- Shear wave propagation
+
+**Files Added:**
+- `lib/calculators/trig_beam_path_calculator.dart` - Main calculator implementation
+
+**Files Modified:**
+- `lib/screens/tools_screen.dart` - Added calculator to tools grid (10th position)
+- `COMPREHENSIVE_OVERVIEW.md` - Updated calculator count from 9 to 10
+
+**Calculator Positioning:**
+- Added after Snell's Law Calculator
+- Icon: change_history_outlined (triangle icon)
+- Color: Deep Orange (#FF5722)
+- Tags: Shear Wave, Beam Path, Skip Distance
+
+**Analytics Integration:**
+- Event: `calculator_used` with name "Trig Beam Path Calculator"
+- Tracked parameters: probe_angle, thickness, surface_distance, leg_number
+
+**Status:** Implemented and ready for testing
 
 ---
 

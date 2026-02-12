@@ -5,6 +5,8 @@ import '../calculators/time_clock_calculator.dart';
 import '../calculators/dent_ovality_calculator.dart';
 import '../calculators/b31g_calculator.dart';
 import '../calculators/depth_percentages_calculator.dart';
+import '../calculators/snells_law_calculator.dart';
+import '../calculators/trig_beam_path_calculator.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_header.dart';
 import '../widgets/offline_indicator.dart';
@@ -90,6 +92,22 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
       'tags': ['Charts', 'Analysis', 'Visualization', 'Depth'],
       'color': Color(0xFF9C27B0), // Purple
       'route': const DepthPercentagesCalculator(),
+    },
+    {
+      'title': '⚡ Snell\'s Law Calculator',
+      'icon': Icons.waves_outlined,
+      'description': 'Calculate refraction angles for ultrasonic wave propagation',
+      'tags': ['Refraction', 'Wedge', 'Ultrasonic'],
+      'color': Color(0xFF00BCD4), // Cyan
+      'route': const SnellsLawCalculator(),
+    },
+    {
+      'title': '📐 Trig Beam Path Tool',
+      'icon': Icons.change_history_outlined,
+      'description': 'Calculate beam path geometry for shear wave UT inspections',
+      'tags': ['Shear Wave', 'Beam Path', 'Skip Distance'],
+      'color': Color(0xFFFF5722), // Deep Orange
+      'route': const TrigBeamPathCalculator(),
     },
   ];
 
