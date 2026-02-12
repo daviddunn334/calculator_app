@@ -1,11 +1,13 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:path_provider/path_provider.dart';
 import 'firebase_options.dart';
 import 'services/offline_service.dart';
 import 'services/update_service.dart';
+import 'services/performance_service.dart';
 import 'widgets/auto_update_notification.dart';
 import 'screens/main_screen.dart';
 import 'screens/corrosion_grid_logger_screen.dart';
@@ -57,6 +59,13 @@ void main() async {
     // Initialize AuthService with persistence
     final authService = AuthService();
     await authService.initialize();
+    
+    // Initialize Firebase Performance Monitoring
+    // Performance monitoring is automatically enabled for web and mobile
+    // No additional initialization required - traces can be started immediately
+    if (kDebugMode) {
+      print('[Performance] Firebase Performance Monitoring enabled');
+    }
   } catch (e) {
     print('Error initializing Firebase: $e');
     // App can still function offline with calculator tools

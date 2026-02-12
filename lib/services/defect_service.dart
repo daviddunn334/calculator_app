@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/defect_entry.dart';
+import 'performance_service.dart';
 
 class DefectService {
   final CollectionReference _defectEntriesCollection =
@@ -42,37 +43,45 @@ class DefectService {
   }
 
   // Add a new defect entry
+  // Note: AI analysis happens in Cloud Function (analyzeDefectOnCreate)
+  // Performance trace tracks the Firestore write operation here
   Future<DefectEntry> addDefectEntry(DefectEntry entry) async {
-    try {
-      final docRef = _defectEntriesCollection.doc();
-      final now = DateTime.now().toUtc();
+    return await PerformanceService().trackDefectAnalysis<DefectEntry>(
+      defectType: entry.defectType,
+      clientName: entry.clientName,
+      operation: () async {
+        try {
+          final docRef = _defectEntriesCollection.doc();
+          final now = DateTime.now().toUtc();
 
-      final newEntry = DefectEntry(
-        id: docRef.id,
-        userId: entry.userId,
-        defectType: entry.defectType,
-        pipeOD: entry.pipeOD,
-        pipeNWT: entry.pipeNWT,
-        length: entry.length,
-        width: entry.width,
-        depth: entry.depth,
-        notes: entry.notes,
-        clientName: entry.clientName,
-        createdAt: now,
-        updatedAt: now,
-      );
+          final newEntry = DefectEntry(
+            id: docRef.id,
+            userId: entry.userId,
+            defectType: entry.defectType,
+            pipeOD: entry.pipeOD,
+            pipeNWT: entry.pipeNWT,
+            length: entry.length,
+            width: entry.width,
+            depth: entry.depth,
+            notes: entry.notes,
+            clientName: entry.clientName,
+            createdAt: now,
+            updatedAt: now,
+          );
 
-      print('Attempting to add defect entry with ID: ${docRef.id}');
-      print('Entry data: ${newEntry.toFirestore()}');
+          print('Attempting to add defect entry with ID: ${docRef.id}');
+          print('Entry data: ${newEntry.toFirestore()}');
 
-      await docRef.set(newEntry.toFirestore());
+          await docRef.set(newEntry.toFirestore());
 
-      print('Successfully added defect entry');
-      return newEntry;
-    } catch (e) {
-      print('Error adding defect entry: $e');
-      rethrow;
-    }
+          print('Successfully added defect entry');
+          return newEntry;
+        } catch (e) {
+          print('Error adding defect entry: $e');
+          rethrow;
+        }
+      },
+    );
   }
 
   // Update an existing defect entry
@@ -136,21 +145,26 @@ class DefectService {
 
   // Get count of defect entries for the current user
   Future<int> getUserDefectCount() async {
-    try {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) {
-        throw Exception('User not authenticated');
-      }
+    return await PerformanceService().trackFirestoreQuery<int>(
+      collection: 'defect_entries',
+      operation: () async {
+        try {
+          final userId = FirebaseAuth.instance.currentUser?.uid;
+          if (userId == null) {
+            throw Exception('User not authenticated');
+          }
 
-      final querySnapshot = await _defectEntriesCollection
-          .where('userId', isEqualTo: userId)
-          .count()
-          .get();
+          final querySnapshot = await _defectEntriesCollection
+              .where('userId', isEqualTo: userId)
+              .count()
+              .get();
 
-      return querySnapshot.count ?? 0;
-    } catch (e) {
-      print('Error getting defect count: $e');
-      rethrow;
-    }
+          return querySnapshot.count ?? 0;
+        } catch (e) {
+          print('Error getting defect count: $e');
+          rethrow;
+        }
+      },
+    );
   }
 }

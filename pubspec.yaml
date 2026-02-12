@@ -51,6 +51,7 @@ dependencies:
   firebase_auth: ^4.17.4
   firebase_analytics: ^10.8.0
   firebase_crashlytics: ^3.4.9
+  firebase_performance: ^0.9.4+1
   cloud_functions: ^4.6.6
   flutter_pdfview: ^1.4.0+1
   syncfusion_flutter_pdfviewer: ^27.2.5

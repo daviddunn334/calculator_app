@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/photo_identification.dart';
+import 'performance_service.dart';
 
 /// Service for handling defect photo identification with async processing
 class DefectIdentifierService {
@@ -15,40 +16,56 @@ class DefectIdentifierService {
   /// Returns the download URL
   /// Accepts both File (mobile) and XFile (web)
   Future<String> uploadPhotoForIdentification(dynamic photoFile) async {
-    try {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId == null) {
-        throw Exception('User not authenticated');
-      }
-
-      // Create unique filename with timestamp
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final fileName = '$userId-$timestamp.jpg';
-      final path = 'defect_photos/$userId/$fileName';
-
-      // Upload file
-      final ref = _storage.ref().child(path);
-      
-      if (kIsWeb) {
-        // Web: photoFile is XFile
-        final XFile xFile = photoFile as XFile;
-        final bytes = await xFile.readAsBytes();
-        await ref.putData(bytes);
-      } else {
-        // Mobile: photoFile is File
-        final File file = photoFile as File;
-        await ref.putFile(file);
-      }
-
-      // Get download URL
-      final downloadUrl = await ref.getDownloadURL();
-      print('Photo uploaded successfully: $downloadUrl');
-      
-      return downloadUrl;
-    } catch (e) {
-      print('Error uploading photo: $e');
-      rethrow;
+    // Get file size for performance tracking
+    int fileSizeBytes;
+    if (kIsWeb) {
+      final XFile xFile = photoFile as XFile;
+      fileSizeBytes = await xFile.length();
+    } else {
+      final File file = photoFile as File;
+      fileSizeBytes = await file.length();
     }
+
+    return await PerformanceService().trackPhotoUpload<String>(
+      fileSizeBytes: fileSizeBytes,
+      platform: kIsWeb ? 'web' : 'mobile',
+      operation: () async {
+        try {
+          final userId = FirebaseAuth.instance.currentUser?.uid;
+          if (userId == null) {
+            throw Exception('User not authenticated');
+          }
+
+          // Create unique filename with timestamp
+          final timestamp = DateTime.now().millisecondsSinceEpoch;
+          final fileName = '$userId-$timestamp.jpg';
+          final path = 'defect_photos/$userId/$fileName';
+
+          // Upload file
+          final ref = _storage.ref().child(path);
+          
+          if (kIsWeb) {
+            // Web: photoFile is XFile
+            final XFile xFile = photoFile as XFile;
+            final bytes = await xFile.readAsBytes();
+            await ref.putData(bytes);
+          } else {
+            // Mobile: photoFile is File
+            final File file = photoFile as File;
+            await ref.putFile(file);
+          }
+
+          // Get download URL
+          final downloadUrl = await ref.getDownloadURL();
+          print('Photo uploaded successfully: $downloadUrl');
+          
+          return downloadUrl;
+        } catch (e) {
+          print('Error uploading photo: $e');
+          rethrow;
+        }
+      },
+    );
   }
 
   /// Creates a photo identification document in Firestore
