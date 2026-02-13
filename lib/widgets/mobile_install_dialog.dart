@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:html' as html;
-import '../theme/app_theme.dart';
 
 /// Dialog showing platform-specific PWA install instructions for mobile devices
 class MobileInstallDialog extends StatefulWidget {
@@ -91,12 +90,26 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-      ),
+      backgroundColor: Colors.transparent,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 400),
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2A313B),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.05),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 40,
+              spreadRadius: 0,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,36 +118,37 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    color: const Color(0xFF6C5BFF).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.install_mobile,
-                    color: AppTheme.primaryBlue,
-                    size: 32,
+                    color: Color(0xFF6C5BFF),
+                    size: 28,
                   ),
                 ),
                 const SizedBox(width: 16),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Install App',
                         style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryNavy,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFFEDF9FF),
+                          letterSpacing: -0.2,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         'Get faster access & offline mode',
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppTheme.textSecondary,
+                          color: Color(0xFFAEBBC8),
                         ),
                       ),
                     ],
@@ -151,24 +165,26 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
             
             // Benefits
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: AppTheme.background,
+                color: const Color(0xFF242A33),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.divider),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.05),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Benefits:',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryNavy,
+                      color: Color(0xFFEDF9FF),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   _buildBenefit(Icons.flash_on, '30-50% faster load times'),
                   _buildBenefit(Icons.offline_bolt, 'Works offline'),
                   _buildBenefit(Icons.home_outlined, 'One-tap access from home screen'),
@@ -177,7 +193,7 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
               ),
             ),
             
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             
             // Buttons
             Row(
@@ -186,23 +202,30 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
                 TextButton(
                   onPressed: _dismiss,
                   style: TextButton.styleFrom(
-                    foregroundColor: AppTheme.textSecondary,
+                    foregroundColor: const Color(0xFFAEBBC8),
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
-                  child: const Text('Maybe Later'),
+                  child: const Text(
+                    'Maybe Later',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
                   onPressed: _dismiss,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
+                    backgroundColor: const Color(0xFF6C5BFF),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                     ),
+                    elevation: 0,
                   ),
-                  child: const Text('Got it!'),
+                  child: const Text(
+                    'Got it!',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),
@@ -218,15 +241,15 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'How to install on iOS:',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: AppTheme.primaryNavy,
+              color: Color(0xFFEDF9FF),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildStep(
             1,
             'Tap the Share button',
@@ -252,15 +275,15 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'How to install on Android:',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: AppTheme.primaryNavy,
+              color: Color(0xFFEDF9FF),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildStep(
             1,
             'Tap the menu icon',
@@ -286,15 +309,15 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'How to install:',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
-              color: AppTheme.primaryNavy,
+              color: Color(0xFFEDF9FF),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           _buildStep(
             1,
             'Look for the install option',
@@ -326,10 +349,10 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
         children: [
           // Step number circle
           Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: AppTheme.primaryBlue,
+            width: 28,
+            height: 28,
+            decoration: const BoxDecoration(
+              color: Color(0xFF6C5BFF),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -338,7 +361,7 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -351,15 +374,15 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
               children: [
                 Row(
                   children: [
-                    Icon(icon, size: 20, color: AppTheme.primaryBlue),
+                    Icon(icon, size: 18, color: const Color(0xFF6C5BFF)),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         title,
-                        style: TextStyle(
-                          fontSize: 15,
+                        style: const TextStyle(
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.primaryNavy,
+                          color: Color(0xFFEDF9FF),
                         ),
                       ),
                     ),
@@ -367,12 +390,12 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
                 ),
                 const SizedBox(height: 4),
                 Padding(
-                  padding: const EdgeInsets.only(left: 28),
+                  padding: const EdgeInsets.only(left: 26),
                   child: Text(
                     description,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
-                      color: AppTheme.textSecondary,
+                      color: Color(0xFFAEBBC8),
                       height: 1.4,
                     ),
                   ),
@@ -387,17 +410,17 @@ class _MobileInstallDialogState extends State<MobileInstallDialog> {
 
   Widget _buildBenefit(IconData icon, String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: AppTheme.primaryBlue),
-          const SizedBox(width: 8),
+          Icon(icon, size: 16, color: const Color(0xFF00E5A8)),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
-                color: AppTheme.textSecondary,
+                color: Color(0xFFAEBBC8),
               ),
             ),
           ),

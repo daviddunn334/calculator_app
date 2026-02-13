@@ -20,15 +20,26 @@ class AppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color background = Color(0xFF242A33);
+    const Color panel = Color(0xFF2A313B);
+    const Color primaryText = Color(0xFFEDF9FF);
+    const Color secondaryText = Color(0xFFAEBBC8);
+    const Color accentPrimary = Color(0xFF6C5BFF);
+
     return Container(
       padding: const EdgeInsets.all(AppTheme.paddingLarge),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: background,
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.white.withOpacity(0.05),
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -44,10 +55,13 @@ class AppHeader extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(AppTheme.paddingMedium),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    color: panel,
                     borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.08),
+                    ),
                   ),
-                  child: Icon(icon, size: 40, color: AppTheme.primaryBlue),
+                  child: Icon(icon, size: 40, color: accentPrimary),
                 ),
                 const SizedBox(width: 16),
                 Column(
@@ -56,13 +70,18 @@ class AppHeader extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: AppTheme.headlineMedium,
+                      style: AppTheme.headlineMedium.copyWith(
+                        color: primaryText,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     if (subtitle != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         subtitle!,
-                        style: AppTheme.bodyMedium,
+                        style: AppTheme.bodyMedium.copyWith(
+                          color: secondaryText,
+                        ),
                       ),
                     ],
                   ],

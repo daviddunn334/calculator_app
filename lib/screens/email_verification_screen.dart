@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import '../services/auth_service.dart';
 import '../services/analytics_service.dart';
-import '../theme/app_theme.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   const EmailVerificationScreen({Key? key}) : super(key: key);
@@ -187,18 +186,18 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     final userEmail = user?.email ?? 'your email';
 
     return Scaffold(
-      backgroundColor: AppTheme.background,
+      backgroundColor: const Color(0xFF1E232A),
       appBar: AppBar(
         title: const Text('Verify Email'),
-        backgroundColor: Colors.white,
-        foregroundColor: AppTheme.textPrimary,
+        backgroundColor: const Color(0xFF2A313B),
+        foregroundColor: const Color(0xFFEDF9FF),
         elevation: 0,
         actions: [
           TextButton(
             onPressed: _signOutAndReturn,
-            child: Text(
+            child: const Text(
               'Sign Out',
-              style: TextStyle(color: AppTheme.primaryBlue),
+              style: TextStyle(color: Color(0xFF6C5BFF), fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -208,16 +207,20 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           child: Container(
             width: 500,
             margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-            padding: const EdgeInsets.all(32),
+            padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
+              color: const Color(0xFF2A313B),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.05),
+                width: 1,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withOpacity(0.2),
                   blurRadius: 40,
                   spreadRadius: 0,
-                  offset: const Offset(0, 10),
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -229,34 +232,35 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
+                    color: const Color(0xFF6C5BFF).withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.email_outlined,
                     size: 50,
-                    color: AppTheme.primaryBlue,
+                    color: Color(0xFF6C5BFF),
                   ),
                 ),
                 const SizedBox(height: 24),
 
                 // Title
-                Text(
+                const Text(
                   'Check Your Email',
                   style: TextStyle(
                     fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryNavy,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFEDF9FF),
+                    letterSpacing: -0.5,
                   ),
                 ),
                 const SizedBox(height: 12),
 
                 // Description
-                Text(
+                const Text(
                   'We sent a verification link to:',
                   style: TextStyle(
                     fontSize: 16,
-                    color: AppTheme.textSecondary,
+                    color: Color(0xFFAEBBC8),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -266,26 +270,29 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                    color: const Color(0xFF242A33),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.05),
+                    ),
                   ),
                   child: Text(
                     userEmail,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryBlue,
+                      color: Color(0xFF6C5BFF),
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
 
                 // Instructions
-                Text(
+                const Text(
                   'Click the link in the email to verify your account. The link will expire in 1 hour.',
                   style: TextStyle(
                     fontSize: 14,
-                    color: AppTheme.textSecondary,
+                    color: Color(0xFFAEBBC8),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -297,18 +304,18 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                      border: Border.all(color: Colors.green.shade200),
+                      color: const Color(0xFF00E5A8).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF00E5A8).withOpacity(0.3)),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.check_circle_outline, color: Colors.green.shade700, size: 20),
+                        const Icon(Icons.check_circle_outline, color: Color(0xFF00E5A8), size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _successMessage!,
-                            style: TextStyle(color: Colors.green.shade700, fontSize: 14),
+                            style: const TextStyle(color: Color(0xFF00E5A8), fontSize: 14),
                           ),
                         ),
                       ],
@@ -321,18 +328,18 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     margin: const EdgeInsets.only(bottom: 16),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                      border: Border.all(color: Colors.red.shade200),
+                      color: const Color(0xFFFE637E).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFFE637E).withOpacity(0.3)),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                        const Icon(Icons.error_outline, color: Color(0xFFFE637E), size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: TextStyle(color: Colors.red.shade700, fontSize: 14),
+                            style: const TextStyle(color: Color(0xFFFE637E), fontSize: 14),
                           ),
                         ),
                       ],
@@ -343,27 +350,29 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 48,
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: _canResend ? AppTheme.primaryBlue : Colors.grey),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                      ),
-                      foregroundColor: _canResend ? AppTheme.primaryBlue : Colors.grey,
-                    ),
+                  child: _buildSecondaryButton(
                     onPressed: (_isLoading || !_canResend) ? null : _sendVerificationEmail,
-                    icon: _isLoading
+                    child: _isLoading
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color(0xFF6C5BFF),
+                            ),
                           )
-                        : const Icon(Icons.refresh),
-                    label: Text(
-                      _resendCooldownSeconds > 0
-                          ? 'Resend in $_resendCooldownSeconds seconds'
-                          : 'Resend Verification Email',
-                    ),
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.refresh, size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                _resendCooldownSeconds > 0
+                                    ? 'Resend in $_resendCooldownSeconds seconds'
+                                    : 'Resend Verification Email',
+                              ),
+                            ],
+                          ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -372,18 +381,16 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 48,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                      ),
-                      elevation: 0,
-                    ),
+                  child: _buildPrimaryButton(
                     onPressed: _isLoading ? null : () => _checkVerificationStatus(silent: false),
-                    icon: const Icon(Icons.check_circle_outline),
-                    label: const Text('I\'ve Verified My Email'),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle_outline, size: 20),
+                        SizedBox(width: 8),
+                        Text('I\'ve Verified My Email'),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -392,23 +399,23 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                    border: Border.all(color: Colors.blue.shade200),
+                    color: const Color(0xFF242A33),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white.withOpacity(0.05)),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                      const Icon(Icons.info_outline, color: Color(0xFF6C5BFF), size: 20),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Didn\'t receive the email?',
                               style: TextStyle(
-                                color: Colors.blue.shade900,
+                                color: Color(0xFFEDF9FF),
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,
                               ),
@@ -420,7 +427,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               '• Wait a few minutes for the email to arrive\n'
                               '• Click "Resend" to get a new link',
                               style: TextStyle(
-                                color: Colors.blue.shade800,
+                                color: const Color(0xFFAEBBC8),
                                 fontSize: 13,
                                 height: 1.5,
                               ),
@@ -432,6 +439,80 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrimaryButton({
+    required VoidCallback? onPressed,
+    required Widget child,
+  }) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+        color: onPressed != null
+            ? const Color(0xFF6C5BFF)
+            : const Color(0xFF6C5BFF).withOpacity(0.5),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: onPressed != null
+            ? [
+                BoxShadow(
+                  color: const Color(0xFF6C5BFF).withOpacity(0.3),
+                  blurRadius: 12,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 4),
+                ),
+              ]
+            : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          child: Center(
+            child: DefaultTextStyle(
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSecondaryButton({
+    required VoidCallback? onPressed,
+    required Widget child,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: onPressed != null ? const Color(0xFF6C5BFF) : const Color(0xFF7F8A96),
+          width: 1.5,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onPressed,
+          borderRadius: BorderRadius.circular(12),
+          child: Center(
+            child: DefaultTextStyle(
+              style: TextStyle(
+                color: onPressed != null ? const Color(0xFF6C5BFF) : const Color(0xFF7F8A96),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              child: child,
             ),
           ),
         ),

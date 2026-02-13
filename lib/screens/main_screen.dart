@@ -53,7 +53,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 250),
     );
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
@@ -92,13 +92,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF242A33), // Slightly elevated surface
         elevation: 0,
-        scrolledUnderElevation: 2,
-        shadowColor: Colors.black.withOpacity(0.1),
+        scrolledUnderElevation: 0,
         leading: !isLargeScreen
             ? IconButton(
-                icon: const Icon(Icons.menu, color: AppTheme.textPrimary),
+                icon: const Icon(Icons.menu, color: Color(0xFFEDF9FF)),
                 onPressed: () {
                   _scaffoldKey.currentState?.openDrawer();
                 },
@@ -106,24 +105,26 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             : null,
         title: Text(
           _getLabelForIndex(_selectedIndex),
-          style: AppTheme.titleLarge.copyWith(
-            color: AppTheme.textPrimary,
+          style: const TextStyle(
+            fontSize: 18,
+            color: Color(0xFFEDF9FF), // Primary text
             fontWeight: FontWeight.w600,
           ),
         ),
         actions: [
-          // Company Text Logo
+          // Company Logo Icon
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: ColorFiltered(
-              colorFilter: ColorFilter.mode(
-                AppTheme.primaryNavy,
-                BlendMode.srcIn,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF6C5BFF), // Primary accent
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Image.asset(
-                'assets/logos/logo_text_final.png',
-                height: 24,
-                fit: BoxFit.contain,
+              child: const Icon(
+                Icons.engineering,
+                color: Colors.white,
+                size: 20,
               ),
             ),
           ),
@@ -136,13 +137,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             )
           : null,
       body: Container(
-        color: AppTheme.background,
+        color: const Color(0xFF1E232A), // Main background
         child: Row(
           children: [
             if (isLargeScreen)
-              Container(
+              SizedBox(
                 width: 280,
-                color: Colors.white,
                 child: AppDrawer(
                   selectedIndex: _selectedIndex,
                   onItemSelected: _onItemTapped,
@@ -150,7 +150,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               ),
             Expanded(
               child: Container(
-                color: AppTheme.background,
+                color: const Color(0xFF1E232A), // Main background
                 child: FadeTransition(
                   opacity: _fadeAnimation,
                   child: ClipRect(
@@ -165,12 +165,18 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       bottomNavigationBar: !isLargeScreen
           ? Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color(0xFF242A33), // Slightly elevated surface
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withOpacity(0.05),
+                    width: 1,
+                  ),
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 12,
+                    offset: const Offset(0, -4),
                   ),
                 ],
               ),
@@ -182,33 +188,35 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: isSelected
                           ? BoxDecoration(
-                              color: AppTheme.primaryBlue.withOpacity(0.1),
+                              color: const Color(0xFF6C5BFF).withOpacity(0.12),
                               borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.primaryBlue.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                              border: Border.all(
+                                color: const Color(0xFF6C5BFF).withOpacity(0.3),
+                                width: 1,
+                              ),
                             )
                           : null,
                       child: Icon(
                         _getIconForIndex(index, isSelected),
-                        color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
+                        color: isSelected
+                            ? const Color(0xFF6C5BFF) // Primary accent
+                            : const Color(0xFFAEBBC8), // Secondary text
+                        size: 24,
                       ),
                     ),
                     label: _getLabelForIndex(index),
                   );
                 }),
                 currentIndex: _selectedIndex < 5 ? _selectedIndex : 0,
-                selectedItemColor: AppTheme.primaryBlue,
-                unselectedItemColor: AppTheme.textSecondary,
+                selectedItemColor: const Color(0xFFEDF9FF), // Primary text
+                unselectedItemColor: const Color(0xFFAEBBC8), // Secondary text
                 showUnselectedLabels: true,
                 type: BottomNavigationBarType.fixed,
                 onTap: _onItemTapped,
                 elevation: 0,
                 backgroundColor: Colors.transparent,
+                selectedFontSize: 12,
+                unselectedFontSize: 11,
               ),
             )
           : null,

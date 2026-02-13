@@ -33,6 +33,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="NDT-ToolKit">
+  <meta name="theme-color" content="#1E232A">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
   <!-- Favicon -->
@@ -83,6 +84,7 @@
         margin: 0;
         padding: 0;
         position: fixed;
+        background: #1E232A;
       }
       #loading {
         align-items: center;
@@ -90,25 +92,60 @@
         height: 100%;
         justify-content: center;
         width: 100%;
+        background: #1E232A;
+      }
+      #loading .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
       }
       #loading img {
-        animation: 1s ease-in-out 0s infinite alternate breathe;
-        opacity: .66;
-        transition: opacity .4s;
+        width: 180px;
+        height: 180px;
+        opacity: 0.9;
+        animation: fadeInOut 2s ease-in-out infinite;
+      }
+      #loading .spinner {
+        margin-top: 32px;
+        width: 48px;
+        height: 48px;
+        border: 3px solid rgba(108, 91, 255, 0.1);
+        border-top: 3px solid #6C5BFF;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      #loading .loading-text {
+        margin-top: 24px;
+        font-family: 'Noto Sans', sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        color: #AEBBC8;
+        letter-spacing: 0.5px;
+      }
+      @keyframes fadeInOut {
+        0%, 100% {
+          opacity: 0.7;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1.02);
+        }
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
       #loading.main_done img {
         opacity: 1;
       }
-      @keyframes breathe {
-        from {
-          transform: scale(1)
-        }
-        to {
-          transform: scale(0.95)
-        }
-      }
     </style>
-    <img src="icons/logo_main.png" alt="Loading indicator..." style="width: 250px; height: 250px;" />
+    <div class="loading-container">
+      <img src="icons/logo_main.png" alt="Loading..." />
+      <div class="spinner"></div>
+      <div class="loading-text">Loading NDT Tools...</div>
+    </div>
   </div>
 
   <script>

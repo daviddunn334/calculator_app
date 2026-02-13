@@ -224,18 +224,15 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
       body: SafeArea(
         child: FadeTransition(
           opacity: _fadeAnimation,
-          child: Padding(
-            padding: const EdgeInsets.all(AppTheme.paddingLarge),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                _buildBreadcrumbs(),
-                Expanded(
-                  child: _buildContent(),
-                ),
-              ],
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              _buildBreadcrumbs(),
+              Expanded(
+                child: _buildContent(),
+              ),
+            ],
           ),
         ),
       ),
@@ -250,29 +247,30 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           margin: const EdgeInsets.all(AppTheme.paddingLarge),
           padding: const EdgeInsets.all(AppTheme.paddingLarge),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.wifi_off,
-                size: 64,
-                color: Colors.orange,
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.yellowAccent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.wifi_off,
+                  size: 48,
+                  color: AppTheme.yellowAccent,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
                 'No Internet Connection',
                 style: AppTheme.titleMedium.copyWith(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: AppTheme.textPrimary,
                 ),
               ),
@@ -292,50 +290,26 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildHeader() {
-    // Title section for mobile - matches tools and field log pattern
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.paddingLarge,
-        vertical: AppTheme.paddingMedium,
-      ),
-      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(AppTheme.paddingLarge),
+      margin: const EdgeInsets.only(bottom: AppTheme.paddingLarge),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppTheme.primaryBlue,
-                  AppTheme.primaryBlue.withOpacity(0.8),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryBlue.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+              color: AppTheme.primaryAccent.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.location_on_rounded,
-              size: 32,
-              color: Colors.white,
+              size: 28,
+              color: AppTheme.primaryAccent,
             ),
           ),
           const SizedBox(width: AppTheme.paddingLarge),
@@ -346,11 +320,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Text(
                   'Job Locations',
                   style: AppTheme.titleLarge.copyWith(
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: AppTheme.textPrimary,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -363,15 +335,25 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
             ),
           ),
           if (_isAdmin) ...[
-            ElevatedButton.icon(
-              onPressed: _showAddDialog,
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(_getAddButtonText()),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryBlue,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            Container(
+              decoration: BoxDecoration(
+                gradient: AppTheme.accentGradient,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ElevatedButton.icon(
+                onPressed: _showAddDialog,
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(_getAddButtonText()),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
           ],
@@ -390,35 +372,40 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
             _showingPersonalLocations = false;
             _selectedPersonalFolder = null;
           }),
-          icon: const Icon(Icons.home, size: 16),
-          label: const Text('Locations'),
+          icon: Icon(Icons.home, size: 16, color: AppTheme.textSecondary),
+          label: Text('Locations', style: TextStyle(color: AppTheme.textSecondary)),
           style: TextButton.styleFrom(
             foregroundColor: AppTheme.textSecondary,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           ),
         ),
       );
       breadcrumbs.addAll([
-        const Icon(Icons.chevron_right, size: 16, color: AppTheme.textSecondary),
+        Icon(Icons.chevron_right, size: 16, color: AppTheme.textMuted),
         TextButton.icon(
           onPressed: () => setState(() {
             _selectedPersonalFolder = null;
           }),
-          icon: const Icon(Icons.folder_special, size: 16),
-          label: const Text('My Saved Locations'),
+          icon: Icon(Icons.folder_special, size: 16, color: _selectedPersonalFolder == null ? AppTheme.primaryAccent : AppTheme.textSecondary),
+          label: Text('My Saved Locations', style: TextStyle(color: _selectedPersonalFolder == null ? AppTheme.primaryAccent : AppTheme.textSecondary)),
           style: TextButton.styleFrom(
-            foregroundColor: _selectedPersonalFolder == null ? AppTheme.primaryBlue : AppTheme.textSecondary,
+            foregroundColor: _selectedPersonalFolder == null ? AppTheme.primaryAccent : AppTheme.textSecondary,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           ),
         ),
       ]);
 
       if (_selectedPersonalFolder != null) {
         breadcrumbs.addAll([
-          const Icon(Icons.chevron_right, size: 16, color: AppTheme.textSecondary),
-          Text(
-            _selectedPersonalFolder!.name,
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.primaryBlue,
-              fontWeight: FontWeight.w600,
+          Icon(Icons.chevron_right, size: 16, color: AppTheme.textMuted),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Text(
+              _selectedPersonalFolder!.name,
+              style: AppTheme.bodyMedium.copyWith(
+                color: AppTheme.primaryAccent,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ]);
@@ -430,24 +417,26 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
             _selectedDivision = null;
             _selectedProject = null;
           }),
-          icon: const Icon(Icons.home, size: 16),
-          label: const Text('Divisions'),
+          icon: Icon(Icons.home, size: 16, color: _selectedDivision == null ? AppTheme.primaryAccent : AppTheme.textSecondary),
+          label: Text('Divisions', style: TextStyle(color: _selectedDivision == null ? AppTheme.primaryAccent : AppTheme.textSecondary)),
           style: TextButton.styleFrom(
-            foregroundColor: _selectedDivision == null ? AppTheme.primaryBlue : AppTheme.textSecondary,
+            foregroundColor: _selectedDivision == null ? AppTheme.primaryAccent : AppTheme.textSecondary,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           ),
         ),
       );
 
       if (_selectedDivision != null) {
         breadcrumbs.addAll([
-          const Icon(Icons.chevron_right, size: 16, color: AppTheme.textSecondary),
+          Icon(Icons.chevron_right, size: 16, color: AppTheme.textMuted),
           TextButton(
             onPressed: () => setState(() {
               _selectedProject = null;
             }),
-            child: Text(_selectedDivision!.name),
+            child: Text(_selectedDivision!.name, style: TextStyle(color: _selectedProject == null ? AppTheme.primaryAccent : AppTheme.textSecondary)),
             style: TextButton.styleFrom(
-              foregroundColor: _selectedProject == null ? AppTheme.primaryBlue : AppTheme.textSecondary,
+              foregroundColor: _selectedProject == null ? AppTheme.primaryAccent : AppTheme.textSecondary,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             ),
           ),
         ]);
@@ -455,12 +444,15 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
 
       if (_selectedProject != null) {
         breadcrumbs.addAll([
-          const Icon(Icons.chevron_right, size: 16, color: AppTheme.textSecondary),
-          Text(
-            _selectedProject!.name,
-            style: AppTheme.bodyMedium.copyWith(
-              color: AppTheme.primaryBlue,
-              fontWeight: FontWeight.w600,
+          Icon(Icons.chevron_right, size: 16, color: AppTheme.textMuted),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Text(
+              _selectedProject!.name,
+              style: AppTheme.bodyMedium.copyWith(
+                color: AppTheme.primaryAccent,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ]);
@@ -469,8 +461,11 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppTheme.paddingLarge, vertical: AppTheme.paddingSmall),
-      child: Row(
-        children: breadcrumbs,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: breadcrumbs,
+        ),
       ),
     );
   }
@@ -658,29 +653,29 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
               child: Container(
                 margin: const EdgeInsets.all(AppTheme.paddingLarge),
                 child: Material(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(16),
                   elevation: 0,
                   child: InkWell(
                     onTap: _showPersonalLocations,
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                    borderRadius: BorderRadius.circular(16),
                     child: Container(
-                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppTheme.divider, width: 1),
-                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                        border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryBlue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(10),
+                              color: AppTheme.primaryAccent.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.folder_special,
-                              color: AppTheme.primaryBlue,
+                              color: AppTheme.primaryAccent,
                               size: 24,
                             ),
                           ),
@@ -708,9 +703,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                               ],
                             ),
                           ),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right,
-                            color: AppTheme.textSecondary,
+                            color: AppTheme.textMuted,
                             size: 20,
                           ),
                         ],
@@ -871,29 +866,29 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         elevation: 0,
         child: InkWell(
           onTap: () => _navigateToDivision(division),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
-            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.divider, width: 1),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBlue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppTheme.primaryAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.location_city,
-                    color: AppTheme.primaryBlue,
+                    color: AppTheme.primaryAccent,
                     size: 24,
                   ),
                 ),
@@ -902,12 +897,34 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        division.name,
-                        style: AppTheme.titleMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              division.name,
+                              style: AppTheme.titleMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                          ),
+                          // Show pin indicator if item is pinned
+                          if (_pinnedDivisions.contains(division.id)) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.yellowAccent.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.push_pin,
+                                color: AppTheme.yellowAccent,
+                                size: 14,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       if (division.description != null) ...[
                         const SizedBox(height: 4),
@@ -926,25 +943,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Show pin indicator if item is pinned
-                    if (_pinnedDivisions.contains(division.id)) ...[
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Icon(
-                          Icons.push_pin,
-                          color: AppTheme.primaryBlue,
-                          size: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    const Icon(
+                    Icon(
                       Icons.chevron_right,
-                      color: AppTheme.textSecondary,
+                      color: AppTheme.textMuted,
                       size: 20,
                     ),
                     if (_isAdmin) ...[
@@ -957,43 +958,47 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                             child: Row(
                               children: [
                                 Icon(
-                                  _pinnedDivisions.contains(division.id) 
-                                      ? Icons.push_pin 
-                                      : Icons.push_pin_outlined, 
-                                  size: 16
+                                  _pinnedDivisions.contains(division.id)
+                                      ? Icons.push_pin
+                                      : Icons.push_pin_outlined,
+                                  size: 16,
+                                  color: AppTheme.textSecondary,
                                 ),
                                 const SizedBox(width: 8),
-                                Text(_pinnedDivisions.contains(division.id) ? 'Unpin' : 'Pin to top'),
+                                Text(
+                                  _pinnedDivisions.contains(division.id) ? 'Unpin' : 'Pin to top',
+                                  style: TextStyle(color: AppTheme.textPrimary),
+                                ),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'edit',
                             child: Row(
                               children: [
-                                Icon(Icons.edit, size: 16),
-                                SizedBox(width: 8),
-                                Text('Edit'),
+                                Icon(Icons.edit, size: 16, color: AppTheme.textSecondary),
+                                const SizedBox(width: 8),
+                                Text('Edit', style: TextStyle(color: AppTheme.textPrimary)),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'delete',
                             child: Row(
                               children: [
-                                Icon(Icons.delete, size: 16, color: Colors.red),
-                                SizedBox(width: 8),
-                                Text('Delete', style: TextStyle(color: Colors.red)),
+                                Icon(Icons.delete, size: 16, color: AppTheme.accessoryAccent),
+                                const SizedBox(width: 8),
+                                Text('Delete', style: TextStyle(color: AppTheme.accessoryAccent)),
                               ],
                             ),
                           ),
                         ],
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          child: const Icon(
+                          child: Icon(
                             Icons.more_vert,
                             size: 16,
-                            color: AppTheme.textSecondary,
+                            color: AppTheme.textMuted,
                           ),
                         ),
                       ),
@@ -1012,29 +1017,29 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         elevation: 0,
         child: InkWell(
           onTap: () => _navigateToProject(project),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
-            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.divider, width: 1),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.accent1.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppTheme.secondaryAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.folder,
-                    color: AppTheme.accent1,
+                    color: AppTheme.secondaryAccent,
                     size: 24,
                   ),
                 ),
@@ -1043,12 +1048,34 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        project.name,
-                        style: AppTheme.titleMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              project.name,
+                              style: AppTheme.titleMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                          ),
+                          // Show pin indicator if item is pinned
+                          if (_pinnedProjects.contains(project.id)) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.yellowAccent.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.push_pin,
+                                color: AppTheme.yellowAccent,
+                                size: 14,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       if (project.description != null) ...[
                         const SizedBox(height: 4),
@@ -1067,25 +1094,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Show pin indicator if item is pinned
-                    if (_pinnedProjects.contains(project.id)) ...[
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.accent1.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Icon(
-                          Icons.push_pin,
-                          color: AppTheme.accent1,
-                          size: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    const Icon(
+                    Icon(
                       Icons.chevron_right,
-                      color: AppTheme.textSecondary,
+                      color: AppTheme.textMuted,
                       size: 20,
                     ),
                     if (_isAdmin) ...[
@@ -1098,43 +1109,47 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                             child: Row(
                               children: [
                                 Icon(
-                                  _pinnedProjects.contains(project.id) 
-                                      ? Icons.push_pin 
-                                      : Icons.push_pin_outlined, 
-                                  size: 16
+                                  _pinnedProjects.contains(project.id)
+                                      ? Icons.push_pin
+                                      : Icons.push_pin_outlined,
+                                  size: 16,
+                                  color: AppTheme.textSecondary,
                                 ),
                                 const SizedBox(width: 8),
-                                Text(_pinnedProjects.contains(project.id) ? 'Unpin' : 'Pin to top'),
+                                Text(
+                                  _pinnedProjects.contains(project.id) ? 'Unpin' : 'Pin to top',
+                                  style: TextStyle(color: AppTheme.textPrimary),
+                                ),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'edit',
                             child: Row(
                               children: [
-                                Icon(Icons.edit, size: 16),
-                                SizedBox(width: 8),
-                                Text('Edit'),
+                                Icon(Icons.edit, size: 16, color: AppTheme.textSecondary),
+                                const SizedBox(width: 8),
+                                Text('Edit', style: TextStyle(color: AppTheme.textPrimary)),
                               ],
                             ),
                           ),
-                          const PopupMenuItem(
+                          PopupMenuItem(
                             value: 'delete',
                             child: Row(
                               children: [
-                                Icon(Icons.delete, size: 16, color: Colors.red),
-                                SizedBox(width: 8),
-                                Text('Delete', style: TextStyle(color: Colors.red)),
+                                Icon(Icons.delete, size: 16, color: AppTheme.accessoryAccent),
+                                const SizedBox(width: 8),
+                                Text('Delete', style: TextStyle(color: AppTheme.accessoryAccent)),
                               ],
                             ),
                           ),
                         ],
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          child: const Icon(
+                          child: Icon(
                             Icons.more_vert,
                             size: 16,
-                            color: AppTheme.textSecondary,
+                            color: AppTheme.textMuted,
                           ),
                         ),
                       ),
@@ -1153,11 +1168,11 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Container(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: AppTheme.divider, width: 1),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          color: AppTheme.surface,
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1167,12 +1182,12 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppTheme.accent3.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppTheme.accessoryAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.room,
-                    color: AppTheme.accent3,
+                    color: AppTheme.accessoryAccent,
                     size: 24,
                   ),
                 ),
@@ -1181,12 +1196,34 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        dig.digNumber,
-                        style: AppTheme.titleMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              dig.digNumber,
+                              style: AppTheme.titleMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                          ),
+                          // Show pin indicator if item is pinned
+                          if (_pinnedDigs.contains(dig.id)) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.yellowAccent.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.push_pin,
+                                color: AppTheme.yellowAccent,
+                                size: 14,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       if (dig.rgwNumber.isNotEmpty) ...[
                         const SizedBox(height: 4),
@@ -1201,22 +1238,6 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                     ],
                   ),
                 ),
-                // Show pin indicator if item is pinned
-                if (_pinnedDigs.contains(dig.id)) ...[
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: AppTheme.accent3.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Icon(
-                      Icons.push_pin,
-                      color: AppTheme.accent3,
-                      size: 14,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
                 if (_isAdmin) ...[
                   PopupMenuButton<String>(
                     onSelected: (value) => _handleDigAction(value, dig),
@@ -1226,65 +1247,69 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                         child: Row(
                           children: [
                             Icon(
-                              _pinnedDigs.contains(dig.id) 
-                                  ? Icons.push_pin 
-                                  : Icons.push_pin_outlined, 
-                              size: 16
+                              _pinnedDigs.contains(dig.id)
+                                  ? Icons.push_pin
+                                  : Icons.push_pin_outlined,
+                              size: 16,
+                              color: AppTheme.textSecondary,
                             ),
                             const SizedBox(width: 8),
-                            Text(_pinnedDigs.contains(dig.id) ? 'Unpin' : 'Pin to top'),
+                            Text(
+                              _pinnedDigs.contains(dig.id) ? 'Unpin' : 'Pin to top',
+                              style: TextStyle(color: AppTheme.textPrimary),
+                            ),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'edit',
                         child: Row(
                           children: [
-                            Icon(Icons.edit, size: 16),
-                            SizedBox(width: 8),
-                            Text('Edit'),
+                            Icon(Icons.edit, size: 16, color: AppTheme.textSecondary),
+                            const SizedBox(width: 8),
+                            Text('Edit', style: TextStyle(color: AppTheme.textPrimary)),
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete, size: 16, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('Delete', style: TextStyle(color: Colors.red)),
+                            Icon(Icons.delete, size: 16, color: AppTheme.accessoryAccent),
+                            const SizedBox(width: 8),
+                            Text('Delete', style: TextStyle(color: AppTheme.accessoryAccent)),
                           ],
                         ),
                       ),
                     ],
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      child: const Icon(
+                      child: Icon(
                         Icons.more_vert,
                         size: 16,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.textMuted,
                       ),
                     ),
                   ),
                 ],
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.background,
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.surfaceElevated,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.my_location,
                         size: 16,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.textMuted,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -1301,14 +1326,14 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                     ],
                   ),
                   if (dig.notes != null && dig.notes!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.note,
                           size: 16,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textMuted,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -1325,18 +1350,26 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            SizedBox(
+            const SizedBox(height: 16),
+            Container(
               width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: AppTheme.accentGradient,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: ElevatedButton.icon(
                 onPressed: dig.hasValidCoordinates ? () => _openInMaps(dig) : null,
                 icon: const Icon(Icons.map, size: 18),
                 label: const Text('Open in Maps'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
+                  backgroundColor: Colors.transparent,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.grey.shade300,
-                  disabledForegroundColor: Colors.grey.shade600,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
@@ -1350,25 +1383,25 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
         elevation: 0,
         child: InkWell(
           onTap: () => _navigateToPersonalFolder(folder),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
-            padding: const EdgeInsets.all(AppTheme.paddingMedium),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.divider, width: 1),
-              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: LocationColors.getLightColor(folder.colorHex),
-                    borderRadius: BorderRadius.circular(10),
+                    color: LocationColors.getLightColor(folder.colorHex).withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.folder,
@@ -1381,12 +1414,34 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        folder.name,
-                        style: AppTheme.titleMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              folder.name,
+                              style: AppTheme.titleMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                          ),
+                          // Show pin indicator if item is pinned
+                          if (_pinnedPersonalFolders.contains(folder.id)) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.yellowAccent.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.push_pin,
+                                color: AppTheme.yellowAccent,
+                                size: 14,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       if (folder.description != null) ...[
                         const SizedBox(height: 4),
@@ -1405,25 +1460,9 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Show pin indicator if item is pinned
-                    if (_pinnedPersonalFolders.contains(folder.id)) ...[
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.accent1.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Icon(
-                          Icons.push_pin,
-                          color: AppTheme.accent1,
-                          size: 14,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    const Icon(
+                    Icon(
                       Icons.chevron_right,
-                      color: AppTheme.textSecondary,
+                      color: AppTheme.textMuted,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -1435,43 +1474,47 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                           child: Row(
                             children: [
                               Icon(
-                                _pinnedPersonalFolders.contains(folder.id) 
-                                    ? Icons.push_pin 
-                                    : Icons.push_pin_outlined, 
-                                size: 16
+                                _pinnedPersonalFolders.contains(folder.id)
+                                    ? Icons.push_pin
+                                    : Icons.push_pin_outlined,
+                                size: 16,
+                                color: AppTheme.textSecondary,
                               ),
                               const SizedBox(width: 8),
-                              Text(_pinnedPersonalFolders.contains(folder.id) ? 'Unpin' : 'Pin to top'),
+                              Text(
+                                _pinnedPersonalFolders.contains(folder.id) ? 'Unpin' : 'Pin to top',
+                                style: TextStyle(color: AppTheme.textPrimary),
+                              ),
                             ],
                           ),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'edit',
                           child: Row(
                             children: [
-                              Icon(Icons.edit, size: 16),
-                              SizedBox(width: 8),
-                              Text('Edit'),
+                              Icon(Icons.edit, size: 16, color: AppTheme.textSecondary),
+                              const SizedBox(width: 8),
+                              Text('Edit', style: TextStyle(color: AppTheme.textPrimary)),
                             ],
                           ),
                         ),
-                        const PopupMenuItem(
+                        PopupMenuItem(
                           value: 'delete',
                           child: Row(
                             children: [
-                              Icon(Icons.delete, size: 16, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text('Delete', style: TextStyle(color: Colors.red)),
+                              Icon(Icons.delete, size: 16, color: AppTheme.accessoryAccent),
+                              const SizedBox(width: 8),
+                              Text('Delete', style: TextStyle(color: AppTheme.accessoryAccent)),
                             ],
                           ),
                         ),
                       ],
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        child: const Icon(
+                        child: Icon(
                           Icons.more_vert,
                           size: 16,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textMuted,
                         ),
                       ),
                     ),
@@ -1489,11 +1532,11 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Container(
-        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: AppTheme.divider, width: 1),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+          color: AppTheme.surface,
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1503,8 +1546,8 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: LocationColors.getLightColor(location.colorHex),
-                    borderRadius: BorderRadius.circular(10),
+                    color: LocationColors.getLightColor(location.colorHex).withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.room,
@@ -1517,12 +1560,34 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        location.title,
-                        style: AppTheme.titleMedium.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              location.title,
+                              style: AppTheme.titleMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                          ),
+                          // Show pin indicator if item is pinned
+                          if (_pinnedPersonalLocations.contains(location.id)) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppTheme.yellowAccent.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.push_pin,
+                                color: AppTheme.yellowAccent,
+                                size: 14,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                       if (location.subtitle != null && location.subtitle!.isNotEmpty) ...[
                         const SizedBox(height: 4),
@@ -1537,22 +1602,6 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                     ],
                   ),
                 ),
-                // Show pin indicator if item is pinned
-                if (_pinnedPersonalLocations.contains(location.id)) ...[
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: AppTheme.accent3.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: const Icon(
-                      Icons.push_pin,
-                      color: AppTheme.accent3,
-                      size: 14,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
                 PopupMenuButton<String>(
                   onSelected: (value) => _handlePersonalLocationAction(value, location),
                   itemBuilder: (context) => [
@@ -1561,64 +1610,68 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                       child: Row(
                         children: [
                           Icon(
-                            _pinnedPersonalLocations.contains(location.id) 
-                                ? Icons.push_pin 
-                                : Icons.push_pin_outlined, 
-                            size: 16
+                            _pinnedPersonalLocations.contains(location.id)
+                                ? Icons.push_pin
+                                : Icons.push_pin_outlined,
+                            size: 16,
+                            color: AppTheme.textSecondary,
                           ),
                           const SizedBox(width: 8),
-                          Text(_pinnedPersonalLocations.contains(location.id) ? 'Unpin' : 'Pin to top'),
+                          Text(
+                            _pinnedPersonalLocations.contains(location.id) ? 'Unpin' : 'Pin to top',
+                            style: TextStyle(color: AppTheme.textPrimary),
+                          ),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(Icons.edit, size: 16),
-                          SizedBox(width: 8),
-                          Text('Edit'),
+                          Icon(Icons.edit, size: 16, color: AppTheme.textSecondary),
+                          const SizedBox(width: 8),
+                          Text('Edit', style: TextStyle(color: AppTheme.textPrimary)),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete, size: 16, color: Colors.red),
-                          SizedBox(width: 8),
-                          Text('Delete', style: TextStyle(color: Colors.red)),
+                          Icon(Icons.delete, size: 16, color: AppTheme.accessoryAccent),
+                          const SizedBox(width: 8),
+                          Text('Delete', style: TextStyle(color: AppTheme.accessoryAccent)),
                         ],
                       ),
                     ),
                   ],
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    child: const Icon(
+                    child: Icon(
                       Icons.more_vert,
                       size: 16,
-                      color: AppTheme.textSecondary,
+                      color: AppTheme.textMuted,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppTheme.background,
-                borderRadius: BorderRadius.circular(8),
+                color: AppTheme.surfaceElevated,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.my_location,
                         size: 16,
-                        color: AppTheme.textSecondary,
+                        color: AppTheme.textMuted,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -1635,14 +1688,14 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                     ],
                   ),
                   if (location.notes != null && location.notes!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.note,
                           size: 16,
-                          color: AppTheme.textSecondary,
+                          color: AppTheme.textMuted,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -1659,18 +1712,26 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 ],
               ),
             ),
-            const SizedBox(height: 12),
-            SizedBox(
+            const SizedBox(height: 16),
+            Container(
               width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: AppTheme.accentGradient,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: ElevatedButton.icon(
                 onPressed: location.hasValidCoordinates ? () => _openPersonalLocationInMaps(location) : null,
                 icon: const Icon(Icons.map, size: 18),
                 label: const Text('Open in Maps'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
+                  backgroundColor: Colors.transparent,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.grey.shade300,
-                  disabledForegroundColor: Colors.grey.shade600,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
@@ -1686,29 +1747,30 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
         margin: const EdgeInsets.all(AppTheme.paddingLarge),
         padding: const EdgeInsets.all(AppTheme.paddingLarge),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red.withOpacity(0.7),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.accessoryAccent.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 48,
+                color: AppTheme.accessoryAccent,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
               'Error',
               style: AppTheme.titleMedium.copyWith(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 color: AppTheme.textPrimary,
               ),
             ),
@@ -1732,29 +1794,30 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
         margin: const EdgeInsets.all(AppTheme.paddingLarge),
         padding: const EdgeInsets.all(AppTheme.paddingLarge),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 64,
-              color: AppTheme.textSecondary.withOpacity(0.5),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.textMuted.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                size: 48,
+                color: AppTheme.textMuted,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
               title,
               style: AppTheme.titleMedium.copyWith(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
                 color: AppTheme.textPrimary,
               ),
             ),
@@ -1768,13 +1831,25 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
             ),
             if (_isAdmin) ...[
               const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: _showAddDialog,
-                icon: const Icon(Icons.add, size: 18),
-                label: Text(_getAddButtonText()),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBlue,
-                  foregroundColor: Colors.white,
+              Container(
+                decoration: BoxDecoration(
+                  gradient: AppTheme.accentGradient,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: _showAddDialog,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text(_getAddButtonText()),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -1807,23 +1882,24 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Division'),
+        backgroundColor: AppTheme.surface,
+        title: Text('Add Division', style: TextStyle(color: AppTheme.textPrimary)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
+              style: TextStyle(color: AppTheme.textPrimary),
               decoration: const InputDecoration(
                 labelText: 'Division Name',
-                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: descriptionController,
+              style: TextStyle(color: AppTheme.textPrimary),
               decoration: const InputDecoration(
                 labelText: 'Description (Optional)',
-                border: OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
@@ -1832,42 +1908,64 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.textSecondary),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              if (nameController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a division name')),
-                );
-                return;
-              }
-
-              try {
-                final division = Division(
-                  name: nameController.text.trim(),
-                  description: descriptionController.text.trim().isNotEmpty 
-                      ? descriptionController.text.trim() 
-                      : null,
-                  createdBy: _authService.userId ?? 'unknown',
-                );
-
-                await _locationsService.createDivision(division);
-                if (mounted) {
-                  Navigator.pop(context);
+          Container(
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ElevatedButton(
+              onPressed: () async {
+                if (nameController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Division created successfully')),
+                    SnackBar(
+                      content: const Text('Please enter a division name'),
+                      backgroundColor: AppTheme.accessoryAccent,
+                    ),
                   );
+                  return;
                 }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error creating division: $e')),
+
+                try {
+                  final division = Division(
+                    name: nameController.text.trim(),
+                    description: descriptionController.text.trim().isNotEmpty
+                        ? descriptionController.text.trim()
+                        : null,
+                    createdBy: _authService.userId ?? 'unknown',
                   );
+
+                  await _locationsService.createDivision(division);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Division created successfully'),
+                        backgroundColor: AppTheme.secondaryAccent,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error creating division: $e'),
+                        backgroundColor: AppTheme.accessoryAccent,
+                      ),
+                    );
+                  }
                 }
-              }
-            },
-            child: const Text('Create'),
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shadowColor: Colors.transparent,
+              ),
+              child: const Text('Create'),
+            ),
           ),
         ],
       ),
@@ -1881,23 +1979,24 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Project'),
+        backgroundColor: AppTheme.surface,
+        title: Text('Add Project', style: TextStyle(color: AppTheme.textPrimary)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
+              style: TextStyle(color: AppTheme.textPrimary),
               decoration: const InputDecoration(
                 labelText: 'Project Name',
-                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: descriptionController,
+              style: TextStyle(color: AppTheme.textPrimary),
               decoration: const InputDecoration(
                 labelText: 'Description (Optional)',
-                border: OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
@@ -1906,43 +2005,65 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.textSecondary),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              if (nameController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a project name')),
-                );
-                return;
-              }
-
-              try {
-                final project = Project(
-                  divisionId: _selectedDivision!.id!,
-                  name: nameController.text.trim(),
-                  description: descriptionController.text.trim().isNotEmpty 
-                      ? descriptionController.text.trim() 
-                      : null,
-                  createdBy: _authService.userId ?? 'unknown',
-                );
-
-                await _locationsService.createProject(project);
-                if (mounted) {
-                  Navigator.pop(context);
+          Container(
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ElevatedButton(
+              onPressed: () async {
+                if (nameController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Project created successfully')),
+                    SnackBar(
+                      content: const Text('Please enter a project name'),
+                      backgroundColor: AppTheme.accessoryAccent,
+                    ),
                   );
+                  return;
                 }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error creating project: $e')),
+
+                try {
+                  final project = Project(
+                    divisionId: _selectedDivision!.id!,
+                    name: nameController.text.trim(),
+                    description: descriptionController.text.trim().isNotEmpty
+                        ? descriptionController.text.trim()
+                        : null,
+                    createdBy: _authService.userId ?? 'unknown',
                   );
+
+                  await _locationsService.createProject(project);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Project created successfully'),
+                        backgroundColor: AppTheme.secondaryAccent,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error creating project: $e'),
+                        backgroundColor: AppTheme.accessoryAccent,
+                      ),
+                    );
+                  }
                 }
-              }
-            },
-            child: const Text('Create'),
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shadowColor: Colors.transparent,
+              ),
+              child: const Text('Create'),
+            ),
           ),
         ],
       ),
@@ -1958,41 +2079,42 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Location'),
+        backgroundColor: AppTheme.surface,
+        title: Text('Add Location', style: TextStyle(color: AppTheme.textPrimary)),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: digNumberController,
+                style: TextStyle(color: AppTheme.textPrimary),
                 decoration: const InputDecoration(
                   labelText: 'Title',
-                  border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: rgwNumberController,
+                style: TextStyle(color: AppTheme.textPrimary),
                 decoration: const InputDecoration(
                   labelText: 'RGW Number',
-                  border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: coordinatesController,
+                style: TextStyle(color: AppTheme.textPrimary),
                 decoration: const InputDecoration(
                   labelText: 'Coordinates (lat, lng)',
                   hintText: 'e.g., 31.12345, -88.54321',
-                  border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: notesController,
+                style: TextStyle(color: AppTheme.textPrimary),
                 decoration: const InputDecoration(
                   labelText: 'Notes (Optional)',
-                  border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -2002,54 +2124,79 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.textSecondary),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              if (digNumberController.text.trim().isEmpty ||
-                  coordinatesController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please fill in title and coordinates')),
-                );
-                return;
-              }
-
-              if (!_locationsService.isValidCoordinateFormat(coordinatesController.text.trim())) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Invalid coordinate format. Use: lat, lng')),
-                );
-                return;
-              }
-
-              try {
-                final dig = Dig(
-                  divisionId: _selectedDivision!.id!,
-                  projectId: _selectedProject!.id!,
-                  digNumber: digNumberController.text.trim(),
-                  rgwNumber: rgwNumberController.text.trim(),
-                  coordinates: coordinatesController.text.trim(),
-                  notes: notesController.text.trim().isNotEmpty 
-                      ? notesController.text.trim() 
-                      : null,
-                  createdBy: _authService.userId ?? 'unknown',
-                );
-
-                await _locationsService.createDig(dig);
-                if (mounted) {
-                  Navigator.pop(context);
+          Container(
+            decoration: BoxDecoration(
+              gradient: AppTheme.primaryGradient,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ElevatedButton(
+              onPressed: () async {
+                if (digNumberController.text.trim().isEmpty ||
+                    coordinatesController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Dig location created successfully')),
+                    SnackBar(
+                      content: const Text('Please fill in title and coordinates'),
+                      backgroundColor: AppTheme.accessoryAccent,
+                    ),
                   );
+                  return;
                 }
-              } catch (e) {
-                if (mounted) {
+
+                if (!_locationsService.isValidCoordinateFormat(coordinatesController.text.trim())) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error creating dig location: $e')),
+                    SnackBar(
+                      content: const Text('Invalid coordinate format. Use: lat, lng'),
+                      backgroundColor: AppTheme.accessoryAccent,
+                    ),
                   );
+                  return;
                 }
-              }
-            },
-            child: const Text('Create'),
+
+                try {
+                  final dig = Dig(
+                    divisionId: _selectedDivision!.id!,
+                    projectId: _selectedProject!.id!,
+                    digNumber: digNumberController.text.trim(),
+                    rgwNumber: rgwNumberController.text.trim(),
+                    coordinates: coordinatesController.text.trim(),
+                    notes: notesController.text.trim().isNotEmpty
+                        ? notesController.text.trim()
+                        : null,
+                    createdBy: _authService.userId ?? 'unknown',
+                  );
+
+                  await _locationsService.createDig(dig);
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Dig location created successfully'),
+                        backgroundColor: AppTheme.secondaryAccent,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error creating dig location: $e'),
+                        backgroundColor: AppTheme.accessoryAccent,
+                      ),
+                    );
+                  }
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shadowColor: Colors.transparent,
+              ),
+              child: const Text('Create'),
+            ),
           ),
         ],
       ),
@@ -2065,23 +2212,24 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Add Personal Folder'),
+          backgroundColor: AppTheme.surface,
+          title: Text('Add Personal Folder', style: TextStyle(color: AppTheme.textPrimary)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
+                style: TextStyle(color: AppTheme.textPrimary),
                 decoration: const InputDecoration(
                   labelText: 'Folder Name',
-                  border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: descriptionController,
+                style: TextStyle(color: AppTheme.textPrimary),
                 decoration: const InputDecoration(
                   labelText: 'Description (Optional)',
-                  border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -2099,43 +2247,65 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(foregroundColor: AppTheme.textSecondary),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                if (nameController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a folder name')),
-                  );
-                  return;
-                }
-
-                try {
-                  final folder = PersonalFolder(
-                    userId: _authService.userId ?? 'unknown',
-                    name: nameController.text.trim(),
-                    description: descriptionController.text.trim().isNotEmpty
-                        ? descriptionController.text.trim()
-                        : null,
-                    colorHex: selectedColor,
-                  );
-
-                  await _personalLocationsService.createFolder(folder);
-                  if (mounted) {
-                    Navigator.pop(context);
+            Container(
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (nameController.text.trim().isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Personal folder created successfully')),
+                      SnackBar(
+                        content: const Text('Please enter a folder name'),
+                        backgroundColor: AppTheme.accessoryAccent,
+                      ),
                     );
+                    return;
                   }
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error creating folder: $e')),
+
+                  try {
+                    final folder = PersonalFolder(
+                      userId: _authService.userId ?? 'unknown',
+                      name: nameController.text.trim(),
+                      description: descriptionController.text.trim().isNotEmpty
+                          ? descriptionController.text.trim()
+                          : null,
+                      colorHex: selectedColor,
                     );
+
+                    await _personalLocationsService.createFolder(folder);
+                    if (mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Personal folder created successfully'),
+                          backgroundColor: AppTheme.secondaryAccent,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error creating folder: $e'),
+                          backgroundColor: AppTheme.accessoryAccent,
+                        ),
+                      );
+                    }
                   }
-                }
-              },
-              child: const Text('Create'),
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                ),
+                child: const Text('Create'),
+              ),
             ),
           ],
         ),
@@ -2154,41 +2324,42 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Add Personal Location'),
+          backgroundColor: AppTheme.surface,
+          title: Text('Add Personal Location', style: TextStyle(color: AppTheme.textPrimary)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: titleController,
+                  style: TextStyle(color: AppTheme.textPrimary),
                   decoration: const InputDecoration(
                     labelText: 'Title',
-                    border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: subtitleController,
+                  style: TextStyle(color: AppTheme.textPrimary),
                   decoration: const InputDecoration(
                     labelText: 'Subtitle (Optional)',
-                    border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: coordinatesController,
+                  style: TextStyle(color: AppTheme.textPrimary),
                   decoration: const InputDecoration(
                     labelText: 'Coordinates (lat, lng)',
                     hintText: 'e.g., 31.12345, -88.54321',
-                    border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: notesController,
+                  style: TextStyle(color: AppTheme.textPrimary),
                   decoration: const InputDecoration(
                     labelText: 'Notes (Optional)',
-                    border: OutlineInputBorder(),
                   ),
                   maxLines: 3,
                 ),
@@ -2207,56 +2378,81 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(foregroundColor: AppTheme.textSecondary),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                if (titleController.text.trim().isEmpty ||
-                    coordinatesController.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please fill in title and coordinates')),
-                  );
-                  return;
-                }
-
-                if (!_personalLocationsService.isValidCoordinateFormat(coordinatesController.text.trim())) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Invalid coordinate format. Use: lat, lng')),
-                  );
-                  return;
-                }
-
-                try {
-                  final location = PersonalLocation(
-                    userId: _authService.userId ?? 'unknown',
-                    folderId: _selectedPersonalFolder!.id!,
-                    title: titleController.text.trim(),
-                    subtitle: subtitleController.text.trim().isNotEmpty 
-                        ? subtitleController.text.trim() 
-                        : null,
-                    coordinates: coordinatesController.text.trim(),
-                    notes: notesController.text.trim().isNotEmpty 
-                        ? notesController.text.trim() 
-                        : null,
-                    colorHex: selectedColor,
-                  );
-
-                  await _personalLocationsService.createLocation(location);
-                  if (mounted) {
-                    Navigator.pop(context);
+            Container(
+              decoration: BoxDecoration(
+                gradient: AppTheme.primaryGradient,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: ElevatedButton(
+                onPressed: () async {
+                  if (titleController.text.trim().isEmpty ||
+                      coordinatesController.text.trim().isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Personal location created successfully')),
+                      SnackBar(
+                        content: const Text('Please fill in title and coordinates'),
+                        backgroundColor: AppTheme.accessoryAccent,
+                      ),
                     );
+                    return;
                   }
-                } catch (e) {
-                  if (mounted) {
+
+                  if (!_personalLocationsService.isValidCoordinateFormat(coordinatesController.text.trim())) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error creating location: $e')),
+                      SnackBar(
+                        content: const Text('Invalid coordinate format. Use: lat, lng'),
+                        backgroundColor: AppTheme.accessoryAccent,
+                      ),
                     );
+                    return;
                   }
-                }
-              },
-              child: const Text('Create'),
+
+                  try {
+                    final location = PersonalLocation(
+                      userId: _authService.userId ?? 'unknown',
+                      folderId: _selectedPersonalFolder!.id!,
+                      title: titleController.text.trim(),
+                      subtitle: subtitleController.text.trim().isNotEmpty
+                          ? subtitleController.text.trim()
+                          : null,
+                      coordinates: coordinatesController.text.trim(),
+                      notes: notesController.text.trim().isNotEmpty
+                          ? notesController.text.trim()
+                          : null,
+                      colorHex: selectedColor,
+                    );
+
+                    await _personalLocationsService.createLocation(location);
+                    if (mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Personal location created successfully'),
+                          backgroundColor: AppTheme.secondaryAccent,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error creating location: $e'),
+                          backgroundColor: AppTheme.accessoryAccent,
+                        ),
+                      );
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shadowColor: Colors.transparent,
+                ),
+                child: const Text('Create'),
+              ),
             ),
           ],
         ),
@@ -2863,11 +3059,15 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
+        backgroundColor: AppTheme.surface,
+        title: Text(title, style: TextStyle(color: AppTheme.textPrimary)),
+        content: Text(message, style: TextStyle(color: AppTheme.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.textSecondary,
+            ),
             child: const Text('Cancel'),
           ),
           TextButton(
@@ -2877,18 +3077,24 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
                 await onConfirm();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Deleted successfully')),
+                    SnackBar(
+                      content: const Text('Deleted successfully'),
+                      backgroundColor: AppTheme.secondaryAccent,
+                    ),
                   );
                 }
               } catch (e) {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error deleting: $e')),
+                    SnackBar(
+                      content: Text('Error deleting: $e'),
+                      backgroundColor: AppTheme.accessoryAccent,
+                    ),
                   );
                 }
               }
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.accessoryAccent),
             child: const Text('Delete'),
           ),
         ],
@@ -2900,14 +3106,18 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Open in Maps'),
-        content: const Text('Choose which maps app to use:'),
+        backgroundColor: AppTheme.surface,
+        title: Text('Open in Maps', style: TextStyle(color: AppTheme.textPrimary)),
+        content: Text('Choose which maps app to use:', style: TextStyle(color: AppTheme.textSecondary)),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _launchUrl(dig.googleMapsUrl);
             },
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.primaryAccent,
+            ),
             child: const Text('Google Maps'),
           ),
           TextButton(
@@ -2915,10 +3125,16 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
               Navigator.pop(context);
               _launchUrl(dig.appleMapsUrl);
             },
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.primaryAccent,
+            ),
             child: const Text('Apple Maps'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.textSecondary,
+            ),
             child: const Text('Cancel'),
           ),
         ],
@@ -2958,14 +3174,18 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Open in Maps'),
-        content: const Text('Choose which maps app to use:'),
+        backgroundColor: AppTheme.surface,
+        title: Text('Open in Maps', style: TextStyle(color: AppTheme.textPrimary)),
+        content: Text('Choose which maps app to use:', style: TextStyle(color: AppTheme.textSecondary)),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _launchUrl(location.googleMapsUrl);
             },
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.primaryAccent,
+            ),
             child: const Text('Google Maps'),
           ),
           TextButton(
@@ -2973,10 +3193,16 @@ class _MapsScreenState extends State<MapsScreen> with SingleTickerProviderStateM
               Navigator.pop(context);
               _launchUrl(location.appleMapsUrl);
             },
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.primaryAccent,
+            ),
             child: const Text('Apple Maps'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: AppTheme.textSecondary,
+            ),
             child: const Text('Cancel'),
           ),
         ],

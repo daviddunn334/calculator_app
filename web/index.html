@@ -21,35 +21,26 @@
     }
     
     :root {
-      /* Primary Background */
-      --bg-primary: #0F172A;
-      --bg-secondary: #111827;
-      --bg-card: #1E293B;
-      --bg-card-alt: #1A2236;
-      
-      /* Gradients */
-      --gradient-primary: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
-      --gradient-secondary: linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%);
-      --gradient-accent: linear-gradient(135deg, #EC4899 0%, #7C3AED 100%);
-      
-      /* Accent Colors */
-      --color-purple: #7C3AED;
-      --color-blue: #3B82F6;
-      --color-cyan: #06B6D4;
-      --color-pink: #EC4899;
-      --color-teal: #14B8A6;
-      --color-success: #22C55E;
-      --color-warning: #F59E0B;
+      /* Backgrounds */
+      --bg-primary: #1E232A;
+      --bg-elevated: #242A33;
+      --bg-card: #2A313B;
       
       /* Text */
-      --text-primary: #F8FAFC;
-      --text-secondary: #94A3B8;
-      --text-muted: #64748B;
+      --text-primary: #EDF9FF;
+      --text-secondary: #AEBBC8;
+      --text-muted: #7F8A96;
+      
+      /* Accent Colors */
+      --accent-primary: #6C5BFF;
+      --accent-secondary: #00E5A8;
+      --accent-alert: #FE637E;
       
       /* Effects */
-      --border-glass: rgba(255, 255, 255, 0.05);
-      --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.3);
-      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --border-focus: #6C5BFF;
+      --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.3);
+      --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
     
     body {
@@ -60,44 +51,22 @@
       line-height: 1.6;
     }
     
-    /* Animated gradient background */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: 0;
-    }
-    
-    .content-wrapper {
-      position: relative;
-      z-index: 1;
-    }
-    
     /* Header/Navigation */
     header {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-glass);
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-subtle);
       z-index: 1000;
       padding: 16px 0;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
     
     header.scrolled {
-      background: rgba(15, 23, 42, 0.95);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      background: var(--bg-elevated);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
     
     nav {
@@ -118,16 +87,12 @@
     .logo-section img {
       height: 48px;
       width: auto;
-      filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.4));
     }
     
     .logo-text h1 {
       font-size: 22px;
       font-weight: 800;
-      background: var(--gradient-primary);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--text-primary);
       letter-spacing: -0.5px;
     }
     
@@ -138,24 +103,23 @@
     }
     
     .auth-button {
-      background: var(--gradient-primary);
-      color: white;
+      background: var(--accent-primary);
+      color: #FFFFFF;
       padding: 12px 32px;
       border-radius: 12px;
       text-decoration: none;
       font-weight: 600;
       font-size: 15px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+      transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: none;
     }
     
     .auth-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.6);
+      transform: translateY(-1px);
+      background: #7C6BFF;
     }
     
     /* Hero Section */
@@ -163,27 +127,11 @@
       margin-top: 80px;
       padding: 120px 32px 80px;
       text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(124, 58, 237, 0.2) 0%, transparent 70%);
-      pointer-events: none;
     }
     
     .hero-content {
       max-width: 900px;
       margin: 0 auto;
-      position: relative;
-      z-index: 1;
     }
     
     .hero-badge {
@@ -191,12 +139,12 @@
       align-items: center;
       gap: 8px;
       padding: 8px 20px;
-      background: rgba(124, 58, 237, 0.1);
-      border: 1px solid rgba(124, 58, 237, 0.3);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
       border-radius: 24px;
       font-size: 14px;
       font-weight: 600;
-      color: var(--color-purple);
+      color: var(--accent-primary);
       margin-bottom: 32px;
     }
     
@@ -206,10 +154,7 @@
       margin-bottom: 24px;
       line-height: 1.1;
       letter-spacing: -2px;
-      background: linear-gradient(135deg, #F8FAFC 0%, #94A3B8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--text-primary);
     }
     
     .hero p {
@@ -233,34 +178,31 @@
       text-decoration: none;
       font-weight: 600;
       font-size: 16px;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
       gap: 10px;
     }
     
     .cta-primary {
-      background: var(--gradient-primary);
-      color: white;
-      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--accent-primary);
+      color: #FFFFFF;
+      border: none;
     }
     
     .cta-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(124, 58, 237, 0.6);
+      transform: translateY(-2px);
+      background: #7C6BFF;
     }
     
     .cta-secondary {
-      background: rgba(30, 41, 59, 0.6);
+      background: transparent;
       color: var(--text-primary);
-      border: 1px solid var(--border-glass);
-      backdrop-filter: blur(8px);
+      border: 2px solid var(--accent-primary);
     }
     
     .cta-secondary:hover {
-      background: rgba(30, 41, 59, 0.8);
-      border-color: rgba(255, 255, 255, 0.1);
+      background: var(--bg-card);
     }
     
     /* Stats Section */
@@ -277,40 +219,23 @@
     }
     
     .stat-card {
-      background: rgba(30, 41, 59, 0.4);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border-glass);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
       border-radius: 16px;
       padding: 32px;
       text-align: center;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--gradient-primary);
+      transition: all 0.2s ease;
     }
     
     .stat-card:hover {
-      transform: translateY(-4px);
-      border-color: rgba(124, 58, 237, 0.3);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-card);
     }
     
     .stat-card h5 {
       font-size: 48px;
       font-weight: 800;
-      background: var(--gradient-primary);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--accent-primary);
       margin-bottom: 8px;
     }
     
@@ -337,12 +262,12 @@
       align-items: center;
       gap: 8px;
       padding: 6px 16px;
-      background: rgba(6, 182, 212, 0.1);
-      border: 1px solid rgba(6, 182, 212, 0.3);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
       border-radius: 20px;
       font-size: 13px;
       font-weight: 700;
-      color: var(--color-cyan);
+      color: var(--accent-secondary);
       margin-bottom: 16px;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -353,6 +278,7 @@
       font-weight: 800;
       margin-bottom: 16px;
       letter-spacing: -1px;
+      color: var(--text-primary);
     }
     
     .section-header p {
@@ -370,60 +296,37 @@
     }
     
     .feature-card {
-      background: rgba(30, 41, 59, 0.4);
-      backdrop-filter: blur(12px);
-      padding: 40px 32px;
-      border-radius: 20px;
-      border: 1px solid var(--border-glass);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .feature-card:hover::before {
-      opacity: 1;
+      background: var(--bg-card);
+      padding: 32px 28px;
+      border-radius: 16px;
+      border: 1px solid var(--border-subtle);
+      transition: all 0.2s ease;
     }
     
     .feature-card:hover {
-      transform: translateY(-8px);
-      border-color: rgba(124, 58, 237, 0.4);
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-elevated);
+      border-color: rgba(108, 91, 255, 0.3);
     }
     
     .feature-icon {
-      width: 64px;
-      height: 64px;
-      background: var(--gradient-primary);
-      border-radius: 16px;
+      width: 56px;
+      height: 56px;
+      background: var(--accent-primary);
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 24px;
-      font-size: 32px;
+      margin-bottom: 20px;
+      font-size: 28px;
       color: white;
-      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
-      position: relative;
-      z-index: 1;
     }
     
     .feature-card h4 {
       font-size: 22px;
       font-weight: 700;
       margin-bottom: 12px;
-      position: relative;
-      z-index: 1;
+      color: var(--text-primary);
     }
     
     .feature-card p {
@@ -431,8 +334,6 @@
       color: var(--text-secondary);
       line-height: 1.7;
       font-weight: 500;
-      position: relative;
-      z-index: 1;
     }
     
     /* Tools Section */
@@ -450,22 +351,17 @@
     }
     
     .tool-item {
-      background: rgba(30, 41, 59, 0.3);
-      backdrop-filter: blur(8px);
+      background: var(--bg-card);
       padding: 24px;
-      border-radius: 16px;
-      border: 1px solid var(--border-glass);
-      border-left: 3px solid transparent;
-      background-image: linear-gradient(rgba(30, 41, 59, 0.3), rgba(30, 41, 59, 0.3)), var(--gradient-primary);
-      background-origin: border-box;
-      background-clip: padding-box, border-box;
-      transition: all 0.3s ease;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--accent-primary);
+      transition: all 0.2s ease;
     }
     
     .tool-item:hover {
-      transform: translateX(8px);
-      border-left-color: var(--color-purple);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transform: translateX(4px);
+      box-shadow: var(--shadow-card);
     }
     
     .tool-item h5 {
@@ -475,11 +371,12 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      color: var(--text-primary);
     }
     
     .tool-item h5 .material-icons {
       font-size: 20px;
-      color: var(--color-cyan);
+      color: var(--accent-secondary);
     }
     
     .tool-item p {
@@ -490,34 +387,18 @@
     
     /* CTA Section */
     .cta-section {
-      background: rgba(30, 41, 59, 0.4);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-glass);
-      border-radius: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
       padding: 80px 32px;
       text-align: center;
       margin: 80px auto;
       max-width: 1200px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .cta-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: var(--gradient-primary);
-      opacity: 0.05;
     }
     
     .cta-content {
       max-width: 800px;
       margin: 0 auto;
-      position: relative;
-      z-index: 1;
     }
     
     .cta-section h3 {
@@ -525,6 +406,7 @@
       font-weight: 800;
       margin-bottom: 20px;
       letter-spacing: -1px;
+      color: var(--text-primary);
     }
     
     .cta-section p {
@@ -536,9 +418,8 @@
     
     /* Footer */
     footer {
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border-glass);
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border-subtle);
       color: var(--text-secondary);
       padding: 48px 32px;
       text-align: center;
@@ -552,14 +433,14 @@
     }
     
     footer a {
-      color: var(--color-cyan);
+      color: var(--accent-secondary);
       text-decoration: none;
-      transition: color 0.3s ease;
+      transition: color 0.2s ease;
       font-weight: 600;
     }
     
     footer a:hover {
-      color: var(--color-purple);
+      color: var(--accent-primary);
     }
     
     /* Responsive */
@@ -607,213 +488,211 @@
   </style>
 </head>
 <body>
-  <div class="content-wrapper">
-    <!-- Header -->
-    <header id="header">
-      <nav>
-        <div class="logo-section">
-          <img src="icons/logo_main.png" alt="NDT-ToolKit Logo">
-          <div class="logo-text">
-            <h1>NDT-ToolKit</h1>
-            <p>Professional NDT Tools</p>
-          </div>
+  <!-- Header -->
+  <header id="header">
+    <nav>
+      <div class="logo-section">
+        <img src="icons/logo_main.png" alt="NDT-ToolKit Logo">
+        <div class="logo-text">
+          <h1>NDT-ToolKit</h1>
+          <p>Professional NDT Tools</p>
         </div>
-        <a href="app.html" class="auth-button">
-          <span class="material-icons">login</span>
-          Login / Sign Up
-        </a>
-      </nav>
-    </header>
+      </div>
+      <a href="app.html" class="auth-button">
+        <span class="material-icons">login</span>
+        Login / Sign Up
+      </a>
+    </nav>
+  </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="hero-content">
-        <div class="hero-badge">
-          <span class="material-icons" style="font-size: 18px;">rocket_launch</span>
-          AI-Powered NDT Platform
-        </div>
-        <h2>Professional NDT Tools for Pipeline Integrity</h2>
-        <p>Comprehensive toolkit for pipeline inspection professionals featuring AI-powered defect analysis, 20+ offline calculators, and advanced inspection tools. Everything you need in one powerful platform.</p>
-        <div class="cta-buttons">
-          <a href="app.html" class="cta-primary">
-            Get Started Free
-            <span class="material-icons">arrow_forward</span>
-          </a>
-          <a href="#features" class="cta-secondary">
-            Explore Features
-            <span class="material-icons">expand_more</span>
-          </a>
-        </div>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="material-icons" style="font-size: 18px;">rocket_launch</span>
+        AI-Powered NDT Platform
       </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="stats">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h5>20+</h5>
-          <p>NDT Calculators</p>
-        </div>
-        <div class="stat-card">
-          <h5>AI</h5>
-          <p>Defect Analysis</p>
-        </div>
-        <div class="stat-card">
-          <h5>100%</h5>
-          <p>Offline Capable</p>
-        </div>
-        <div class="stat-card">
-          <h5>24/7</h5>
-          <p>Access Anywhere</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features" id="features">
-      <div class="section-header">
-        <div class="section-badge">
-          <span class="material-icons" style="font-size: 16px;">bolt</span>
-          FEATURES
-        </div>
-        <h3>Everything You Need for NDT Inspections</h3>
-        <p>A complete suite of tools designed specifically for pipeline integrity professionals</p>
-      </div>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <span class="material-icons">psychology</span>
-          </div>
-          <h4>AI Defect Analysis</h4>
-          <p>Gemini-powered defect analysis with client-specific procedure interpretation. Get instant analysis with 18x faster processing using advanced context caching.</p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">
-            <span class="material-icons">photo_camera</span>
-          </div>
-          <h4>Photo Identification</h4>
-          <p>AI-powered photo defect identification with top 3 matches and confidence levels. Simply upload a photo and get instant defect type identification.</p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">
-            <span class="material-icons">calculate</span>
-          </div>
-          <h4>20+ NDT Calculators</h4>
-          <p>Complete suite of inspection calculators including B31G, Snell's Law, beam geometry, and more. All calculators work 100% offline.</p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">
-            <span class="material-icons">cloud_off</span>
-          </div>
-          <h4>Full Offline Support</h4>
-          <p>All calculator tools work without internet connection. Perfect for remote job sites and areas with limited connectivity.</p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">
-            <span class="material-icons">description</span>
-          </div>
-          <h4>Inspection Reports</h4>
-          <p>Create, edit, and manage detailed inspection reports with photos and attachments. Export to Excel for easy sharing and documentation.</p>
-        </div>
-        
-        <div class="feature-card">
-          <div class="feature-icon">
-            <span class="material-icons">schedule</span>
-          </div>
-          <h4>Method Hours Tracking</h4>
-          <p>Log work hours by method, project, and location. Server-side Excel export for seamless reporting and time management.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Tools Section -->
-    <section class="tools">
-      <div class="section-header">
-        <div class="section-badge">
-          <span class="material-icons" style="font-size: 16px;">construction</span>
-          TOOLS
-        </div>
-        <h3>Featured NDT Calculators & Tools</h3>
-        <p>Industry-standard calculators designed for accuracy and ease of use</p>
-      </div>
-      <div class="tools-grid">
-        <div class="tool-item">
-          <h5><span class="material-icons">functions</span> B31G Calculator</h5>
-          <p>Pipeline remaining strength calculations</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">functions</span> Snell's Law Calculator</h5>
-          <p>Angle and velocity calculations</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">functions</span> Mode Conversion</h5>
-          <p>Shear and longitudinal wave conversions</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">functions</span> Critical Angle</h5>
-          <p>Critical angle calculations</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">functions</span> Beam Geometry</h5>
-          <p>Skip distance and beam path calculations</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">functions</span> Pit Depth Calculator</h5>
-          <p>Accurate pit depth measurements</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">functions</span> Time Clock Calculator</h5>
-          <p>Time-based position calculations</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">functions</span> Dent Ovality</h5>
-          <p>Dent ovality measurements</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">grid_on</span> Corrosion Grid Logger</h5>
-          <p>Visual corrosion grid mapping</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">picture_as_pdf</span> PDF to Excel Converter</h5>
-          <p>Convert inspection reports easily</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">functions</span> Depth Percentages</h5>
-          <p>Wall loss percentage calculations</p>
-        </div>
-        <div class="tool-item">
-          <h5><span class="material-icons">more_horiz</span> And Many More...</h5>
-          <p>13 tool categories with specialized calculators</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section">
-      <div class="cta-content">
-        <h3>Ready to Transform Your NDT Workflow?</h3>
-        <p>Join pipeline inspection professionals who trust NDT-ToolKit for their daily operations. Sign up now and get instant access to all features.</p>
+      <h2>Professional NDT Tools for Pipeline Integrity</h2>
+      <p>Comprehensive toolkit for pipeline inspection professionals featuring AI-powered defect analysis, 20+ offline calculators, and advanced inspection tools. Everything you need in one powerful platform.</p>
+      <div class="cta-buttons">
         <a href="app.html" class="cta-primary">
-          Start Using NDT-ToolKit
+          Get Started Free
           <span class="material-icons">arrow_forward</span>
         </a>
+        <a href="#features" class="cta-secondary">
+          Explore Features
+          <span class="material-icons">expand_more</span>
+        </a>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Footer -->
-    <footer>
-      <p>&copy; 2026 NDT-ToolKit. All rights reserved.</p>
-      <p>
-        <a href="terms-of-service.html">Terms of Service</a> | 
-        <a href="privacy-policy.html">Privacy Policy</a> | 
-        <a href="mailto:ndt-toolkit-support@gmail.com">Support</a>
-      </p>
-    </footer>
-  </div>
+  <!-- Stats Section -->
+  <section class="stats">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h5>20+</h5>
+        <p>NDT Calculators</p>
+      </div>
+      <div class="stat-card">
+        <h5>AI</h5>
+        <p>Defect Analysis</p>
+      </div>
+      <div class="stat-card">
+        <h5>100%</h5>
+        <p>Offline Capable</p>
+      </div>
+      <div class="stat-card">
+        <h5>24/7</h5>
+        <p>Access Anywhere</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <div class="section-badge">
+        <span class="material-icons" style="font-size: 16px;">bolt</span>
+        FEATURES
+      </div>
+      <h3>Everything You Need for NDT Inspections</h3>
+      <p>A complete suite of tools designed specifically for pipeline integrity professionals</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <span class="material-icons">psychology</span>
+        </div>
+        <h4>AI Defect Analysis</h4>
+        <p>Gemini-powered defect analysis with client-specific procedure interpretation. Get instant analysis with 18x faster processing using advanced context caching.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <span class="material-icons">photo_camera</span>
+        </div>
+        <h4>Photo Identification</h4>
+        <p>AI-powered photo defect identification with top 3 matches and confidence levels. Simply upload a photo and get instant defect type identification.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <span class="material-icons">calculate</span>
+        </div>
+        <h4>20+ NDT Calculators</h4>
+        <p>Complete suite of inspection calculators including B31G, Snell's Law, beam geometry, and more. All calculators work 100% offline.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <span class="material-icons">cloud_off</span>
+        </div>
+        <h4>Full Offline Support</h4>
+        <p>All calculator tools work without internet connection. Perfect for remote job sites and areas with limited connectivity.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <span class="material-icons">description</span>
+        </div>
+        <h4>Inspection Reports</h4>
+        <p>Create, edit, and manage detailed inspection reports with photos and attachments. Export to Excel for easy sharing and documentation.</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <span class="material-icons">schedule</span>
+        </div>
+        <h4>Method Hours Tracking</h4>
+        <p>Log work hours by method, project, and location. Server-side Excel export for seamless reporting and time management.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools Section -->
+  <section class="tools">
+    <div class="section-header">
+      <div class="section-badge">
+        <span class="material-icons" style="font-size: 16px;">construction</span>
+        TOOLS
+      </div>
+      <h3>Featured NDT Calculators & Tools</h3>
+      <p>Industry-standard calculators designed for accuracy and ease of use</p>
+    </div>
+    <div class="tools-grid">
+      <div class="tool-item">
+        <h5><span class="material-icons">functions</span> B31G Calculator</h5>
+        <p>Pipeline remaining strength calculations</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">functions</span> Snell's Law Calculator</h5>
+        <p>Angle and velocity calculations</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">functions</span> Mode Conversion</h5>
+        <p>Shear and longitudinal wave conversions</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">functions</span> Critical Angle</h5>
+        <p>Critical angle calculations</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">functions</span> Beam Geometry</h5>
+        <p>Skip distance and beam path calculations</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">functions</span> Pit Depth Calculator</h5>
+        <p>Accurate pit depth measurements</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">functions</span> Time Clock Calculator</h5>
+        <p>Time-based position calculations</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">functions</span> Dent Ovality</h5>
+        <p>Dent ovality measurements</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">grid_on</span> Corrosion Grid Logger</h5>
+        <p>Visual corrosion grid mapping</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">picture_as_pdf</span> PDF to Excel Converter</h5>
+        <p>Convert inspection reports easily</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">functions</span> Depth Percentages</h5>
+        <p>Wall loss percentage calculations</p>
+      </div>
+      <div class="tool-item">
+        <h5><span class="material-icons">more_horiz</span> And Many More...</h5>
+        <p>13 tool categories with specialized calculators</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-content">
+      <h3>Ready to Transform Your NDT Workflow?</h3>
+      <p>Join pipeline inspection professionals who trust NDT-ToolKit for their daily operations. Sign up now and get instant access to all features.</p>
+      <a href="app.html" class="cta-primary">
+        Start Using NDT-ToolKit
+        <span class="material-icons">arrow_forward</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 NDT-ToolKit. All rights reserved.</p>
+    <p>
+      <a href="terms-of-service.html">Terms of Service</a> | 
+      <a href="privacy-policy.html">Privacy Policy</a> | 
+      <a href="mailto:ndt-toolkit-support@gmail.com">Support</a>
+    </p>
+  </footer>
 
   <script>
     // Smooth scrolling for anchor links

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../theme/app_theme.dart';
 
 class PitDepthCalculator extends StatefulWidget {
-  // Test comment for GitHub Actions deployment
   const PitDepthCalculator({super.key});
 
   @override
@@ -110,182 +108,240 @@ class _PitDepthCalculatorState extends State<PitDepthCalculator> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back),
-                          onPressed: () => Navigator.pop(context),
-                          color: AppTheme.textPrimary,
-                        ),
-                        Expanded(
-                          child: Column(
-                            children: [
-                              Text(
-                                'Pit Depth Calculator',
-                                style: AppTheme.titleLarge.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 48),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    TextField(
-                      controller: _nominalController,
-                      decoration: const InputDecoration(
-                        labelText: 'Nominal Wall Thickness',
-                        border: OutlineInputBorder(),
-                        suffixText: 'inches',
+      backgroundColor: const Color(0xFF1E232A),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A313B),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.05),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(28.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Color(0xFFEDF9FF)),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _pitDepthController,
-                      decoration: const InputDecoration(
-                        labelText: 'Pit Depth',
-                        border: OutlineInputBorder(),
-                        suffixText: 'inches',
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: _remainingController,
-                      decoration: const InputDecoration(
-                        labelText: 'Remaining Thickness',
-                        border: OutlineInputBorder(),
-                        suffixText: 'inches',
-                      ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                    const SizedBox(height: 24),
-                    if (_errorMessage != null) ...[
-                      Text(
-                        _errorMessage!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                    if (_calculatedPitDepth != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(32),
-                        margin: const EdgeInsets.only(bottom: 24),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryBlue.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                      Expanded(
                         child: Column(
                           children: [
+                            const Text(
+                              'Pit Depth Calculator',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFEDF9FF),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 4),
                             Text(
-                              'Results',
-                              style: AppTheme.titleLarge.copyWith(color: AppTheme.primaryBlue),
-                            ),
-                            const SizedBox(height: 16),
-                            _buildResultRow(
-                              'Pit Depth',
-                              '${_calculatedPitDepth!.toStringAsFixed(3)} inches',
-                              valueColor: AppTheme.primaryBlue,
-                            ),
-                            const SizedBox(height: 8),
-                            _buildResultRow(
-                              'Remaining Thickness',
-                              '${_calculatedRemaining!.toStringAsFixed(3)} inches',
-                              valueColor: AppTheme.primaryBlue,
-                            ),
-                            const SizedBox(height: 8),
-                            _buildResultRow(
-                              'Material Loss',
-                              '${_materialLoss!.toStringAsFixed(2)}%',
-                              valueColor: AppTheme.primaryBlue,
+                              'Calculate wall loss and remaining thickness',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: const Color(0xFFAEBBC8),
+                              ),
+                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(width: 48),
                     ],
-                    ElevatedButton.icon(
+                  ),
+                  const SizedBox(height: 32),
+                  _buildInputField(_nominalController, 'Nominal Wall Thickness', 'inches'),
+                  const SizedBox(height: 20),
+                  _buildInputField(_pitDepthController, 'Pit Depth', 'inches'),
+                  const SizedBox(height: 20),
+                  _buildInputField(_remainingController, 'Remaining Thickness', 'inches'),
+                  const SizedBox(height: 24),
+                  if (_errorMessage != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFE637E).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color(0xFFFE637E).withOpacity(0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Color(0xFFFE637E), size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: const TextStyle(
+                                color: Color(0xFFFE637E),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                  if (_calculatedPitDepth != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(28),
+                      margin: const EdgeInsets.only(bottom: 24),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF242A33),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: const Color(0xFF00E5A8).withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Results',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF00E5A8),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          _buildResultRow(
+                            'Pit Depth',
+                            '${_calculatedPitDepth!.toStringAsFixed(3)} inches',
+                            const Color(0xFF6C5BFF),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildResultRow(
+                            'Remaining Thickness',
+                            '${_calculatedRemaining!.toStringAsFixed(3)} inches',
+                            const Color(0xFF00E5A8),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildResultRow(
+                            'Material Loss',
+                            '${_materialLoss!.toStringAsFixed(2)}%',
+                            _materialLoss! > 50 ? const Color(0xFFFE637E) : const Color(0xFFF8B800),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
                       onPressed: _calculate,
-                      icon: const Icon(Icons.arrow_forward),
-                      label: const Text(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6C5BFF),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
                         'Calculate',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppTheme.paddingMedium,
-                      horizontal: AppTheme.paddingLarge,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                    ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildResultRow(String label, String value, {Color? valueColor}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label),
-        Text(
-          value,
-          style: TextStyle(fontWeight: FontWeight.bold, color: valueColor),
+  Widget _buildInputField(TextEditingController controller, String label, String suffix) {
+    return TextField(
+      controller: controller,
+      style: const TextStyle(color: Color(0xFFEDF9FF)),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Color(0xFFAEBBC8)),
+        suffixText: suffix,
+        suffixStyle: const TextStyle(color: Color(0xFFAEBBC8)),
+        filled: true,
+        fillColor: const Color(0xFF242A33),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.08),
+          ),
         ),
-      ],
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.08),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(
+            color: Color(0xFF6C5BFF),
+            width: 2,
+          ),
+        ),
+      ),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
     );
   }
 
-  Widget _buildTag(String label, Color color) {
+  Widget _buildResultRow(String label, String value, Color valueColor) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFF2A313B),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: color,
-          width: 1,
+          color: Colors.white.withOpacity(0.05),
         ),
       ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Color(0xFFAEBBC8),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              color: valueColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
       ),
     );
   }
-} 
+}

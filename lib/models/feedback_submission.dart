@@ -138,11 +138,11 @@ extension FeedbackTypeExtension on FeedbackType {
   Color get color {
     switch (this) {
       case FeedbackType.bug:
-        return const Color(0xFFF44336); // Red
+        return const Color(0xFFFE637E); // Accessory Accent
       case FeedbackType.feature:
-        return const Color(0xFF2196F3); // Blue
+        return const Color(0xFF6C5BFF); // Primary Accent
       case FeedbackType.general:
-        return const Color(0xFF4CAF50); // Green
+        return const Color(0xFF00E5A8); // Secondary Accent
     }
   }
 }
@@ -162,11 +162,11 @@ extension FeedbackStatusExtension on FeedbackStatus {
   Color get color {
     switch (this) {
       case FeedbackStatus.newSubmission:
-        return const Color(0xFFFF9800); // Orange
+        return const Color(0xFFF8B800); // Yellow Accent
       case FeedbackStatus.inReview:
-        return const Color(0xFF2196F3); // Blue
+        return const Color(0xFF6C5BFF); // Primary Accent
       case FeedbackStatus.resolved:
-        return const Color(0xFF4CAF50); // Green
+        return const Color(0xFF00E5A8); // Secondary Accent
     }
   }
 }

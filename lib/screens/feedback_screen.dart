@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../theme/app_theme.dart';
 import '../models/feedback_submission.dart';
 import '../services/feedback_service.dart';
 import '../services/analytics_service.dart';
@@ -25,6 +24,18 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   FeedbackType _selectedType = FeedbackType.bug;
   File? _selectedImage;
   bool _isSubmitting = false;
+
+  // New Color System
+  static const Color _mainBackground = Color(0xFF1E232A);
+  static const Color _elevatedSurface = Color(0xFF242A33);
+  static const Color _cardSurface = Color(0xFF2A313B);
+  static const Color _primaryText = Color(0xFFEDF9FF);
+  static const Color _secondaryText = Color(0xFFAEBBC8);
+  static const Color _mutedText = Color(0xFF7F8A96);
+  static const Color _primaryAccent = Color(0xFF6C5BFF);
+  static const Color _secondaryAccent = Color(0xFF00E5A8);
+  static const Color _accessoryAccent = Color(0xFFFE637E);
+  static const Color _yellowAccent = Color(0xFFF8B800);
 
   @override
   void dispose() {
@@ -52,7 +63,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error picking image: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: _accessoryAccent,
           ),
         );
       }
@@ -122,10 +133,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       if (mounted) {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Thank you! Your feedback has been submitted.'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
+          SnackBar(
+            content: const Text('Thank you! Your feedback has been submitted.'),
+            backgroundColor: _secondaryAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 3),
           ),
         );
 
@@ -137,7 +152,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error submitting feedback: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: _accessoryAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -153,429 +172,578 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: Stack(
-        children: [
-          // Background design elements
-          Positioned(
-            top: -120,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.primaryBlue.withOpacity(0.03),
-              ),
-            ),
+      backgroundColor: _mainBackground,
+      appBar: AppBar(
+        backgroundColor: _cardSurface,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          color: _primaryText,
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Send Feedback',
+          style: TextStyle(
+            color: _primaryText,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
-          Positioned(
-            bottom: -80,
-            left: -80,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.accent2.withOpacity(0.05),
-              ),
-            ),
-          ),
-          
-          // Main content
-          SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Title section for mobile
-                      if (MediaQuery.of(context).size.width < 1200)
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header Section
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: _cardSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.05),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppTheme.paddingLarge,
-                            vertical: AppTheme.paddingMedium,
-                          ),
-                          margin: const EdgeInsets.only(bottom: 24),
+                          padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 15,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
+                            color: _primaryAccent.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _primaryAccent.withOpacity(0.3),
+                              width: 1,
+                            ),
                           ),
-                          child: Row(
+                          child: Icon(
+                            Icons.feedback_rounded,
+                            size: 28,
+                            color: _primaryAccent,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      AppTheme.primaryBlue,
-                                      AppTheme.primaryBlue.withOpacity(0.8),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AppTheme.primaryBlue.withOpacity(0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.feedback_rounded,
-                                  size: 32,
-                                  color: Colors.white,
+                              Text(
+                                'We Value Your Input',
+                                style: TextStyle(
+                                  color: _primaryText,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              const SizedBox(width: AppTheme.paddingLarge),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Send Feedback',
-                                      style: AppTheme.titleLarge.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppTheme.textPrimary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Help us improve by reporting bugs or suggesting features',
-                                      style: AppTheme.bodyMedium.copyWith(
-                                        color: AppTheme.textSecondary,
-                                      ),
-                                    ),
-                                  ],
+                              const SizedBox(height: 4),
+                              Text(
+                                'Help us improve by reporting bugs or suggesting features',
+                                style: TextStyle(
+                                  color: _secondaryText,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-                      // Feedback Type Selection
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Feedback Type',
-                              style: AppTheme.bodyMedium.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildTypeButton(
-                                    FeedbackType.bug,
-                                    'Bug Report',
-                                    Icons.bug_report,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _buildTypeButton(
-                                    FeedbackType.feature,
-                                    'Feature',
-                                    Icons.lightbulb,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _buildTypeButton(
-                                    FeedbackType.general,
-                                    'General',
-                                    Icons.feedback,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                  // Feedback Type Selection
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: _cardSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.05),
+                        width: 1,
                       ),
-                      const SizedBox(height: 24),
-
-                      // Subject Field
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Feedback Type',
+                          style: TextStyle(
+                            color: _primaryText,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
                           children: [
-                            Text(
-                              'Subject',
-                              style: AppTheme.bodyMedium.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
+                            Expanded(
+                              child: _buildTypeButton(
+                                FeedbackType.bug,
+                                'Bug Report',
+                                Icons.bug_report_rounded,
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _subjectController,
-                              decoration: InputDecoration(
-                                hintText: 'Brief summary of your feedback',
-                                filled: true,
-                                fillColor: AppTheme.background,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding: const EdgeInsets.all(16),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildTypeButton(
+                                FeedbackType.feature,
+                                'Feature',
+                                Icons.lightbulb_rounded,
                               ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter a subject';
-                                }
-                                return null;
-                              },
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildTypeButton(
+                                FeedbackType.general,
+                                'General',
+                                Icons.feedback_rounded,
+                              ),
                             ),
                           ],
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Subject Field
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: _cardSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.05),
+                        width: 1,
                       ),
-                      const SizedBox(height: 24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Subject',
+                          style: TextStyle(
+                            color: _primaryText,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _subjectController,
+                          style: TextStyle(color: _primaryText),
+                          decoration: InputDecoration(
+                            hintText: 'Brief summary of your feedback',
+                            hintStyle: TextStyle(color: _mutedText),
+                            filled: true,
+                            fillColor: _elevatedSurface,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.white.withOpacity(0.08),
+                                width: 1,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.white.withOpacity(0.08),
+                                width: 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _primaryAccent,
+                                width: 2,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _accessoryAccent,
+                                width: 1,
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _accessoryAccent,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.all(16),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter a subject';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-                      // Description Field
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Description',
-                              style: AppTheme.bodyMedium.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _descriptionController,
-                              maxLines: 6,
-                              decoration: InputDecoration(
-                                hintText: 'Please provide detailed information...',
-                                filled: true,
-                                fillColor: AppTheme.background,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none,
-                                ),
-                                contentPadding: const EdgeInsets.all(16),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return 'Please enter a description';
-                                }
-                                if (value.trim().length < 10) {
-                                  return 'Please provide more details (at least 10 characters)';
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
-                        ),
+                  // Description Field
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: _cardSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.05),
+                        width: 1,
                       ),
-                      const SizedBox(height: 24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Description',
+                          style: TextStyle(
+                            color: _primaryText,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _descriptionController,
+                          maxLines: 6,
+                          style: TextStyle(color: _primaryText),
+                          decoration: InputDecoration(
+                            hintText: 'Please provide detailed information...',
+                            hintStyle: TextStyle(color: _mutedText),
+                            filled: true,
+                            fillColor: _elevatedSurface,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.white.withOpacity(0.08),
+                                width: 1,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.white.withOpacity(0.08),
+                                width: 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _primaryAccent,
+                                width: 2,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _accessoryAccent,
+                                width: 1,
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: _accessoryAccent,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.all(16),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter a description';
+                            }
+                            if (value.trim().length < 10) {
+                              return 'Please provide more details (at least 10 characters)';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-                      // Screenshot Attachment
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
+                  // Screenshot Attachment
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: _cardSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.05),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Screenshot',
+                              style: TextStyle(
+                                color: _primaryText,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _mutedText.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'Optional',
+                                style: TextStyle(
+                                  color: _mutedText,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Screenshot (Optional)',
-                              style: AppTheme.bodyMedium.copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
+                        const SizedBox(height: 12),
+                        if (_selectedImage == null)
+                          OutlinedButton.icon(
+                            onPressed: _pickImage,
+                            icon: const Icon(Icons.image_rounded, size: 20),
+                            label: const Text('Attach Screenshot'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: _primaryAccent,
+                              side: BorderSide(
+                                color: _primaryAccent.withOpacity(0.3),
+                                width: 1.5,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            if (_selectedImage == null)
-                              OutlinedButton.icon(
-                                onPressed: _pickImage,
-                                icon: const Icon(Icons.image),
-                                label: const Text('Attach Screenshot'),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 16,
-                                  ),
-                                  side: BorderSide(color: AppTheme.primaryBlue.withOpacity(0.3)),
-                                  foregroundColor: AppTheme.primaryBlue,
+                          )
+                        else
+                          Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(
+                                  _selectedImage!,
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
                                 ),
-                              )
-                            else
-                              Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.file(
-                                      _selectedImage!,
-                                      height: 200,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 8,
-                                    right: 8,
-                                    child: IconButton(
-                                      onPressed: _removeImage,
-                                      icon: const Icon(Icons.close),
-                                      style: IconButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: _removeImage,
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: _accessoryAccent,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.2),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 20,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Submit Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _isSubmitting ? null : _submitFeedback,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryBlue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: _isSubmitting
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : const Text(
-                                  'Submit Feedback',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
                                 ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Submit Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isSubmitting ? null : _submitFeedback,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _primaryAccent,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: _primaryAccent.withOpacity(0.5),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                        shadowColor: Colors.transparent,
+                      ).copyWith(
+                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.hovered)) {
+                              return Colors.white.withOpacity(0.1);
+                            }
+                            if (states.contains(MaterialState.pressed)) {
+                              return Colors.white.withOpacity(0.2);
+                            }
+                            return null;
+                          },
                         ),
                       ),
-                    ],
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Submit Feedback',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildTypeButton(FeedbackType type, String label, IconData icon) {
     final isSelected = _selectedType == type;
-    
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _selectedType = type;
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? type.color.withOpacity(0.1) : AppTheme.background,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? type.color : Colors.transparent,
-            width: 2,
+    final typeColor = type.getNewColor();
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedType = type;
+          });
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          decoration: BoxDecoration(
+            color: isSelected 
+                ? typeColor.withOpacity(0.15) 
+                : _elevatedSurface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected 
+                  ? typeColor
+                  : Colors.white.withOpacity(0.08),
+              width: isSelected ? 2 : 1,
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? type.color : AppTheme.textSecondary,
-              size: 28,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: AppTheme.bodySmall.copyWith(
-                color: isSelected ? type.color : AppTheme.textSecondary,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                color: isSelected ? typeColor : _secondaryText,
+                size: 28,
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? typeColor : _secondaryText,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                  fontSize: 13,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+}
+
+// Extension for new color system
+extension FeedbackTypeNewColors on FeedbackType {
+  Color getNewColor() {
+    switch (this) {
+      case FeedbackType.bug:
+        return const Color(0xFFFE637E); // Accessory Accent
+      case FeedbackType.feature:
+        return const Color(0xFF6C5BFF); // Primary Accent
+      case FeedbackType.general:
+        return const Color(0xFF00E5A8); // Secondary Accent
+    }
   }
 }

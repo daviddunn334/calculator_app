@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models/company_employee.dart';
-import '../theme/app_theme.dart';
 
 class AddEmployeeDialog extends StatefulWidget {
   final CompanyEmployee? employee;
@@ -22,10 +21,21 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   String? _selectedDivision;
   bool _useCustomTitle = false;
 
+  // New Dark Color System
+  static const Color _backgroundColor = Color(0xFF1E232A);
+  static const Color _surfaceColor = Color(0xFF242A33);
+  static const Color _cardColor = Color(0xFF2A313B);
+  static const Color _primaryText = Color(0xFFEDF9FF);
+  static const Color _secondaryText = Color(0xFFAEBBC8);
+  static const Color _mutedText = Color(0xFF7F8A96);
+  static const Color _primaryAccent = Color(0xFF6C5BFF);
+  static const Color _secondaryAccent = Color(0xFF00E5A8);
+  static const Color _accentAlert = Color(0xFFFE637E);
+
   // Employee groups as per requirements
   final List<String> _employeeGroups = [
     'Directors',
-    'Project Managers', 
+    'Project Managers',
     'Advanced NDE Technicians',
     'Senior Technicians',
     'Junior Technicians',
@@ -35,11 +45,11 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     'Admin / HR',
   ];
 
-  // Division options as per requirements  
+  // Division options as per requirements
   final List<String> _divisions = [
     'NWP',
     'MountainWest Pipe',
-    'Cypress', 
+    'Cypress',
     'Atlanta',
     'Charlottesville',
     'Princeton',
@@ -60,7 +70,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       _phoneController.text = widget.employee!.phone;
       _selectedGroup = widget.employee!.group;
       _selectedDivision = widget.employee!.division;
-      
+
       // Check if title matches group name exactly
       _useCustomTitle = _titleController.text != _selectedGroup;
     }
@@ -79,13 +89,26 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      backgroundColor: Colors.transparent,
       child: Container(
         constraints: const BoxConstraints(
           maxWidth: 500,
           maxHeight: 700,
+        ),
+        decoration: BoxDecoration(
+          color: _cardColor,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.05),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 30,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -94,17 +117,16 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppTheme.primaryBlue,
-                    AppTheme.primaryBlue.withOpacity(0.8),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: _surfaceColor,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+                  topLeft: Radius.circular(18),
+                  topRight: Radius.circular(18),
+                ),
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.white.withOpacity(0.05),
+                    width: 1,
+                  ),
                 ),
               ),
               child: Row(
@@ -112,12 +134,16 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: _primaryAccent.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _primaryAccent.withOpacity(0.3),
+                        width: 1,
+                      ),
                     ),
                     child: Icon(
                       widget.employee == null ? Icons.person_add : Icons.edit,
-                      color: Colors.white,
+                      color: _primaryAccent,
                       size: 24,
                     ),
                   ),
@@ -130,8 +156,8 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                           widget.employee == null
                               ? 'Add Employee'
                               : 'Edit Employee',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: _primaryText,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -142,7 +168,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                               ? 'Create a new employee profile'
                               : 'Update employee information',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: _secondaryText,
                             fontSize: 14,
                           ),
                         ),
@@ -151,7 +177,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: Colors.white),
+                    icon: Icon(Icons.close, color: _secondaryText),
                   ),
                 ],
               ),
@@ -194,7 +220,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                         ],
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
 
                       // Job Information Section
                       _buildSectionHeader('Job Information', Icons.work),
@@ -214,61 +240,69 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                             }
                           });
                         },
-                        validator: (value) => value == null ? 'Please select a group' : null,
+                        validator: (value) =>
+                            value == null ? 'Please select a group' : null,
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // Title Section
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _useCustomTitle 
-                              ? _buildTextField(
-                                  controller: _titleController,
-                                  label: 'Custom Title',
-                                  icon: Icons.work_outline,
-                                  validator: (value) =>
-                                      value?.isEmpty ?? true ? 'Required' : null,
-                                )
-                              : _buildTextField(
-                                  controller: _titleController,
-                                  label: 'Title',
-                                  icon: Icons.work_outline,
-                                  enabled: false,
-                                ),
+                      _buildTextField(
+                        controller: _titleController,
+                        label: _useCustomTitle ? 'Custom Title' : 'Title',
+                        icon: Icons.work_outline,
+                        enabled: _useCustomTitle,
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Required' : null,
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Container(
+                        decoration: BoxDecoration(
+                          color: _surfaceColor,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.05),
+                            width: 1,
                           ),
-                        ],
+                        ),
+                        child: CheckboxListTile(
+                          title: Text(
+                            'Use custom title',
+                            style: TextStyle(color: _primaryText, fontSize: 14),
+                          ),
+                          subtitle: Text(
+                            _useCustomTitle
+                                ? 'Enter your own title above'
+                                : 'Use selected group as title',
+                            style: TextStyle(color: _mutedText, fontSize: 12),
+                          ),
+                          value: _useCustomTitle,
+                          onChanged: (value) {
+                            setState(() {
+                              _useCustomTitle = value ?? false;
+                              if (!_useCustomTitle && _selectedGroup != null) {
+                                _titleController.text = _selectedGroup!;
+                              } else if (_useCustomTitle) {
+                                _titleController.clear();
+                              }
+                            });
+                          },
+                          controlAffinity: ListTileControlAffinity.leading,
+                          activeColor: _primaryAccent,
+                          checkColor: _primaryText,
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        ),
                       ),
-                      
-                      const SizedBox(height: 12),
 
-                      CheckboxListTile(
-                        title: const Text('Use custom title'),
-                        subtitle: Text(_useCustomTitle 
-                          ? 'Enter your own title above'
-                          : 'Use selected group as title'),
-                        value: _useCustomTitle,
-                        onChanged: (value) {
-                          setState(() {
-                            _useCustomTitle = value ?? false;
-                            if (!_useCustomTitle && _selectedGroup != null) {
-                              _titleController.text = _selectedGroup!;
-                            } else if (_useCustomTitle) {
-                              _titleController.clear();
-                            }
-                          });
-                        },
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       // Division Selection (Optional)
                       _buildDropdownField(
                         value: _selectedDivision,
-                        label: 'Division (Optional)', 
+                        label: 'Division (Optional)',
                         icon: Icons.business,
                         items: _divisions,
                         onChanged: (value) {
@@ -278,7 +312,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                         },
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 24),
 
                       // Contact Information Section
                       _buildSectionHeader('Contact Information', Icons.contact_phone),
@@ -296,7 +330,7 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                         },
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       _buildTextField(
                         controller: _phoneController,
@@ -316,13 +350,16 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.background,
+                color: _surfaceColor,
                 border: Border(
-                  top: BorderSide(color: AppTheme.divider, width: 1),
+                  top: BorderSide(
+                    color: Colors.white.withOpacity(0.05),
+                    width: 1,
+                  ),
                 ),
                 borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(18),
+                  bottomRight: Radius.circular(18),
                 ),
               ),
               child: Row(
@@ -331,21 +368,24 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppTheme.textSecondary,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      foregroundColor: _secondaryText,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 14),
                     ),
                     child: const Text('Cancel'),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   ElevatedButton(
                     onPressed: _handleSubmit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBlue,
+                      backgroundColor: _primaryAccent,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 28, vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      elevation: 0,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -355,7 +395,9 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
                           size: 18,
                         ),
                         const SizedBox(width: 8),
-                        Text(widget.employee == null ? 'Add Employee' : 'Save Changes'),
+                        Text(widget.employee == null
+                            ? 'Add Employee'
+                            : 'Save Changes'),
                       ],
                     ),
                   ),
@@ -374,21 +416,26 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBlue.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
+            color: _primaryAccent.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: _primaryAccent.withOpacity(0.3),
+              width: 1,
+            ),
           ),
           child: Icon(
             icon,
-            color: AppTheme.primaryBlue,
+            color: _primaryAccent,
             size: 20,
           ),
         ),
         const SizedBox(width: 12),
         Text(
           title,
-          style: AppTheme.titleMedium.copyWith(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: AppTheme.textPrimary,
+            color: _primaryText,
+            fontSize: 16,
           ),
         ),
       ],
@@ -408,36 +455,55 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
       keyboardType: keyboardType,
       validator: validator,
       enabled: enabled,
+      style: TextStyle(
+        color: enabled ? _primaryText : _mutedText,
+        fontSize: 14,
+      ),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: enabled ? AppTheme.textSecondary : Colors.grey),
+        labelStyle: TextStyle(
+          color: enabled ? _secondaryText : _mutedText,
+          fontSize: 14,
+        ),
+        prefixIcon: Icon(
+          icon,
+          color: enabled ? _secondaryText : _mutedText,
+          size: 20,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.divider),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.08),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.divider),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.08),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
+          borderSide: BorderSide(color: _primaryAccent, width: 2),
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade300),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.05),
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red),
+          borderSide: BorderSide(color: _accentAlert, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _accentAlert, width: 2),
         ),
         filled: true,
-        fillColor: enabled ? Colors.white : Colors.grey.shade50,
-        labelStyle: TextStyle(color: enabled ? AppTheme.textSecondary : Colors.grey),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-      style: AppTheme.bodyMedium.copyWith(
-        color: enabled ? AppTheme.textPrimary : Colors.grey,
+        fillColor: enabled ? _surfaceColor : _surfaceColor.withOpacity(0.5),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     );
   }
@@ -453,34 +519,45 @@ class _AddEmployeeDialogState extends State<AddEmployeeDialog> {
     return DropdownButtonFormField<String>(
       value: value,
       validator: validator,
+      dropdownColor: _cardColor,
+      style: TextStyle(color: _primaryText, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: AppTheme.textSecondary),
+        labelStyle: TextStyle(color: _secondaryText, fontSize: 14),
+        prefixIcon: Icon(icon, color: _secondaryText, size: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.divider),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.08),
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.divider),
+          borderSide: BorderSide(
+            color: Colors.white.withOpacity(0.08),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.primaryBlue, width: 2),
+          borderSide: BorderSide(color: _primaryAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: _accentAlert, width: 1),
         ),
         filled: true,
-        fillColor: Colors.white,
-        labelStyle: TextStyle(color: AppTheme.textSecondary),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        fillColor: _surfaceColor,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       items: items.map((item) {
         return DropdownMenuItem(
           value: item,
-          child: Text(item),
+          child: Text(item, style: TextStyle(color: _primaryText)),
         );
       }).toList(),
       onChanged: onChanged,
-      style: AppTheme.bodyMedium,
+      icon: Icon(Icons.arrow_drop_down, color: _secondaryText),
     );
   }
 

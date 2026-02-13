@@ -2,7 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart'
+    show FirebaseCrashlytics;
 import 'firebase_options.dart';
 import 'services/offline_service.dart';
 import 'services/update_service.dart';
@@ -62,14 +63,34 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     
-    // Initialize Firebase Crashlytics
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-    
-    // Pass all uncaught asynchronous errors to Crashlytics
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
+    // Initialize Firebase Crashlytics (only on supported platforms)
+    // Crashlytics is not fully supported on web, so we need to check
+    if (!kIsWeb) {
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+      
+      // Pass all uncaught asynchronous errors to Crashlytics
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    } else {
+      // On web, just log errors to console
+      FlutterError.onError = (FlutterErrorDetails details) {
+        FlutterError.presentError(details);
+        if (kDebugMode) {
+          print('[Error] ${details.exception}');
+          print('[Stack] ${details.stack}');
+        }
+      };
+      
+      PlatformDispatcher.instance.onError = (error, stack) {
+        if (kDebugMode) {
+          print('[Async Error] $error');
+          print('[Stack] $stack');
+        }
+        return true;
+      };
+    }
     
     // Initialize AuthService with persistence
     final authService = AuthService();
@@ -193,7 +214,7 @@ class AuthGate extends StatelessWidget {
             // Show loading indicator while checking auth state
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Scaffold(
-                backgroundColor: AppTheme.background,
+                backgroundColor: Color(0xFF0F172A),
                 body: Center(
                   child: LoadingLogo(),
                 ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' show pi;
-import '../theme/app_theme.dart';
 
 class TimeClockCalculator extends StatefulWidget {
   const TimeClockCalculator({super.key});
@@ -111,19 +110,29 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppTheme.paddingLarge),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-              side: const BorderSide(color: AppTheme.divider),
+    return Scaffold(
+      backgroundColor: const Color(0xFF1E232A),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF2A313B),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.05),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(AppTheme.paddingLarge),
+              padding: const EdgeInsets.all(28.0),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -132,35 +141,62 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_back),
+                          icon: const Icon(Icons.arrow_back, color: Color(0xFFEDF9FF)),
                           onPressed: () => Navigator.pop(context),
-                          color: AppTheme.textPrimary,
                         ),
                         Expanded(
                           child: Column(
                             children: [
-                              Text(
+                              const Text(
                                 'Time Clock Calculator',
-                                style: AppTheme.titleLarge.copyWith(
+                                style: TextStyle(
+                                  fontSize: 24,
                                   fontWeight: FontWeight.w700,
+                                  color: Color(0xFFEDF9FF),
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Convert between distance and clock position',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: const Color(0xFFAEBBC8),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ],
                           ),
                         ),
                         const SizedBox(width: 48),
                       ],
                     ),
-                    const SizedBox(height: AppTheme.paddingLarge),
+                    const SizedBox(height: 32),
                     TextFormField(
                       controller: _odController,
-                      decoration: const InputDecoration(
+                      style: const TextStyle(color: Color(0xFFEDF9FF)),
+                      decoration: InputDecoration(
                         labelText: 'Pipe OD',
+                        labelStyle: const TextStyle(color: Color(0xFFAEBBC8)),
                         hintText: 'Enter pipe outside diameter',
+                        hintStyle: const TextStyle(color: Color(0xFF7F8A96)),
                         suffixText: 'inches',
-                        prefixIcon: Icon(Icons.straighten),
+                        suffixStyle: const TextStyle(color: Color(0xFFAEBBC8)),
+                        prefixIcon: const Icon(Icons.straighten, color: Color(0xFF6C5BFF)),
+                        filled: true,
+                        fillColor: const Color(0xFF242A33),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Color(0xFF6C5BFF), width: 2),
+                        ),
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
@@ -173,14 +209,32 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: AppTheme.paddingMedium),
+                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _distanceController,
-                      decoration: const InputDecoration(
+                      style: const TextStyle(color: Color(0xFFEDF9FF)),
+                      decoration: InputDecoration(
                         labelText: 'Distance from TDC',
+                        labelStyle: const TextStyle(color: Color(0xFFAEBBC8)),
                         hintText: 'Enter distance from top dead center',
+                        hintStyle: const TextStyle(color: Color(0xFF7F8A96)),
                         suffixText: 'inches',
-                        prefixIcon: Icon(Icons.arrow_forward),
+                        suffixStyle: const TextStyle(color: Color(0xFFAEBBC8)),
+                        prefixIcon: const Icon(Icons.arrow_forward, color: Color(0xFF00E5A8)),
+                        filled: true,
+                        fillColor: const Color(0xFF242A33),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Color(0xFF6C5BFF), width: 2),
+                        ),
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
@@ -193,13 +247,30 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: AppTheme.paddingMedium),
+                    const SizedBox(height: 20),
                     TextFormField(
                       controller: _clockController,
-                      decoration: const InputDecoration(
+                      style: const TextStyle(color: Color(0xFFEDF9FF)),
+                      decoration: InputDecoration(
                         labelText: 'Clock',
+                        labelStyle: const TextStyle(color: Color(0xFFAEBBC8)),
                         hintText: 'Enter clock position (e.g., 3:15)',
-                        prefixIcon: Icon(Icons.access_time),
+                        hintStyle: const TextStyle(color: Color(0xFF7F8A96)),
+                        prefixIcon: const Icon(Icons.access_time, color: Color(0xFFF8B800)),
+                        filled: true,
+                        fillColor: const Color(0xFF242A33),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.white.withOpacity(0.08)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(color: Color(0xFF6C5BFF), width: 2),
+                        ),
                       ),
                       validator: (value) {
                         if (_distanceController.text.isEmpty && (value == null || value.isEmpty)) {
@@ -214,109 +285,130 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
                       },
                     ),
                     if (_errorMessage != null) ...[
-                      const SizedBox(height: AppTheme.paddingMedium),
+                      const SizedBox(height: 20),
                       Container(
-                        padding: const EdgeInsets.all(AppTheme.paddingMedium),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                          color: const Color(0xFFFE637E).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: const Color(0xFFFE637E).withOpacity(0.3),
+                          ),
                         ),
-                        child: Text(
-                          _errorMessage!,
-                          style: const TextStyle(color: Colors.red),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.error_outline, color: Color(0xFFFE637E), size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _errorMessage!,
+                                style: const TextStyle(
+                                  color: Color(0xFFFE637E),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                    const SizedBox(height: AppTheme.paddingLarge),
+                    const SizedBox(height: 32),
                     if (_clockPosition != null) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryBlue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Clock Position',
-                                  style: AppTheme.titleLarge.copyWith(color: AppTheme.primaryBlue),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: AppTheme.paddingMedium),
-                                Text(
-                                  _clockPosition!,
-                                  style: AppTheme.headlineLarge.copyWith(
-                                    color: AppTheme.primaryBlue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
+                      Container(
+                        padding: const EdgeInsets.all(28),
+                        margin: const EdgeInsets.only(bottom: 24),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF242A33),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xFF00E5A8).withOpacity(0.3),
+                            width: 1,
                           ),
-                        ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Clock Position',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF00E5A8),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _clockPosition!,
+                              style: const TextStyle(
+                                fontSize: 48,
+                                color: Color(0xFF00E5A8),
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: AppTheme.paddingLarge),
                     ],
                     if (_calculatedDistance != null) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryBlue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Distance from TDC',
-                                  style: AppTheme.titleLarge.copyWith(color: AppTheme.primaryBlue),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: AppTheme.paddingMedium),
-                                Text(
-                                  '$_calculatedDistance inches',
-                                  style: AppTheme.headlineLarge.copyWith(
-                                    color: AppTheme.primaryBlue,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
+                      Container(
+                        padding: const EdgeInsets.all(28),
+                        margin: const EdgeInsets.only(bottom: 24),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF242A33),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xFF6C5BFF).withOpacity(0.3),
+                            width: 1,
                           ),
-                        ],
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Distance from TDC',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF6C5BFF),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '$_calculatedDistance"',
+                              style: const TextStyle(
+                                fontSize: 42,
+                                color: Color(0xFF6C5BFF),
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: AppTheme.paddingLarge),
                     ],
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton.icon(
+                      child: ElevatedButton(
                         onPressed: _calculate,
-                        icon: const Icon(Icons.arrow_forward),
-                        label: const Text(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6C5BFF),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
                           'Calculate',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBlue,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppTheme.paddingMedium,
-                      horizontal: AppTheme.paddingLarge,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                    ),
                         ),
                       ),
                     ),
@@ -325,33 +417,8 @@ class _TimeClockCalculatorState extends State<TimeClockCalculator> {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTag(String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color,
-          width: 1,
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
         ),
       ),
     );
   }
-} 
+}

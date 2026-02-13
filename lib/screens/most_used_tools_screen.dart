@@ -5,7 +5,6 @@ import '../calculators/time_clock_calculator.dart';
 import '../calculators/dent_ovality_calculator.dart';
 import '../calculators/b31g_calculator.dart';
 import '../calculators/depth_percentages_calculator.dart';
-import '../theme/app_theme.dart';
 import '../widgets/app_header.dart';
 import '../widgets/offline_indicator.dart';
 import '../services/offline_service.dart';
@@ -28,67 +27,67 @@ class _MostUsedToolsScreenState extends State<MostUsedToolsScreen> with SingleTi
   
   final List<Map<String, dynamic>> _calculators = [
     {
-      'title': '📐 ABS + ES Calculator',
+      'title': 'ABS + ES Calculator',
       'icon': Icons.calculate_outlined,
       'description': 'Calculate ABS and ES values',
       'tags': ['Offset', 'Distance', 'RGW'],
-      'color': Color(0xFF3F51B5), // Indigo
+      'color': Color(0xFF6C5BFF), // Primary accent
       'route': const AbsEsCalculator(),
     },
     {
-      'title': '📏 Pit Depth Calculator',
+      'title': 'Pit Depth Calculator',
       'icon': Icons.height_outlined,
       'description': 'Calculate pit depths and measurements',
       'tags': ['Corrosion', 'Wall Loss', 'Remaining'],
-      'color': Color(0xFF009688), // Teal
+      'color': Color(0xFF00E5A8), // Secondary accent
       'route': const PitDepthCalculator(),
     },
     {
-      'title': '🕐 Time Clock Calculator',
+      'title': 'Time Clock Calculator',
       'icon': Icons.access_time_outlined,
       'description': 'Track and calculate work hours',
       'tags': ['Clock Position', 'Distance', 'Conversion'],
-      'color': Color(0xFF673AB7), // Deep Purple
+      'color': Color(0xFF6C5BFF), // Primary accent
       'route': const TimeClockCalculator(),
     },
     {
-      'title': '⭕ Dent Ovality Calculator',
+      'title': 'Dent Ovality Calculator',
       'icon': Icons.circle_outlined,
       'description': 'Calculate dent ovality percentage',
       'tags': ['Dent', 'Deformation', 'Percentage'],
-      'color': Color(0xFFE91E63), // Pink
+      'color': Color(0xFFFE637E), // Accessory accent
       'route': const DentOvalityCalculator(),
     },
     {
-      'title': '🔧 B31G Calculator',
+      'title': 'B31G Calculator',
       'icon': Icons.engineering_outlined,
       'description': 'Calculate pipe defect assessment using B31G method',
       'tags': ['Corrosion', 'Assessment', 'ASME'],
-      'color': Color(0xFF2196F3), // Blue
+      'color': Color(0xFF00E5A8), // Secondary accent
       'route': const B31GCalculator(),
     },
     {
-      'title': '📊 Corrosion Grid Logger',
+      'title': 'Corrosion Grid Logger',
       'icon': Icons.grid_on_outlined,
       'description': 'Log and export corrosion grid data for RSTRENG',
       'tags': ['Grid', 'RSTRENG', 'Export'],
-      'color': Color(0xFFFF9800), // Orange
+      'color': Color(0xFFF8B800), // Accessory accent
       'route': const CorrosionGridLoggerScreen(),
     },
     {
-      'title': '📄 PDF to Excel Converter',
+      'title': 'PDF to Excel Converter',
       'icon': Icons.picture_as_pdf_outlined,
       'description': 'Convert hardness PDF files to Excel format',
       'tags': ['PDF', 'Excel', 'Hardness', 'Convert'],
-      'color': Color(0xFF4CAF50), // Green
+      'color': Color(0xFF00E5A8), // Secondary accent
       'route': const PdfToExcelScreen(),
     },
     {
-      'title': '📈 Depth Percentages Chart',
+      'title': 'Depth Percentages Chart',
       'icon': Icons.analytics_outlined,
       'description': 'Visualize and analyze depth percentages for inspection data',
       'tags': ['Charts', 'Analysis', 'Visualization', 'Depth'],
-      'color': Color(0xFF9C27B0), // Purple
+      'color': Color(0xFF6C5BFF), // Primary accent
       'route': const DepthPercentagesCalculator(),
     },
   ];
@@ -98,7 +97,7 @@ class _MostUsedToolsScreenState extends State<MostUsedToolsScreen> with SingleTi
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 600),
     );
     
     _fadeAnimation = CurvedAnimation(
@@ -107,7 +106,7 @@ class _MostUsedToolsScreenState extends State<MostUsedToolsScreen> with SingleTi
     );
     
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.05),
+      begin: const Offset(0, 0.02),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
@@ -136,174 +135,132 @@ class _MostUsedToolsScreenState extends State<MostUsedToolsScreen> with SingleTi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      body: Stack(
-        children: [
-          // Background design elements
-          Positioned(
-            top: -120,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.primaryBlue.withOpacity(0.03),
-              ),
+      backgroundColor: const Color(0xFF1E232A),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Offline indicator
+            OfflineIndicator(
+              message: 'You are offline. Calculator tools will work without internet.',
             ),
-          ),
-          Positioned(
-            bottom: -80,
-            left: -80,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.accent2.withOpacity(0.05),
+            if (MediaQuery.of(context).size.width >= 1200)
+              const AppHeader(
+                title: 'Most Used Tools',
+                subtitle: 'Most frequently used NDT calculation tools',
+                icon: Icons.star,
               ),
-            ),
-          ),
-          
-          // Main content
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Offline indicator
-                OfflineIndicator(
-                  message: 'You are offline. Calculator tools will work without internet.',
-                ),
-                if (MediaQuery.of(context).size.width >= 1200)
-                  const AppHeader(
-                    title: 'Most Used Tools',
-                    subtitle: 'Most frequently used NDT calculation tools',
-                    icon: Icons.star,
-                  ),
-                Expanded(
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppTheme.paddingLarge),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Title section
-                            if (MediaQuery.of(context).size.width < 1200)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppTheme.paddingLarge,
-                                  vertical: AppTheme.paddingMedium,
-                                ),
-                                margin: const EdgeInsets.only(bottom: 24),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(AppTheme.paddingMedium),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            AppTheme.primaryBlue,
-                                            AppTheme.primaryBlue.withOpacity(0.8),
-                                          ],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: AppTheme.primaryBlue.withOpacity(0.3),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: const Icon(
-                                        Icons.star_rounded,
-                                        size: 32,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(width: AppTheme.paddingLarge),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Most Used Tools',
-                                            style: AppTheme.titleLarge.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: AppTheme.textPrimary,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'Most frequently used NDT calculation tools',
-                                            style: AppTheme.bodyMedium.copyWith(
-                                              color: AppTheme.textSecondary,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title section for mobile
+                        if (MediaQuery.of(context).size.width < 1200)
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            margin: const EdgeInsets.only(bottom: 24),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2A313B),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.05),
+                                width: 1,
                               ),
-                            
-                            // Tools grid
-                            Expanded(
-                              child: GridView.builder(
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: MediaQuery.of(context).size.width > 900 ? 2 : 1,
-                                  childAspectRatio: 2.2,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
                                 ),
-                                itemCount: _calculators.length,
-                                itemBuilder: (context, index) {
-                                  final calculator = _calculators[index];
-                                  return _buildCalculatorCard(
-                                    context,
-                                    calculator['title'],
-                                    calculator['icon'],
-                                    calculator['description'],
-                                    calculator['tags'],
-                                    calculator['color'],
-                                    () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => calculator['route'],
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF6C5BFF),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Icon(
+                                    Icons.star_rounded,
+                                    size: 28,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                const Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Most Used Tools',
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFFEDF9FF),
                                         ),
-                                      );
-                                    },
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Most frequently used NDT calculation tools',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFFAEBBC8),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        
+                        // Tools grid
+                        Expanded(
+                          child: GridView.builder(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: MediaQuery.of(context).size.width > 900 ? 2 : 1,
+                              childAspectRatio: 2.2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                            ),
+                            itemCount: _calculators.length,
+                            itemBuilder: (context, index) {
+                              final calculator = _calculators[index];
+                              return _buildCalculatorCard(
+                                context,
+                                calculator['title'],
+                                calculator['icon'],
+                                calculator['description'],
+                                calculator['tags'],
+                                calculator['color'],
+                                () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => calculator['route'],
+                                    ),
                                   );
                                 },
-                              ),
-                            ),
-                          ],
+                              );
+                            },
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -317,88 +274,92 @@ class _MostUsedToolsScreenState extends State<MostUsedToolsScreen> with SingleTi
     Color color,
     VoidCallback onTap,
   ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-        side: BorderSide(color: AppTheme.divider, width: 1.5),
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              spreadRadius: 1,
-              offset: const Offset(0, 4),
-            ),
-          ],
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A313B),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.05),
+          width: 1,
         ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(AppTheme.radiusLarge),
-            child: Padding(
-              padding: const EdgeInsets.all(AppTheme.paddingMedium),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                        ),
-                        child: Icon(
-                          icon,
-                          size: 24,
-                          color: color,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              style: AppTheme.titleMedium.copyWith(
-                                color: AppTheme.textPrimary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              description,
-                              style: AppTheme.bodyMedium.copyWith(
-                                color: AppTheme.textSecondary,
-                              ),
-                            ),
-                          ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: color.withOpacity(0.3),
+                          width: 1,
                         ),
                       ),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
+                      child: Icon(
+                        icon,
+                        size: 24,
                         color: color,
                       ),
-                    ],
-                  ),
-                  if (tags.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: tags.map((tag) => _buildTag(tag, color)).toList(),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFFEDF9FF),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            description,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFFAEBBC8),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: color,
                     ),
                   ],
+                ),
+                if (tags.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: tags.map((tag) => _buildTag(tag, color)).toList(),
+                  ),
                 ],
-              ),
+              ],
             ),
           ),
         ),
@@ -410,17 +371,21 @@ class _MostUsedToolsScreenState extends State<MostUsedToolsScreen> with SingleTi
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 10,
-        vertical: 4,
+        vertical: 5,
       ),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
       ),
       child: Text(
         label,
         style: TextStyle(
           color: color,
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w500,
         ),
       ),

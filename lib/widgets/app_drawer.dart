@@ -20,45 +20,60 @@ class AppDrawer extends StatelessWidget {
     final authService = AuthService();
     
     return Container(
-      color: Colors.white,
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E232A), // Main background
+        border: Border(
+          right: BorderSide(
+            color: Colors.white.withOpacity(0.05),
+            width: 1,
+          ),
+        ),
+      ),
       child: Column(
         children: [
           // Header
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
             decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient,
-              boxShadow: [
-                BoxShadow(
-                  color: AppTheme.primaryNavy.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+              color: const Color(0xFF242A33), // Slightly elevated surface
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.white.withOpacity(0.05),
+                  width: 1,
                 ),
-              ],
+              ),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Company Text Logo
-                Container(
-                  width: 200,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                // Brand Logo
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
                   child: Image.asset(
-                    'assets/logos/logo_text_final.png',
+                    'assets/logos/logo_main_white.png',
+                    width: 84,
+                    height: 84,
                     fit: BoxFit.contain,
                   ),
                 ),
-                const SizedBox(height: 12),
-                // Tagline
+                const SizedBox(height: 16),
                 Text(
-                  'Our people are trained to be the difference.',
+                  'Integrity Tools',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.85),
-                    fontSize: 11,
-                    letterSpacing: 0.2,
-                    fontStyle: FontStyle.italic,
+                    color: const Color(0xFFEDF9FF), // Primary text
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
                   ),
-                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Professional NDT Suite',
+                  style: TextStyle(
+                    color: const Color(0xFFAEBBC8), // Secondary text
+                    fontSize: 12,
+                    letterSpacing: 0.3,
+                  ),
                 ),
               ],
             ),
@@ -143,20 +158,23 @@ class AppDrawer extends StatelessWidget {
                   isLargeScreen,
                 ),
                 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Divider(
+                    height: 1,
+                    color: Colors.white.withOpacity(0.05),
+                  ),
                 ),
                 
-                const Padding(
-                  padding: EdgeInsets.only(left: 16, top: 8, bottom: 4),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
                   child: Text(
                     'PROFESSIONAL',
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textSecondary,
-                      letterSpacing: 1.2,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF7F8A96), // Muted text
+                      letterSpacing: 1.5,
                     ),
                   ),
                 ),
@@ -202,32 +220,39 @@ class AppDrawer extends StatelessWidget {
                   isLargeScreen,
                 ),
                 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Divider(
+                    height: 1,
+                    color: Colors.white.withOpacity(0.05),
+                  ),
                 ),
                 
-                const Padding(
-                  padding: EdgeInsets.only(left: 16, top: 8, bottom: 4),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, top: 16, bottom: 8),
                   child: Text(
                     'LEGAL',
                     style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textSecondary,
-                      letterSpacing: 1.2,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF7F8A96), // Muted text
+                      letterSpacing: 1.5,
                     ),
                   ),
                 ),
                 
                 ListTile(
-                  leading: Icon(Icons.gavel_outlined, color: AppTheme.textSecondary, size: 22),
+                  leading: Icon(
+                    Icons.gavel_outlined,
+                    color: const Color(0xFFAEBBC8), // Secondary text
+                    size: 22,
+                  ),
                   title: Text(
                     'Terms of Service',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: AppTheme.textPrimary,
+                      color: const Color(0xFFEDF9FF), // Primary text
                     ),
                   ),
                   dense: true,
@@ -241,13 +266,17 @@ class AppDrawer extends StatelessWidget {
                 ),
                 
                 ListTile(
-                  leading: Icon(Icons.privacy_tip_outlined, color: AppTheme.textSecondary, size: 22),
+                  leading: Icon(
+                    Icons.privacy_tip_outlined,
+                    color: const Color(0xFFAEBBC8), // Secondary text
+                    size: 22,
+                  ),
                   title: Text(
                     'Privacy Policy',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
-                      color: AppTheme.textPrimary,
+                      color: const Color(0xFFEDF9FF), // Primary text
                     ),
                   ),
                   dense: true,
@@ -269,9 +298,12 @@ class AppDrawer extends StatelessWidget {
                     
                     return Column(
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: Divider(height: 1),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Divider(
+                            height: 1,
+                            color: Colors.white.withOpacity(0.05),
+                          ),
                         ),
                         _buildMenuItem(
                           context,
@@ -303,38 +335,59 @@ class AppDrawer extends StatelessWidget {
           // Logout Button
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                try {
-                  await authService.signOut();
-                  if (context.mounted) {
-                    Navigator.of(context).pushReplacementNamed('/login');
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error signing out: $e'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                }
-              },
-              icon: const Icon(Icons.logout, color: Colors.white, size: 20),
-              label: const Text(
-                'Logout',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
+            padding: const EdgeInsets.all(20),
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFFE637E).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFFE637E).withOpacity(0.3),
+                  width: 1,
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade600,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () async {
+                    try {
+                      await authService.signOut();
+                      if (context.mounted) {
+                        Navigator.of(context).pushReplacementNamed('/login');
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error signing out: $e'),
+                            backgroundColor: const Color(0xFFFE637E),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.logout,
+                          color: const Color(0xFFFE637E),
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: const Color(0xFFFE637E),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -356,36 +409,66 @@ class AppDrawer extends StatelessWidget {
     final isSelected = index == selectedIndex;
     
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        color: isSelected ? AppTheme.primaryBlue.withOpacity(0.1) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        color: isSelected
+            ? const Color(0xFF6C5BFF).withOpacity(0.12)
+            : Colors.transparent,
+        border: isSelected
+            ? Border.all(
+                color: const Color(0xFF6C5BFF).withOpacity(0.3),
+                width: 1,
+              )
+            : null,
       ),
-      child: ListTile(
-        leading: Icon(
-          isSelected ? filledIcon : outlinedIcon,
-          color: isSelected ? AppTheme.primaryBlue : AppTheme.textSecondary,
-          size: 22,
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-            color: isSelected ? AppTheme.primaryBlue : AppTheme.textPrimary,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap ?? () {
+            if (!isLargeScreen) {
+              Navigator.pop(context);
+            }
+            onItemSelected(index);
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Icon(
+                  isSelected ? filledIcon : outlinedIcon,
+                  color: isSelected
+                      ? const Color(0xFF6C5BFF) // Primary accent
+                      : const Color(0xFFAEBBC8), // Secondary text
+                  size: 22,
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected
+                          ? const Color(0xFFEDF9FF) // Primary text
+                          : const Color(0xFFAEBBC8), // Secondary text
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  Container(
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C5BFF), // Primary accent
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-        ),
-        dense: true,
-        visualDensity: const VisualDensity(horizontal: 0, vertical: -1),
-        onTap: onTap ?? () {
-          if (!isLargeScreen) {
-            Navigator.pop(context);
-          }
-          onItemSelected(index);
-        },
       ),
     );
   }
