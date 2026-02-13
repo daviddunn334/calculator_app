@@ -3,8 +3,12 @@ import '../services/offline_service.dart';
 import 'beam_geometry_category_screen.dart';
 import 'snells_law_suite_category_screen.dart';
 import 'array_geometry_category_screen.dart';
+import 'focal_law_tools_category_screen.dart';
 import 'pipeline_specific_category_screen.dart';
 import 'field_productivity_category_screen.dart';
+import 'geometry_math_category_screen.dart';
+import 'materials_metallurgy_category_screen.dart';
+import 'magnetic_particle_category_screen.dart';
 
 class ToolsScreen extends StatefulWidget {
   const ToolsScreen({super.key});
@@ -88,13 +92,6 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
       'description': 'Time-saving tools and utilities for field work',
       'tags': ['Productivity', 'Field', 'Utilities'],
       'color': Color(0xFFF8B800),
-    },
-    {
-      'title': 'Radiography',
-      'icon': Icons.camera_outlined,
-      'description': 'RT inspection tools and reference materials',
-      'tags': ['RT', 'X-Ray', 'Film'],
-      'color': Color(0xFF6C5BFF),
     },
     {
       'title': 'Materials & Metallurgy Tools',
@@ -211,49 +208,54 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                 opacity: _fadeAnimation,
                 child: SlideTransition(
                   position: _slideAnimation,
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Header Section
-                        _buildHeader(context),
-                        const SizedBox(height: 32),
-                        
-                        // Tools Grid
-                        Expanded(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              final crossAxisCount = constraints.maxWidth > 900 ? 2 : 1;
-                              final cardWidth = (constraints.maxWidth - 20) / crossAxisCount;
-                              final cardHeight = cardWidth / (constraints.maxWidth > 900 ? 2.8 : 2.5);
-                              
-                              return GridView.builder(
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: crossAxisCount,
-                                  childAspectRatio: constraints.maxWidth > 900 ? 2.8 : 2.5,
-                                  crossAxisSpacing: 20,
-                                  mainAxisSpacing: 20,
-                                ),
-                                itemCount: _toolCategories.length,
-                                itemBuilder: (context, index) {
-                                  final category = _toolCategories[index];
-                                  return _buildToolCategoryCard(
-                                    context,
-                                    category['title'],
-                                    category['icon'],
-                                    category['description'],
-                                    category['tags'],
-                                    category['color'],
-                                    () => _handleCategoryTap(context, index, category),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isMobile = constraints.maxWidth <= 900;
+                      return Padding(
+                        padding: EdgeInsets.all(isMobile ? 16.0 : 24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Header Section
+                            _buildHeader(context),
+                            const SizedBox(height: 32),
+                            
+                            // Tools Grid
+                            Expanded(
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final crossAxisCount = constraints.maxWidth > 900 ? 2 : 1;
+                                  final isMobile = constraints.maxWidth <= 900;
+                                  
+                                  return GridView.builder(
+                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: crossAxisCount,
+                                      childAspectRatio: isMobile ? 1.8 : 2.8,
+                                      crossAxisSpacing: 20,
+                                      mainAxisSpacing: 20,
+                                    ),
+                                    itemCount: _toolCategories.length,
+                                    itemBuilder: (context, index) {
+                                      final category = _toolCategories[index];
+                                      return _buildToolCategoryCard(
+                                        context,
+                                        category['title'],
+                                        category['icon'],
+                                        category['description'],
+                                        category['tags'],
+                                        category['color'],
+                                        () => _handleCategoryTap(context, index, category),
+                                        isMobile: isMobile,
+                                      );
+                                    },
                                   );
                                 },
-                              );
-                            },
-                          ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -348,8 +350,9 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
     String description,
     List<String> tags,
     Color accentColor,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    bool isMobile = false,
+  }) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: AnimatedContainer(
@@ -380,7 +383,6 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   // Header row with icon and arrow
                   Row(
@@ -412,43 +414,37 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: isMobile ? 16 : 10),
                   
-                  // Title and description
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                            color: _textPrimary,
-                            height: 1.2,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 5),
-                        Flexible(
-                          child: Text(
-                            description,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: _textSecondary,
-                              height: 1.4,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                  // Title
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: isMobile ? 18 : 17,
+                      fontWeight: FontWeight.w600,
+                      color: _textPrimary,
+                      height: 1.3,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // Description
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: isMobile ? 13 : 12,
+                      color: _textSecondary,
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   
-                  const SizedBox(height: 10),
+                  const Spacer(),
+                  
+                  SizedBox(height: isMobile ? 12 : 10),
                   
                   // Tags
                   if (tags.isNotEmpty)
@@ -521,6 +517,22 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
           builder: (context) => const ArrayGeometryCategoryScreen(),
         ),
       );
+    } else if (index == 3) {
+      // Focal Law Tools
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const FocalLawToolsCategoryScreen(),
+        ),
+      );
+    } else if (index == 6) {
+      // Magnetic Particle
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MagneticParticleCategoryScreen(),
+        ),
+      );
     } else if (index == 7) {
       // Field Productivity Tools
       Navigator.push(
@@ -529,12 +541,28 @@ class _ToolsScreenState extends State<ToolsScreen> with SingleTickerProviderStat
           builder: (context) => const FieldProductivityCategoryScreen(),
         ),
       );
-    } else if (index == 10) {
+    } else if (index == 8) {
+      // Materials & Metallurgy Tools
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MaterialsMetallurgyCategoryScreen(),
+        ),
+      );
+    } else if (index == 9) {
       // Pipeline-Specific
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => const PipelineSpecificCategoryScreen(),
+        ),
+      );
+    } else if (index == 10) {
+      // Geometry & Math Reference
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const GeometryMathCategoryScreen(),
         ),
       );
     } else {
